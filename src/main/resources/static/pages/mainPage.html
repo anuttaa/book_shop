@@ -164,5 +164,15 @@
         </footer>
     </div>
 </div>
+
+<script>
+    // Обработка ошибок загрузки картинок
+    document.addEventListener('error', function(e) {
+        if (e.target.tagName === 'DIV' && e.target.style.backgroundImage) {
+            console.warn('Failed to load background image:', e.target.style.backgroundImage);
+            e.target.style.backgroundImage = "url('/images/default-book.jpg')";
+        }
+    }, true);
+</script>
 </body>
 </html>

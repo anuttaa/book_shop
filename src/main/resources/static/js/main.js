@@ -99,15 +99,25 @@ async function loadBooksFromDB() {
         console.log('Books loaded from DB:', allBooks);
 
         if (allBooks && allBooks.length > 0) {
+            // Обрабатываем книги - добавляем вычисленный рейтинг если его нет
+            const processedBooks = allBooks.map(book => ({
+                ...book,
+                rating: book.rating || calculateRatingFromReviews(book.reviews),
+                reviewCount: book.reviews ? book.reviews.length : 0
+            }));
+
             // Разделяем книги на рекомендованные и популярные
-            const recommended = allBooks.slice(0, 5); // Первые 5 как рекомендованные
-            const popular = allBooks.slice(5, 10); // Следующие 5 как популярные
+            const recommended = processedBooks.slice(0, 5);
+            const popular = processedBooks
+                .sort((a, b) => (b.timesAddedToCart || 0) - (a.timesAddedToCart || 0))
+                .slice(0, 5);
 
             console.log('Recommended books:', recommended);
             console.log('Popular books:', popular);
 
-            displayBooks('recommended-books', recommended);
-            displayBooks('popular-books', popular);
+            // Асинхронно отображаем книги с загрузкой картинок
+            await displayBooks('recommended-books', recommended);
+            await displayBooks('popular-books', popular);
 
             // Скрыть демо-книги если они есть
             hideDemoBooks();
@@ -122,6 +132,15 @@ async function loadBooksFromDB() {
         // Показать демо-книги в случае ошибки
         showDemoBooks();
     }
+}
+
+// Вспомогательная функция для расчета рейтинга из отзывов
+function calculateRatingFromReviews(reviews) {
+    if (!reviews || reviews.length === 0) {
+        return 0.0;
+    }
+    const sum = reviews.reduce((total, review) => total + (review.rating || 0), 0);
+    return Math.round((sum / reviews.length) * 10) / 10;
 }
 
 // Скрыть демо-книги
@@ -140,7 +159,7 @@ function hideDemoBooks() {
 }
 
 // Показать демо-книги (запасной вариант)
-function showDemoBooks() {
+async function showDemoBooks() {
     const demoBooks = [
         {
             id: 1,
@@ -148,6 +167,8 @@ function showDemoBooks() {
             author: "Matt Haig",
             price: 15.99,
             rating: 4.5,
+            reviewCount: 128,
+            media: [],
             imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuC-w23gKHZ7L-g68tShIWLOodXHQ2bXWx7GqQRKOsZumdQJV-AcXJScvr_tcJf7VrA04iSBrFsJ0pkWe2SZrWT6_9M5RUGaGjTJDcJyD3i66bK4oM6RDSsa5WTHhijfOXpXr-lpoiVWZQ6b9g-fKASQzeEF8Awg_eambMHDst_8BUJzlaUVMK9FE-7OLlDQS6VQl0IqFyGiX9ai5xCNBjsCm0NJYs3ujZGtNyssmUCyY7pHuYzFFMh1_MJi5GnCivP33Lm-j67znpU"
         },
         {
@@ -156,6 +177,8 @@ function showDemoBooks() {
             author: "Andy Weir",
             price: 18.50,
             rating: 4.9,
+            reviewCount: 95,
+            media: [],
             imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDakzEzV9f4cf7X3NsNhckFbnRh_79tgXQyHWLsnQjTH42l1GmnHmP8A9hdigwZ8IoP-V81M36n31IgYIc1K4P4SUsWOGLI-WCIpH933dBzlw2hiHPSawucbbOPt_DaK7eKqahwCQX-Ve_8Q67z5JXGtI-M47mIhV6UjF8PmUe5dsENOWGy8CTvRMfNnZBuc9c6EeqEADYALHnfK-WbXaZKYwZVzlGbznkuHqkLpg2sGYPyHA-oCM9bSP__akhYop5XD6Aj24Gt50M"
         },
         {
@@ -164,6 +187,8 @@ function showDemoBooks() {
             author: "Frank Herbert",
             price: 10.99,
             rating: 4.7,
+            reviewCount: 203,
+            media: [],
             imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAoO5oKgzFC6TJgLiD8QJerdUvQ9B6TsIGE2vsukf8VBbc_i1_LT5JbK-9JX97KhzgxHSfetVuXFG1CUWgnROD1bapmtta5wePGDXpZdVe2-jUBX68n67AQf6pw1kWJTbrFOgrByjiXLCr0sgCHSMltNYa9szEgOYsMG1V7-4HbfN48npQz8OvluU4oUJf05c5oxWBeGTKWFUtwDGYRfpvSSmMp89z4zUdpDBuNh7lxRX89ISS2cO3TbjfboJothNgIxK5GcxkMlsk"
         },
         {
@@ -172,16 +197,18 @@ function showDemoBooks() {
             author: "Brit Bennett",
             price: 16.20,
             rating: 4.4,
+            reviewCount: 87,
+            media: [],
             imageUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuDMv46CuSmDfoUVlCRNFJe9W1z8pKQovW_Uxp-1I0ixuIRuab3KB0I5BXdLnDuFVN_QWBrjTwaUWMUD8cNEdN2HA6Fx8ttWr4sirjwPbS-994MUq1WQy-RwYIK5gRM5qUtgRe2qv-DHRVSgdozjHvtcCdl9XWgaxKct5jqAfCl7dLQcwcGlxaizmIBVP-WILcBNzy0jrZlcgze2ZRbTvRbtD_D72a3Owq1y757i23d6yYHdy_OFcVDPGHhJ1iewupH44z6ZTSwP-B8"
         }
     ];
 
-    displayBooks('recommended-books', demoBooks.slice(0, 2));
-    displayBooks('popular-books', demoBooks.slice(2, 4));
+    await displayBooks('recommended-books', demoBooks.slice(0, 2));
+    await displayBooks('popular-books', demoBooks.slice(2, 4));
 }
 
 // Отобразить книги
-function displayBooks(containerId, books) {
+async function displayBooks(containerId, books) {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error('Container not found:', containerId);
@@ -193,33 +220,59 @@ function displayBooks(containerId, books) {
         return;
     }
 
-    container.innerHTML = books.map(book => `
-        <div class="group relative flex h-full flex-col rounded-lg bg-white dark:bg-gray-800 shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-shadow hover:shadow-lg cursor-pointer" onclick="openBookPage(${book.id})">
-            <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover bg-gray-200"
-                 style="background-image: url('${getBookCover(book)}')"
-                 data-alt="Book cover for ${book.title}">
-            </div>
-            <div class="absolute inset-0 bg-black/50 group-hover:flex hidden flex-col justify-end p-4">
-                <button onclick="event.stopPropagation(); addToCart(${book.id})" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] mb-2 hover:bg-primary/90 transition-colors">
-                    <span class="truncate">Add to Cart</span>
-                </button>
-                <button onclick="event.stopPropagation(); toggleWishlist(${book.id})" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/20 backdrop-blur-sm text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/30 transition-colors">
-                    <span class="truncate" id="wishlist-text-${book.id}">Add to Wishlist</span>
-                </button>
-            </div>
-            <div class="flex flex-col flex-1 justify-between p-4">
-                <div>
-                    <p class="text-primary-text dark:text-white text-base font-medium leading-normal truncate">${book.title}</p>
-                    <p class="text-secondary-text dark:text-gray-400 text-sm font-normal leading-normal truncate">${book.author}</p>
+    // Создаем промисы для загрузки всех обложек
+    const bookPromises = books.map(async (book) => {
+        const coverUrl = await getBookCover(book);
+        const rating = book.rating || await calculateBookRating(book);
+        const bookType = book.type ? book.type.toLowerCase() : 'physical';
+
+        return `
+            <div class="group relative flex h-full flex-col rounded-lg bg-white dark:bg-gray-800 shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-shadow hover:shadow-lg cursor-pointer" onclick="openBookPage(${book.id})">
+                <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover bg-gray-200"
+                     style="background-image: url('${coverUrl}')"
+                     data-alt="Book cover for ${book.title}">
+                    <div class="absolute top-2 right-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            bookType === 'electronic'
+                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }">
+                            ${bookType === 'electronic' ? '📱 E-book' : '📖 Physical'}
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center mt-2 text-sm text-secondary-text dark:text-gray-400">
-                    <span class="material-symbols-outlined text-yellow-500 !text-base">star</span>
-                    <span class="ml-1">${book.rating || '4.0'}</span>
+                <div class="absolute inset-0 bg-black/50 group-hover:flex hidden flex-col justify-end p-4">
+                    <button onclick="event.stopPropagation(); addToCart(${book.id})" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] mb-2 hover:bg-primary/90 transition-colors">
+                        <span class="truncate">Add to Cart</span>
+                    </button>
+                    <button onclick="event.stopPropagation(); toggleWishlist(${book.id})" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/20 backdrop-blur-sm text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/30 transition-colors">
+                        <span class="truncate" id="wishlist-text-${book.id}">Add to Wishlist</span>
+                    </button>
                 </div>
-                <p class="text-primary-text dark:text-white text-lg font-bold mt-2">$${book.price || '0.00'}</p>
+                <div class="flex flex-col flex-1 justify-between p-4">
+                    <div>
+                        <p class="text-primary-text dark:text-white text-base font-medium leading-normal truncate">${book.title}</p>
+                        <p class="text-secondary-text dark:text-gray-400 text-sm font-normal leading-normal truncate">${book.author}</p>
+                    </div>
+                    <div class="flex items-center mt-2 text-sm text-secondary-text dark:text-gray-400">
+                        <span class="material-symbols-outlined text-yellow-500 !text-base">star</span>
+                        <span class="ml-1">${rating}</span>
+                        ${book.reviewCount ? `<span class="ml-1 text-xs">(${book.reviewCount})</span>` : ''}
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <p class="text-primary-text dark:text-white text-lg font-bold">$${book.price || '0.00'}</p>
+                        <span class="text-xs text-secondary-text dark:text-gray-400">
+                            ${book.timesAddedToCart || 0} in cart
+                        </span>
+                    </div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    });
+
+    // Ждем загрузки всех обложек и отображаем книги
+    const bookElements = await Promise.all(bookPromises);
+    container.innerHTML = bookElements.join('');
 
     // Проверить вишлист для каждой книги (только для авторизованных пользователей)
     if (apiService.token) {
@@ -229,16 +282,89 @@ function displayBooks(containerId, books) {
     }
 }
 
-// Получить обложку книги (из media или использовать дефолтную)
-function getBookCover(book) {
-    // Если у книги есть imageUrl, используем его
+// Получить обложку книги из связанных медиа
+async function getBookCover(book) {
+    // Если у книги уже есть imageUrl (для демо-книг), используем его
     if (book.imageUrl) {
         return book.imageUrl;
     }
 
-    // Если есть связь с media, можно добавить логику для получения обложки
-    // Пока используем дефолтную обложку
+    // Если у книги уже есть загруженные медиа (например, пришел с сервера)
+    if (book.media && book.media.length > 0) {
+        const coverMedia = findCoverMedia(book.media);
+        if (coverMedia && coverMedia.fileUrl) {
+            return coverMedia.fileUrl;
+        }
+    }
+
+    // Если медиа нет в объекте книги, запрашиваем с сервера
+    try {
+        const mediaList = await apiService.getBookMedia(book.id);
+        if (mediaList && mediaList.length > 0) {
+            const coverMedia = findCoverMedia(mediaList);
+            if (coverMedia && coverMedia.fileUrl) {
+                return coverMedia.fileUrl;
+            }
+        }
+    } catch (error) {
+        console.warn(`Failed to load media for book ${book.id}:`, error);
+    }
+
+    // Если ничего не найдено, используем дефолтную обложку
     return '/images/default-book.jpg';
+}
+
+// Найти обложку среди медиа
+function findCoverMedia(mediaList) {
+    // Сначала ищем медиа с типом 'image'
+    let coverMedia = mediaList.find(media =>
+        media.fileType === 'image' ||
+        (media.fileType && media.fileType.toLowerCase() === 'image')
+    );
+
+    // Если не нашли, ищем по расширению файла
+    if (!coverMedia) {
+        coverMedia = mediaList.find(media =>
+            media.fileUrl && media.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+        );
+    }
+
+    // Если все еще не нашли, берем первую доступную
+    if (!coverMedia && mediaList.length > 0) {
+        coverMedia = mediaList[0];
+    }
+
+    return coverMedia;
+}
+
+// Рассчитать рейтинг книги
+async function calculateBookRating(book) {
+    // Если рейтинг уже есть в объекте книги
+    if (book.rating !== undefined && book.rating !== null) {
+        return book.rating;
+    }
+
+    // Если есть отзывы в объекте книги
+    if (book.reviews && book.reviews.length > 0) {
+        const sum = book.reviews.reduce((total, review) => total + (review.rating || 0), 0);
+        const average = sum / book.reviews.length;
+        return Math.round(average * 10) / 10; // округление до 1 знака
+    }
+
+    // Если отзывов нет, пытаемся загрузить их
+    try {
+        const reviews = await apiService.getBookReviews(book.id);
+        if (reviews && reviews.length > 0) {
+            const sum = reviews.reduce((total, review) => total + (review.rating || 0), 0);
+            const average = sum / reviews.length;
+            return Math.round(average * 10) / 10;
+        }
+    } catch (error) {
+        console.warn(`Failed to load reviews for book ${book.id}:`, error);
+    }
+
+    // Если отзывов нет, возвращаем 0
+    return 0.0;
 }
 
 // Открыть страницу книги

@@ -1,6 +1,4 @@
-// Показать уведомление
 function showNotification(message, type = 'info') {
-    // Создаем элемент уведомления
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white max-w-sm transform transition-all duration-300 ${
         type === 'success' ? 'bg-green-500' :
@@ -18,10 +16,8 @@ function showNotification(message, type = 'info') {
         </div>
     `;
 
-    // Добавляем уведомление на страницу
     document.body.appendChild(notification);
 
-    // Автоматически удаляем через 5 секунд
     setTimeout(() => {
         if (notification.parentElement) {
             notification.remove();
@@ -29,20 +25,17 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Проверка авторизации
 function checkAuth() {
     return !!apiService.token;
 }
 
-// Форматирование цены
 function formatPrice(price) {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD'
+        currency: 'BYN'
     }).format(price);
 }
 
-// Обработка ошибок API
 function handleApiError(error) {
     console.error('API Error:', error);
 

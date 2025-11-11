@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggle();
 
-    // Если пользователь уже авторизован, перенаправить на главную
     if (apiService.token) {
         showNotification('You are already logged in. Redirecting...', 'info');
         setTimeout(() => {
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Обработка формы логина
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async function(event) {
@@ -22,28 +20,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Login attempt:', { username });
 
-            // Валидация
             if (!username || !password) {
                 showNotification('Please fill in all fields', 'error');
                 return;
             }
 
             try {
-                // Показать состояние загрузки
                 submitButton.textContent = 'Signing In...';
                 submitButton.disabled = true;
 
                 const result = await apiService.login(username, password);
                 console.log('Login successful:', result);
 
-                // Сохраняем токен
                 if (result.token) {
                     apiService.setToken(result.token);
                     console.log('Token saved to localStorage:', result.token);
 
                     showNotification('Login successful! Redirecting...', 'success');
 
-                    // Редирект на главную страницу
                     setTimeout(() => {
                         window.location.href = '../pages/mainPage.html';
                     }, 1000);
@@ -61,6 +55,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновить ссылки для навигации
     updateNavigationLinks();
 });

@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadBookDetails() {
-    // Получаем ID книги из URL параметров
     const urlParams = new URLSearchParams(window.location.search);
     currentBookId = urlParams.get('id');
 
@@ -16,10 +15,8 @@ function loadBookDetails() {
         return;
     }
 
-    // Показываем состояние загрузки
     showLoadingState();
 
-    // Добавляем таймаут для запроса
     const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Request timeout')), 10000)
     );
@@ -47,28 +44,13 @@ function loadBookDetails() {
 }
 
 function displayBookDetails(book) {
-    // Обновляем заголовок страницы
     document.title = `${book.title} - Book Nook`;
 
-    // Заголовок и автор
     document.getElementById('bookTitle').textContent = book.title;
     document.getElementById('bookAuthor').textContent = `by ${book.author}`;
 
-    // Обложка книги (с приоритетом для imageUrl)
-    const bookCover = document.getElementById('bookCover');
-    if (book.imageUrl) {
-        bookCover.style.backgroundImage = `url('${book.imageUrl}')`;
-        bookCover.innerHTML = '';
-        bookCover.classList.add('bg-cover', 'bg-center');
-        bookCover.classList.remove('bg-gradient-to-br', 'from-primary', 'to-blue-600');
-    } else {
-        bookCover.innerHTML = book.title.charAt(0).toUpperCase();
-        bookCover.style.backgroundImage = '';
-        bookCover.classList.remove('bg-cover', 'bg-center');
-        bookCover.classList.add('bg-gradient-to-br', 'from-primary', 'to-blue-600');
-    }
+    loadBookCover(book);
 
-    // Жанры
     const genresContainer = document.getElementById('genresContainer');
     if (book.genre) {
         const genres = book.genre.split(',').map(g => g.trim());
@@ -79,7 +61,6 @@ function displayBookDetails(book) {
         `).join('');
     }
 
-    // Рейтинг (если есть)
     const ratingSection = document.getElementById('ratingSection');
     if (book.rating && book.rating > 0) {
         const stars = generateStarRating(book.rating);
@@ -93,11 +74,153 @@ function displayBookDetails(book) {
         ratingSection.innerHTML = '<p class="text-gray-600 dark:text-gray-400 text-sm font-medium">No ratings yet</p>';
     }
 
-    // Цена
     document.getElementById('bookPrice').textContent = `$${book.price}`;
 
-    // Описание
     document.getElementById('bookDescription').textContent = book.description || 'No description available.';
+}
+
+async function loadBookCover(book) {
+    const bookCover = document.getElementById('bookCover');
+
+    if (book.imageUrl) {
+        console.log('Using book.imageUrl:', book.imageUrl);
+        setBookCoverImage(bookCover, book.imageUrl);
+        return;
+    }
+
+    if (book.media && book.media.length > 0) {
+        console.log('Book has embedded media:', book.media);
+        const coverMedia = findCoverMedia(book.media);
+        if (coverMedia && coverMedia.fileUrl) {
+            console.log('Found cover in embedded media:', coverMedia.fileUrl);
+            setBookCoverImage(bookCover, coverMedia.fileUrl);
+            return;
+        }
+    }
+
+    console.log('Fetching media from API for book:', book.id);
+    try {
+        const mediaList = await apiService.getBookMedia(book.id);
+        console.log('Media from API:', mediaList);
+
+        if (mediaList && mediaList.length > 0) {
+            const coverMedia = findCoverMedia(mediaList);
+            if (coverMedia && coverMedia.fileUrl) {
+                console.log('Found cover in API media:', coverMedia.fileUrl);
+                setBookCoverImage(bookCover, coverMedia.fileUrl);
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading media:', error);
+    }
+
+    console.log('Using fallback (first letter)');
+    setBookCoverFallback(bookCover, book.title);
+}
+
+function setBookCoverImage(bookCover, imageUrl) {
+    bookCover.style.backgroundImage = `url('${imageUrl}')`;
+    bookCover.innerHTML = '';
+    bookCover.classList.add('bg-cover', 'bg-center');
+    bookCover.classList.remove('bg-gradient-to-br', 'from-primary', 'to-blue-600', 'bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');
+
+    const img = new Image();
+    img.onerror = function() {
+        console.warn('Failed to load cover image, using fallback');
+        setBookCoverFallback(bookCover, document.getElementById('bookTitle').textContent);
+    };
+    img.src = imageUrl;
+}
+
+function setBookCoverFallback(bookCover, title) {
+    bookCover.style.backgroundImage = '';
+    bookCover.innerHTML = title.charAt(0).toUpperCase();
+    bookCover.classList.remove('bg-cover', 'bg-center', 'bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');
+    bookCover.classList.add('bg-gradient-to-br', 'from-primary', 'to-blue-600');
+}
+
+function findCoverMedia(mediaList) {
+    console.log('Searching for cover in media list...');
+
+    if (!mediaList || mediaList.length === 0) {
+        console.log('Media list is empty');
+        return null;
+    }
+
+    let coverMedia = mediaList.find(media => {
+        const fileType = media.fileType || media.type;
+        console.log(`Checking media - fileType: ${fileType}, url: ${media.fileUrl}`);
+        return fileType && (fileType.toLowerCase() === 'image' || fileType.toLowerCase().includes('image'));
+    });
+
+    if (coverMedia) {
+        console.log('Found cover by fileType:', coverMedia);
+        return coverMedia;
+    }
+
+    coverMedia = mediaList.find(media => {
+        const url = media.fileUrl || media.url;
+        if (!url) return false;
+
+        const hasImageExtension = url.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i);
+        console.log(`Checking extension for ${url}: ${hasImageExtension}`);
+        return hasImageExtension;
+    });
+
+    if (coverMedia) {
+        console.log('Found cover by extension:', coverMedia);
+        return coverMedia;
+    }
+
+    if (mediaList.length > 0) {
+        console.log('Using first available media:', mediaList[0]);
+        return mediaList[0];
+    }
+
+    console.log('No suitable media found');
+    return null;
+}
+
+async function getRecommendationCover(book) {
+    console.log(`Getting cover for recommendation: "${book.title}" (ID: ${book.id})`);
+
+    if (book.imageUrl) {
+        console.log('Using book.imageUrl for recommendation:', book.imageUrl);
+        return book.imageUrl;
+    }
+
+    if (book.media && book.media.length > 0) {
+        console.log('Recommendation has embedded media:', book.media);
+        const coverMedia = findCoverMedia(book.media);
+        if (coverMedia && coverMedia.fileUrl) {
+            console.log('Found cover in embedded media for recommendation:', coverMedia.fileUrl);
+            return coverMedia.fileUrl;
+        }
+    }
+
+    console.log(`Fetching media from API for recommendation ${book.id}`);
+    try {
+        const mediaList = await apiService.getBookMedia(book.id);
+
+        if (mediaList && mediaList.length > 0) {
+            console.log(`Received ${mediaList.length} media items for recommendation`);
+            const coverMedia = findCoverMedia(mediaList);
+            if (coverMedia && coverMedia.fileUrl) {
+                console.log('Found cover in API media for recommendation:', coverMedia.fileUrl);
+                return coverMedia.fileUrl;
+            } else {
+                console.log('No suitable cover found for recommendation');
+            }
+        } else {
+            console.log('No media returned for recommendation');
+        }
+    } catch (error) {
+        console.warn(`Failed to load media for recommendation ${book.id}:`, error);
+    }
+
+    console.log('Using fallback for recommendation');
+    return null;
 }
 
 function generateStarRating(rating) {
@@ -106,13 +229,10 @@ function generateStarRating(rating) {
 
     for (let i = 1; i <= maxStars; i++) {
         if (i <= Math.floor(rating)) {
-            // Полная звезда
             stars.push('<span class="material-symbols-outlined text-xl text-yellow-500">star</span>');
         } else if (i === Math.ceil(rating) && rating % 1 >= 0.3) {
-            // Половина звезды (только если рейтинг достаточно высокий)
             stars.push('<span class="material-symbols-outlined text-xl text-yellow-500">star_half</span>');
         } else {
-            // Пустая звезда
             stars.push('<span class="material-symbols-outlined text-xl text-gray-300 dark:text-gray-600">star</span>');
         }
     }
@@ -154,29 +274,52 @@ async function loadReviews(bookId) {
 
 async function loadRecommendations(bookId) {
     try {
+        console.log('Loading recommendations...');
         const recommendations = await apiService.getRecommendedBooks();
         const recommendationsContainer = document.getElementById('recommendationsContainer');
 
         if (recommendations && recommendations.length > 0) {
-            // Исключаем текущую книгу из рекомендаций
             const filteredRecs = recommendations.filter(book => book.id != bookId).slice(0, 5);
+            console.log(`Filtered recommendations: ${filteredRecs.length} books`);
 
-            recommendationsContainer.innerHTML = filteredRecs.map(book => `
-                <div class="flex flex-col gap-2 group cursor-pointer" onclick="openBookPage(${book.id})">
-                    <div class="w-full aspect-[2/3] rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105 flex items-center justify-center text-white text-4xl font-bold ${book.imageUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-primary to-blue-600'}"
-                         style="${book.imageUrl ? `background-image: url('${book.imageUrl}')` : ''}">
-                        ${book.imageUrl ? '' : book.title.charAt(0).toUpperCase()}
-                    </div>
-                    <h3 class="font-bold text-sm truncate text-neutral-text dark:text-neutral-text-dark">${book.title}</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">${book.author}</p>
+            recommendationsContainer.innerHTML = `
+                <div class="col-span-full text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p class="mt-2 text-secondary-text dark:text-gray-400">Loading recommendations...</p>
                 </div>
-            `).join('');
+            `;
+
+            const recommendationPromises = filteredRecs.map(async (book) => {
+                const coverUrl = await getRecommendationCover(book);
+                console.log(`Final cover for "${book.title}": ${coverUrl || 'Using fallback'}`);
+
+                return `
+                    <div class="flex flex-col gap-2 group cursor-pointer" onclick="openBookPage(${book.id})">
+                        <div class="w-full aspect-[2/3] rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105 flex items-center justify-center text-white text-4xl font-bold overflow-hidden ${
+                            coverUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-primary to-blue-600'
+                        }"
+                             style="${coverUrl ? `background-image: url('${coverUrl}')` : ''}"
+                             onerror="this.style.backgroundImage=''; this.classList.remove('bg-cover', 'bg-center'); this.classList.add('bg-gradient-to-br', 'from-primary', 'to-blue-600'); this.innerHTML='${book.title.charAt(0).toUpperCase()}'">
+                            ${coverUrl ? '' : book.title.charAt(0).toUpperCase()}
+                        </div>
+                        <h3 class="font-bold text-sm truncate text-neutral-text dark:text-neutral-text-dark mt-2">${book.title}</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">${book.author}</p>
+                        <p class="text-sm font-bold text-primary-alt dark:text-primary">$${book.price || '0.00'}</p>
+                    </div>
+                `;
+            });
+
+            const recommendationElements = await Promise.all(recommendationPromises);
+            recommendationsContainer.innerHTML = recommendationElements.join('');
+
+            console.log('Recommendations loaded successfully');
         } else {
             recommendationsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">No recommendations available</p>';
         }
     } catch (error) {
         console.error('Error loading recommendations:', error);
-        document.getElementById('recommendationsContainer').innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">Error loading recommendations</p>';
+        document.getElementById('recommendationsContainer').innerHTML =
+            '<p class="text-gray-500 col-span-full text-center py-8">Error loading recommendations</p>';
     }
 }
 
@@ -277,7 +420,6 @@ function showLoadingState() {
     document.getElementById('bookPrice').textContent = '$...';
     document.getElementById('bookDescription').textContent = 'Loading book details...';
 
-    // Показываем скелетон для обложки
     const bookCover = document.getElementById('bookCover');
     bookCover.innerHTML = '';
     bookCover.classList.add('bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');

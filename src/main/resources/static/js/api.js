@@ -108,11 +108,30 @@ class ApiService {
     // Book methods
     async getBooks() {
         try {
-            return await this.request('/api/books');
+            const books = await this.request('/api/books');
+            return books.map(book => ({
+                ...book,
+                rating: book.rating || this.calculateRatingFromReviews(book.reviews),
+                type: this.normalizeBookType(book.type),
+                price: book.price ? parseFloat(book.price) : 0.00
+            }));
         } catch (error) {
             console.error('Failed to fetch books:', error);
             throw error;
         }
+    }
+
+    normalizeBookType(type) {
+        if (!type) return 'physical';
+        return type.toLowerCase();
+    }
+
+    calculateRatingFromReviews(reviews) {
+        if (!reviews || reviews.length === 0) {
+            return 0.0;
+        }
+        const sum = reviews.reduce((total, review) => total + (review.rating || 0), 0);
+        return Math.round((sum / reviews.length) * 10) / 10;
     }
 
     async getBookById(id) {
@@ -129,6 +148,29 @@ class ApiService {
 
     async getBookReviews(bookId) {
         return this.request(`/api/books/${bookId}/reviews`);
+    }
+
+    // Media methods
+    async getBookMedia(bookId) {
+        try {
+            return await this.request(`/api/media/book/${bookId}`);
+        } catch (error) {
+            console.error(`Failed to fetch media for book ${bookId}:`, error);
+            return [];
+        }
+    }
+
+    async addBookMedia(bookId, mediaData) {
+        return this.request(`/api/media/book/${bookId}`, {
+            method: 'POST',
+            body: JSON.stringify(mediaData)
+        });
+    }
+
+    async deleteMedia(mediaId) {
+        return this.request(`/api/media/${mediaId}`, {
+            method: 'DELETE'
+        });
     }
 
     // Cart methods

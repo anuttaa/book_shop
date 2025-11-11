@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggle();
 
-    // Если пользователь уже авторизован, перенаправить на главную
     if (apiService.token) {
         showNotification('You are already logged in. Redirecting...', 'info');
         setTimeout(() => {
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Обработка формы регистрации
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', async function(event) {
@@ -24,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Form data:', { username, email, password, confirmPassword }); // для отладки
 
-            // Валидация
             if (!username || !email || !password || !confirmPassword) {
                 showNotification('Please fill in all fields', 'error');
                 return;
@@ -46,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
-                // Показать состояние загрузки
                 submitButton.textContent = 'Creating Account...';
                 submitButton.disabled = true;
 
@@ -56,20 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     password: password
                 };
 
-                console.log('Sending registration data:', userData); // для отладки
+                console.log('Sending registration data:', userData);
 
                 const result = await apiService.register(userData);
-                console.log('Registration response:', result); // для отладки
+                console.log('Registration response:', result);
 
                 showNotification('Registration successful! Redirecting to login...', 'success');
 
-                // Редирект на страницу логина
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 2000);
 
             } catch (error) {
-                console.error('Registration error:', error); // для отладки
+                console.error('Registration error:', error);
                 showNotification('Registration failed: ' + (error.message || 'Unknown error'), 'error');
             } finally {
                 submitButton.textContent = 'Create Account';
@@ -78,12 +73,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Обновить ссылки для навигации
     updateNavigationLinks();
 });
 
 function updateNavigationLinks() {
-    // Обновить ссылки в хедере
     document.querySelectorAll('header a[href="#"]').forEach(link => {
         if (link.textContent.includes('Register')) {
             link.href = 'register.html';
