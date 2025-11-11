@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Book Nook - Book Details</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#135bec",
+                "background-light": "#f6f6f8",
+                "background-dark": "#101622",
+                "primary-alt": "#1A237E",
+                "secondary-alt": "#FFC107",
+                "neutral-bg": "#F8F9FA",
+                "neutral-border": "#E9ECEF",
+                "neutral-text": "#212529",
+                "neutral-text-dark": "#F8F9FA",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display bg-neutral-bg dark:bg-background-dark text-neutral-text dark:text-neutral-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+
+    <!-- TopNavBar -->
+    <header class="w-full bg-white dark:bg-background-dark dark:border-b dark:border-neutral-border/20 shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between whitespace-nowrap border-b border-solid border-neutral-border dark:border-transparent py-3">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-2 text-neutral-text dark:text-neutral-text-dark">
+                        <span class="material-symbols-outlined text-primary-alt dark:text-primary text-3xl">import_contacts</span>
+                        <h2 class="text-xl font-bold leading-tight tracking-tighter">Book Nook</h2>
+                    </div>
+                    <nav class="hidden md:flex items-center gap-9">
+                        <a class="text-sm font-medium hover:text-primary-alt dark:hover:text-primary" href="../mainPage.html">Home</a>
+                        <a class="text-sm font-medium hover:text-primary-alt dark:hover:text-primary" href="#">Browse</a>
+                        <a class="text-sm font-medium hover:text-primary-alt dark:hover:text-primary" href="#">Bestsellers</a>
+                        <a class="text-sm font-medium hover:text-primary-alt dark:hover:text-primary" href="#">About Us</a>
+                    </nav>
+                </div>
+                <div class="flex flex-1 justify-end gap-4 items-center">
+                    <label class="relative hidden sm:flex flex-col min-w-40 !h-10 max-w-64">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">search</span>
+                        <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-neutral-text bg-neutral-bg dark:bg-black/20 focus:outline-0 focus:ring-2 focus:ring-primary-alt/50 border-none h-full placeholder:text-gray-500 pl-10 text-sm font-normal leading-normal" placeholder="Search books..." value=""/>
+                    </label>
+                    <div class="flex gap-2" id="authButtons">
+                        <!-- Будет заполнено через JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="layout-container flex h-full grow flex-col">
+        <div class="flex flex-1 justify-center py-5">
+            <div class="layout-content-container flex flex-col w-full max-w-6xl px-6">
+
+                <!-- Breadcrumbs -->
+                <div class="flex flex-wrap gap-2 py-4" id="breadcrumbs">
+                    <!-- Будет заполнено через JavaScript -->
+                </div>
+
+                <!-- Main Content: Book Details -->
+                <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-2 gap-12 py-8">
+                    <!-- Left Column: Book Cover -->
+                    <div class="md:col-span-1 lg:col-span-1 flex justify-center md:justify-start">
+                        <div id="bookCover" class="w-full max-w-sm bg-gradient-to-br from-primary to-blue-600 aspect-[2/3] rounded-xl shadow-2xl flex items-center justify-center text-white text-8xl font-bold">
+                            <!-- Буква будет добавлена через JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Info and Actions -->
+                    <div class="md:col-span-2 lg:col-span-1 flex flex-col gap-6">
+                        <!-- PageHeading -->
+                        <div class="flex flex-col gap-2">
+                            <h1 id="bookTitle" class="text-neutral-text dark:text-neutral-text-dark text-4xl lg:text-5xl font-black leading-tight tracking-tighter">Loading...</h1>
+                            <a id="bookAuthor" class="text-gray-600 dark:text-gray-300 text-lg font-medium leading-normal hover:text-primary-alt dark:hover:text-primary" href="#">by Author</a>
+                        </div>
+
+                        <!-- Chips/Genres -->
+                        <div class="flex gap-3 flex-wrap" id="genresContainer">
+                            <!-- Жанры будут добавлены через JavaScript -->
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="flex items-center gap-2" id="ratingSection">
+                            <!-- Рейтинг будет добавлен через JavaScript -->
+                        </div>
+
+                        <!-- Price -->
+                        <p id="bookPrice" class="text-3xl font-bold text-neutral-text dark:text-neutral-text-dark">$0.00</p>
+
+                        <!-- Description -->
+                        <p id="bookDescription" class="text-gray-700 dark:text-gray-300 text-base font-normal leading-relaxed">
+                            Loading description...
+                        </p>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                            <button onclick="addToCart()" class="flex w-full sm:w-auto flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary-alt text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors shadow-lg">
+                                <span class="material-symbols-outlined mr-2">add_shopping_cart</span>
+                                <span class="truncate">Add to Cart</span>
+                            </button>
+                            <button onclick="toggleWishlist()" id="wishlistBtn" class="flex w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-neutral-border dark:bg-white/10 text-neutral-text dark:text-neutral-text-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-white/20 transition-colors">
+                                <span class="material-symbols-outlined mr-2">favorite_border</span>
+                                <span class="truncate">Add to Wishlist</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- User Reviews Section -->
+                <section class="py-12">
+                    <h2 class="text-3xl font-bold mb-6 text-neutral-text dark:text-neutral-text-dark">What Readers Are Saying</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsContainer">
+                        <!-- Отзывы будут загружены через JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Recommendations Section -->
+                <section class="py-12">
+                    <h2 class="text-3xl font-bold mb-6 text-neutral-text dark:text-neutral-text-dark">You Might Also Like</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="recommendationsContainer">
+                        <!-- Рекомендации будут загружены через JavaScript -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/book.js"></script>
+</body>
+</html>

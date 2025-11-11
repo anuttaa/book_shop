@@ -15,7 +15,7 @@ public class Media {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
 
   @ManyToOne
   @JoinColumn(name = "book_id", nullable = false)
@@ -29,8 +29,8 @@ public class Media {
   private String fileName;
 
   @Lob
-  @Column(name = "file_data")
-  private byte[] fileData;
+  @Column(name = "file_url")
+  private String fileUrl;
 
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;

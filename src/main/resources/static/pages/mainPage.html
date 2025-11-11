@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>BookStore - Your Online Book Destination</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#135bec",
+                "background-light": "#f9f9f9",
+                "background-dark": "#101622",
+                "primary-text": "#212529",
+                "secondary-text": "#616f89"
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+            },
+          },
+        }
+    </script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/main.js"></script>
+    <style>
+        .group:hover .group-hover-flex {
+            display: flex;
+        }
+        .group:hover .group-hover\:flex {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-primary-text dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+    <div class="layout-container flex h-full grow flex-col">
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 sm:px-6 lg:px-10 py-3 bg-white dark:bg-background-dark/80 backdrop-blur-sm sticky top-0 z-50">
+            <div class="flex items-center gap-8">
+                <a class="flex items-center gap-3 text-primary-text dark:text-white" href="/">
+                    <div class="size-6 text-primary">
+                        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 21V3h14v18l-7-3-7 3zM7 5v12.2l5-2.15 5 2.15V5H7z"></path>
+                            <path d="M0 0h24v24H0z" fill="none"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-primary-text dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">BookStore</h1>
+                </a>
+                <nav class="hidden md:flex items-center gap-9">
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/">Home</a>
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/catalog.html">Catalog</a>
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/promotions.html">Promotions</a>
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/contacts.html">Contacts</a>
+                </nav>
+            </div>
+            <div class="flex flex-1 justify-end items-center gap-4">
+                <div class="flex gap-2" id="auth-buttons">
+                    <a href="/pages/login.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                        <span class="truncate">Login</span>
+                    </a>
+                    <a href="/pages/register.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                        <span class="truncate">Registration</span>
+                    </a>
+                </div>
+                <div class="hidden gap-2" id="user-actions">
+                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span id="cart-counter" class="cart-counter absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <span id="welcome-text" class="text-sm text-primary-text dark:text-white">Welcome, User!</span>
+                        <button onclick="logout()" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                            <span class="material-symbols-outlined">logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1">
+            <div class="mx-auto max-w-7xl">
+                <section class="relative w-full h-[500px] bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtUgmhfjZdFT6eoOWKuMEMnaLHNeQXL3rGtZeXjFc7e_skV6g5sSaq75ibAjNxYZEeHzZDFkfQFivPKqPDflYuRwnsOyyomt3Fodb5bisFpCfOfygfoYwGy31Qcc8lcf3HUy4Winfl6gKD1-2F6g2lblttr1uH-QkWBKVH3-ILhnG3-T0vPYkNJO779FlaSPZfKZYa13LqtXfo0cMn3Z0Bk4I1Fuqe5iQFQcB4pfB7MpW9vsGPsg0sxVY2xRyxGP_OtKpGAXz5cpw");'>
+                    <div class="absolute inset-0 bg-black/40"></div>
+                    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+                        <h1 class="text-5xl font-black leading-tight tracking-tight mb-4">New Arrivals: Bestsellers of the Year</h1>
+                        <p class="text-lg mb-8 max-w-2xl">Discover the most talked-about books of the year. Unforgettable stories and characters await you.</p>
+                        <div class="flex gap-4">
+                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]">
+                                <span class="truncate">View</span>
+                            </button>
+                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white/20 backdrop-blur-sm text-white text-base font-bold leading-normal tracking-[0.015em]">
+                                <span class="truncate">Buy Now</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recommended Books Section -->
+                <section class="px-4 sm:px-6 lg:px-8 py-10">
+                    <h2 class="text-primary-text dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Recommended</h2>
+                    <div id="recommended-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        <!-- Books will be loaded dynamically -->
+                    </div>
+                </section>
+
+                <!-- Popular Books Section -->
+                <section class="px-4 sm:px-6 lg:px-8 py-10">
+                    <h2 class="text-primary-text dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Popular</h2>
+                    <div id="popular-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        <!-- Books will be loaded dynamically -->
+                    </div>
+                </section>
+            </div>
+        </main>
+        <footer class="bg-white dark:bg-background-dark/50 border-t border-gray-200 dark:border-gray-800 mt-10">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-10">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="col-span-1 md:col-span-2">
+                        <h3 class="font-bold text-primary-text dark:text-white text-lg mb-2">BookStore</h3>
+                        <p class="text-sm text-secondary-text dark:text-gray-400">123 Bookworm Lane, Readington, BK 12345</p>
+                        <p class="text-sm text-secondary-text dark:text-gray-400">Email: support@bookstore.com</p>
+                        <p class="text-sm text-secondary-text dark:text-gray-400">Phone: (123) 456-7890</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-primary-text dark:text-white mb-4">Follow Us</h3>
+                        <div class="flex space-x-4">
+                            <a class="text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">
+                                <svg aria-hidden="true" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fill-rule="evenodd"></path></svg>
+                            </a>
+                            <a class="text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">
+                                <svg aria-hidden="true" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.71v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+                            </a>
+                            <a class="text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">
+                                <svg aria-hidden="true" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.013-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.023.047 1.351.058 3.807.058h.468c2.456 0 2.784-.011 3.807-.058.975-.045 1.504-.207 1.857-.344.467-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882-.344-1.857.047-1.023.058-1.351.058-3.807v-.468c0-2.456-.011-2.784-.058-3.807-.045-.975-.207-1.504-.344-1.857a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 100 10.27 5.135 5.135 0 000-10.27zm0 1.802a3.333 3.333 0 110 6.666 3.333 3.333 0 010-6.666zm5.338-3.205a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z" fill-rule="evenodd"></path></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-primary-text dark:text-white mb-4">Legal</h3>
+                        <ul class="space-y-2">
+                            <li><a class="text-sm text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">Privacy Policy</a></li>
+                            <li><a class="text-sm text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">Terms of Use</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-8 border-t border-gray-200 dark:border-gray-800 pt-8 text-center">
+                    <p class="text-sm text-secondary-text dark:text-gray-400">© 2024 BookStore. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+</body>
+</html>

@@ -9,10 +9,13 @@ import org.mapstruct.Mapping;
 public interface ReviewMapper {
 
   @Mapping(source = "user.username", target = "username")
+  @Mapping(source = "user.id", target = "userId")
+  @Mapping(source = "book.id", target = "bookId")
   ReviewDTO toDTO(Review review);
 
   @Mapping(source = "userId", target = "user.id")
   @Mapping(source = "bookId", target = "book.id")
   Review toEntity(ReviewDTO dto);
 }
+
 

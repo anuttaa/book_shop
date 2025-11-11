@@ -9,12 +9,11 @@ import org.mapstruct.Mapping;
 public interface WishlistMapper {
 
   @Mapping(source = "user.id", target = "userId")
-  @Mapping(source = "book", target = "book")
   WishlistDTO toDTO(Wishlist wishlist);
 
   @Mapping(source = "userId", target = "user.id")
-  @Mapping(source = "book", target = "book")
   Wishlist toEntity(WishlistDTO dto);
 }
+
 
 

@@ -17,8 +17,6 @@ public interface ReviewDao extends JpaRepository<Review, Long> {
 
   @Query("SELECT r.book.genre FROM Review r WHERE r.user.id = :userId GROUP BY r.book.genre ORDER BY COUNT(r) DESC")
   List<String> findFavoriteGenresByUser(@Param("userId") Long userId, Pageable pageable);
-
-
 }
 
 

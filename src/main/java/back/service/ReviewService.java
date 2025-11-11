@@ -23,15 +23,19 @@ public class ReviewService {
   private final BookDao bookDao;
   private final ReviewMapper reviewMapper;
 
+  // Получить все отзывы по книге
   public List<ReviewDTO> getReviewsByBook(Long bookId) {
     return reviewDao.findByBookId(bookId).stream()
       .map(reviewMapper::toDTO)
       .collect(Collectors.toList());
   }
 
+  // Добавить новый отзыв
   public ReviewDTO addReview(Long userId, Long bookId, ReviewDTO dto) {
-    User user = userDao.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-    Book book = bookDao.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
+    User user = userDao.findById(userId)
+      .orElseThrow(() -> new RuntimeException("User not found"));
+    Book book = bookDao.findById(bookId)
+      .orElseThrow(() -> new RuntimeException("Book not found"));
 
     Review review = new Review();
     review.setUser(user);
@@ -42,9 +46,8 @@ public class ReviewService {
     return reviewMapper.toDTO(reviewDao.save(review));
   }
 
+  // Удалить отзыв
   public void deleteReview(Long reviewId) {
     reviewDao.deleteById(reviewId);
   }
 }
-
-

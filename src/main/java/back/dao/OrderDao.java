@@ -12,7 +12,7 @@ public interface OrderDao extends JpaRepository<Order, Long> {
   List<Order> findByUserId(Long userId);
 
   @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.book.id = :bookId")
-  Long countByBookId(@Param("bookId") int bookId);
+  Long countByBookId(@Param("bookId") Long bookId);
 }
 
 

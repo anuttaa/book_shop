@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Генератор обложек и SQL</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        textarea { width: 100%; height: 200px; }
+        .book-status { margin: 5px 0; }
+        .found { color: green; }
+        .not-found { color: red; }
+    </style>
+</head>
+<body>
+
+<h1>Генератор обложек и SQL</h1>
+<button id="startBtn">Начать поиск</button>
+<div id="progress"></div>
+<div id="results"></div>
+
+<script>
+    const books = [
+            {id: 1, title: "Война и мир", author: "Лев Толстой"},
+            {id: 2, title: "Преступление и наказание", author: "Федор Достоевский"},
+            {id: 3, title: "1984", author: "Джордж Оруэлл"},
+            {id: 4, title: "Убить пересмешника", author: "Харпер Ли"},
+            {id: 5, title: "Великий Гэтсби", author: "Фрэнсис Скотт Фицджеральд"},
+            {id: 6, title: "Властелин Колец", author: "Дж. Р. Р. Толкин"},
+            {id: 7, title: "Гарри Поттер и философский камень", author: "Дж. К. Роулинг"},
+            {id: 8, title: "Игра престолов", author: "Джордж Р. Р. Мартин"},
+            {id: 9, title: "Дюна", author: "Фрэнк Герберт"},
+            {id: 10, title: "Основание", author: "Айзек Азимов"},
+            {id: 11, title: "Нейромант", author: "Уильям Гибсон"},
+            {id: 12, title: "Пикник на обочине", author: "Аркадий и Борис Стругацкие"},
+            {id: 13, title: "Марсианин", author: "Энди Вейер"},
+            {id: 14, title: "Десять негритят", author: "Агата Кристи"},
+            {id: 15, title: "Девушка с татуировкой дракона", author: "Стиг Ларссон"},
+            {id: 16, title: "Молчание ягнят", author: "Томас Харрис"},
+            {id: 17, title: "Шерлок Холмс: Собака Баскервилей", author: "Артур Конан Дойл"},
+            {id: 18, title: "Три товарища", author: "Эрих Мария Ремарк"},
+            {id: 19, title: "Поющие в терновнике", author: "Колин Маккалоу"},
+            {id: 20, title: "Над пропастью во ржи", author: "Джером Д. Сэлинджер"},
+            {id: 21, title: "Анна Каренина", author: "Лев Толстой"},
+            {id: 22, title: "Гордость и предубеждение", author: "Джейн Остин"},
+            {id: 23, title: "Краткая история времени", author: "Стивен Хокинг"},
+            {id: 24, title: "Sapiens: Краткая история человечества", author: "Юваль Ной Харари"},
+            {id: 25, title: "Сила привычки", author: "Чарльз Дахигг"},
+            {id: 26, title: "Черный лебедь", author: "Нассим Талеб"},
+            {id: 27, title: "Атомные привычки", author: "Джеймс Клир"},
+            {id: 28, title: "Богатый папа, бедный папа", author: "Роберт Кийосаки"},
+            {id: 29, title: "7 навыков высокоэффективных людей", author: "Стивен Кови"},
+            {id: 30, title: "Думай и богатей", author: "Наполеон Хилл"},
+            {id: 31, title: "Совершенный код", author: "Стив Макконнелл"},
+            {id: 32, title: "Чистый код", author: "Роберт Мартин"},
+            {id: 33, title: "Грокаем алгоритмы", author: "Адитья Бхаргава"},
+            {id: 34, title: "JavaScript: Сильные стороны", author: "Дуглас Крокфорд"},
+            {id: 35, title: "Как завоевывать друзей и оказывать влияние на людей", author: "Дейл Карнеги"},
+            {id: 36, title: "Подсознание может все", author: "Джон Кехо"},
+            {id: 37, title: "Поток", author: "Михай Чиксентмихайи"},
+            {id: 38, title: "Эмоциональный интеллект", author: "Дэниел Гоулман"},
+            {id: 39, title: "В диких условиях", author: "Джон Кракауэр"},
+            {id: 40, title: "Старик и море", author: "Эрнест Хемингуэй"},
+            {id: 41, title: "Остров сокровищ", author: "Роберт Льюис Стивенсон"},
+            {id: 42, title: "Евгений Онегин", author: "Александр Пушкин"},
+            {id: 43, title: "Код да Винчи", author: "Дэн Браун"},
+            {id: 44, title: "Алхимик", author: "Пауло Коэльо"},
+            {id: 45, title: "Метро 2033", author: "Дмитрий Глуховский"},
+            {id: 46, title: "Портрет Дориана Грея", author: "Оскар Уайльд"},
+            {id: 47, title: "Мастер и Маргарита", author: "Михаил Булгаков"},
+            {id: 48, title: "Сто лет одиночества", author: "Габриэль Гарсиа Маркес"},
+            {id: 49, title: "451° по Фаренгейту", author: "Рэй Брэдбери"},
+            {id: 50, title: "Лолита", author: "Владимир Набоков"},
+            {id: 51, title: "Парфюмер", author: "Патрик Зюскинд"},
+            {id: 52, title: "Жизнь Пи", author: "Янн Мартел"}
+        ];
+
+    document.getElementById('startBtn').addEventListener('click', async () => {
+        const progress = document.getElementById('progress');
+        const results = document.getElementById('results');
+        results.innerHTML = '';
+        let sql = "INSERT INTO media (book_id, file_type, file_name, file_url) VALUES\n";
+        let total = books.length;
+        let count = 0;
+
+        for (const book of books) {
+            progress.textContent = `Обрабатываем ${count + 1} из ${total}: "${book.title}"`;
+            let coverUrl = await fetchCover(book);
+            const status = document.createElement('div');
+            status.className = 'book-status';
+            if (coverUrl) {
+                status.innerHTML = `✅ ${book.title} — <a href="${coverUrl}" target="_blank">${coverUrl}</a>`;
+                status.classList.add('found');
+                const fileName = coverUrl.split('/').pop();
+                sql += `(${book.id}, 'image', '${fileName}', '${coverUrl}'),\n`;
+            } else {
+                status.innerHTML = `❌ ${book.title} — обложка не найдена`;
+                status.classList.add('not-found');
+            }
+            results.appendChild(status);
+            count++;
+            await new Promise(r => setTimeout(r, 500)); // плавный прогресс
+        }
+
+        sql = sql.slice(0, -2) + ';'; // убираем последнюю запятую
+        const sqlSection = document.createElement('div');
+        sqlSection.innerHTML = `
+            <h3>📋 SQL код для выполнения:</h3>
+            <textarea readonly>${sql}</textarea>
+            <p><strong>Инструкция:</strong></p>
+            <ol>
+                <li>Скопируйте SQL код выше</li>
+                <li>Выполните в вашей MySQL базе данных</li>
+                <li>Проверьте: <code>SELECT * FROM media;</code></li>
+            </ol>
+        `;
+        results.appendChild(sqlSection);
+        progress.textContent = 'Готово!';
+    });
+
+    // Функция поиска обложки через OpenLibrary + Google Books
+    async function fetchCover(book) {
+        try {
+            // OpenLibrary поиск
+            let resp = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(book.title)}&author=${encodeURIComponent(book.author)}`);
+            let data = await resp.json();
+            if (data.docs && data.docs.length > 0 && data.docs[0].cover_i) {
+                return `https://covers.openlibrary.org/b/id/${data.docs[0].cover_i}-L.jpg`;
+            }
+
+            // Google Books поиск
+            resp = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(book.title)}+inauthor:${encodeURIComponent(book.author)}`);
+            data = await resp.json();
+            if (data.items && data.items[0].volumeInfo.imageLinks) {
+                return data.items[0].volumeInfo.imageLinks.thumbnail.replace('http://','https://');
+            }
+        } catch (e) {
+            console.error('Ошибка поиска обложки для', book.title, e);
+        }
+        return null;
+    }
+</script>
+
+</body>
+</html>

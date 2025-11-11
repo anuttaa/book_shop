@@ -2,46 +2,90 @@ package back.service;
 import back.dao.BookDao;
 import back.dao.UserDao;
 import back.dao.WishlistDao;
+import back.dto.BookDTO;
 import back.dto.WishlistDTO;
+import back.mappers.BookMapper;
+import back.mappers.UserMapper;
 import back.mappers.WishlistMapper;
 import back.models.Book;
 import back.models.User;
 import back.models.Wishlist;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class WishlistService {
 
-  private final WishlistDao wishlistDao;
-  private final UserDao userDao;
-  private final BookDao bookDao;
+  private final WishlistDao wishlistRepository;
+  private final BookDao bookRepository;
+  private final UserService userService;
   private final WishlistMapper wishlistMapper;
+  private final BookMapper bookMapper;
 
-  public List<WishlistDTO> getUserWishlist(Long userId) {
-    return wishlistDao.findByUserId(userId).stream()
-      .map(wishlistMapper::toDTO)
+  public WishlistDTO getWishlistByUser(Long userId) {
+    Wishlist wishlist = wishlistRepository.findByUserId(userId)
+      .orElseThrow(() -> new RuntimeException("Wishlist not found for user: " + userId));
+    return wishlistMapper.toDTO(wishlist);
+  }
+
+  public WishlistDTO addToWishlist(Long userId, Long bookId) {
+    Wishlist wishlist = wishlistRepository.findByUserId(userId)
+      .orElseGet(() -> createNewWishlist(userId));
+
+    Book book = bookRepository.findById(bookId)
+      .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
+
+    // Проверяем, нет ли уже этой книги в вишлисте
+    if (!wishlist.getBooks().contains(book)) {
+      wishlist.addBook(book);
+      wishlistRepository.save(wishlist);
+    }
+
+    return wishlistMapper.toDTO(wishlist);
+  }
+
+  public void removeFromWishlist(Long userId, Long bookId) {
+    Wishlist wishlist = wishlistRepository.findByUserId(userId)
+      .orElseThrow(() -> new RuntimeException("Wishlist not found for user: " + userId));
+
+    Book book = bookRepository.findById(bookId)
+      .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
+
+    if (wishlist.getBooks().contains(book)) {
+      wishlist.removeBook(book);
+      wishlistRepository.save(wishlist);
+    }
+  }
+
+  public boolean isBookInWishlist(Long userId, Long bookId) {
+    return wishlistRepository.existsByUserIdAndBookId(userId, bookId);
+  }
+
+  // Вспомогательный метод для создания нового вишлиста
+  private Wishlist createNewWishlist(Long userId) {
+    Wishlist newWishlist = new Wishlist();
+    User user = userService.getUserEntityById(userId);
+    newWishlist.setUser(user);
+    return wishlistRepository.save(newWishlist);
+  }
+
+  // Дополнительный метод для получения книг из вишлиста
+  public List<BookDTO> getWishlistBooks(Long userId) {
+    Wishlist wishlist = wishlistRepository.findByUserId(userId)
+      .orElseThrow(() -> new RuntimeException("Wishlist not found for user: " + userId));
+
+    return wishlist.getBooks().stream()
+      .map(bookMapper::toDTO)
       .collect(Collectors.toList());
   }
-
-  public WishlistDTO addBookToWishlist(Long userId, Long bookId) {
-    User user = userDao.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-    Book book = bookDao.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
-
-    Wishlist wishlist = new Wishlist();
-    wishlist.setUser(user);
-    wishlist.setBook(book);
-
-    return wishlistMapper.toDTO(wishlistDao.save(wishlist));
-  }
-
-  public void removeBookFromWishlist(Long wishlistId) {
-    wishlistDao.deleteById(wishlistId);
-  }
 }
+
 
 

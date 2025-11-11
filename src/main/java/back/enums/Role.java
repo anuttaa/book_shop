@@ -1,7 +1,7 @@
 package back.enums;
 
 public enum Role {
-  GUEST,
-  USER,
-  ADMIN
+  guest,
+  user,
+  admin
 }

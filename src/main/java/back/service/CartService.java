@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,15 +33,45 @@ public class CartService {
     User user = userDao.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     Book book = bookDao.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
 
-    CartItem cartItem = new CartItem();
-    cartItem.setUser(user);
-    cartItem.setBook(book);
-    cartItem.setQuantity(quantity);
+    // Проверяем, есть ли уже эта книга в корзине
+    Optional<CartItem> existingItem = cartItemDao.findByUserIdAndBookId(userId, bookId);
 
-    return cartItemMapper.toDTO(cartItemDao.save(cartItem));
+    if (existingItem.isPresent()) {
+      // Если есть - увеличиваем количество
+      CartItem cartItem = existingItem.get();
+      cartItem.setQuantity(cartItem.getQuantity() + quantity);
+      return cartItemMapper.toDTO(cartItemDao.save(cartItem));
+    } else {
+      // Если нет - создаем новую запись
+      CartItem cartItem = new CartItem();
+      cartItem.setUser(user);
+      cartItem.setBook(book);
+      cartItem.setQuantity(quantity);
+      return cartItemMapper.toDTO(cartItemDao.save(cartItem));
+    }
   }
 
   public void removeFromCart(Long cartItemId) {
     cartItemDao.deleteById(cartItemId);
+  }
+
+  public void removeFromCartByBookId(Long userId, Long bookId) {
+    cartItemDao.deleteByUserIdAndBookId(userId, bookId);
+  }
+
+  public void updateCartItemQuantity(Long cartItemId, int quantity) {
+    CartItem cartItem = cartItemDao.findById(cartItemId)
+      .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+    if (quantity <= 0) {
+      cartItemDao.delete(cartItem);
+    } else {
+      cartItem.setQuantity(quantity);
+      cartItemDao.save(cartItem);
+    }
+  }
+
+  public void clearUserCart(Long userId) {
+    cartItemDao.deleteByUserId(userId);
   }
 }

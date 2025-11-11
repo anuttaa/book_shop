@@ -32,7 +32,7 @@ public class AdminService {
 
   public void blockUser(Long userId) {
     User user = userDao.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-    user.setRole(Role.GUEST);
+    user.setRole(Role.guest);
     userDao.save(user);
   }
 
