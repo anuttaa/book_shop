@@ -1,0 +1,61 @@
+package back.models;
+
+import back.enums.Role;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "users")
+public class User {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+
+  @Column(nullable = false, unique = true, length = 50)
+  private String username;
+
+  @Column(nullable = false, unique = true, length = 100)
+  private String email;
+
+  @Column(name = "password_hash", nullable = false)
+  private String passwordHash;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Role role = Role.USER;
+
+  private Boolean subscribed = false;
+
+  @Column(name = "created_at", updatable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<CartItem> cartItems;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Order> orders;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Review> reviews;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Wishlist> wishlist;
+
+  @PrePersist
+  protected void onCreate() { createdAt = LocalDateTime.now(); }
+
+  @PreUpdate
+  protected void onUpdate() { updatedAt = LocalDateTime.now(); }
+
+}
+
