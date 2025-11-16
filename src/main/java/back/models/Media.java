@@ -1,6 +1,7 @@
 package back.models;
 
 import back.enums.FileType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class Media {
 
   @ManyToOne
   @JoinColumn(name = "book_id", nullable = false)
+  @JsonBackReference
   private Book book;
 
   @Enumerated(EnumType.STRING)

@@ -22,14 +22,12 @@ public class UserService implements UserDetailsService {
   private final UserMapper userMapper;
   private final BCryptPasswordEncoder passwordEncoder;
 
-  // 🔹 Получить всех пользователей
   public List<UserDTO> getAllUsers() {
     return userDao.findAll().stream()
       .map(userMapper::toDTO)
       .collect(Collectors.toList());
   }
 
-  // 🔹 Получить пользователя по id
   public UserDTO getUserById(Long id) {
     User user = userDao.findById(id)
       .orElseThrow(() -> new RuntimeException("User not found"));
@@ -41,14 +39,12 @@ public class UserService implements UserDetailsService {
       .orElseThrow(() -> new RuntimeException("User not found"));
   }
 
-  // 🔹 Создать пользователя (для админки)
   public UserDTO createUser(UserDTO dto) {
     User user = userMapper.toEntity(dto);
     user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
     return userMapper.toDTO(userDao.save(user));
   }
 
-  // 🔹 Обновить пользователя
   public UserDTO updateUser(Long id, UserDTO dto) {
     User user = userDao.findById(id)
       .orElseThrow(() -> new RuntimeException("User not found"));
@@ -57,12 +53,10 @@ public class UserService implements UserDetailsService {
     return userMapper.toDTO(userDao.save(user));
   }
 
-  // 🔹 Удалить пользователя
   public void deleteUser(Long id) {
     userDao.deleteById(id);
   }
 
-  // 🔹 Регистрация нового пользователя
   public UserDTO registerUser(UserDTO dto) {
     if (userDao.findByUsername(dto.getUsername()).isPresent()) {
       throw new RuntimeException("Username already exists");
@@ -78,7 +72,6 @@ public class UserService implements UserDetailsService {
     return userMapper.toDTO(user);
   }
 
-  // 🔹 Вход (логин)
   public UserDTO login(String username, String password) {
     User user = userDao.findByUsername(username)
       .orElseThrow(() -> new RuntimeException("Invalid username or password"));
@@ -95,7 +88,7 @@ public class UserService implements UserDetailsService {
     User user = userDao.findByUsername(username)
       .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    String roleName = user.getRole().name(); // Будет "USER" или "ADMIN"
+    String roleName = user.getRole().name();
 
     return org.springframework.security.core.userdetails.User.builder()
       .username(user.getUsername())

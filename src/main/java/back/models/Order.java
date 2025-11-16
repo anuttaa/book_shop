@@ -23,7 +23,7 @@ public class Order {
   private User user;
 
   @Enumerated(EnumType.STRING)
-  private OrderStatus status = OrderStatus.CREATED;
+  private OrderStatus status = OrderStatus.created;
 
   @Column(name = "total_price")
   private Double totalPrice;

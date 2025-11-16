@@ -9,6 +9,7 @@ import back.models.CartItem;
 import back.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,16 +34,13 @@ public class CartService {
     User user = userDao.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     Book book = bookDao.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
 
-    // Проверяем, есть ли уже эта книга в корзине
     Optional<CartItem> existingItem = cartItemDao.findByUserIdAndBookId(userId, bookId);
 
     if (existingItem.isPresent()) {
-      // Если есть - увеличиваем количество
       CartItem cartItem = existingItem.get();
       cartItem.setQuantity(cartItem.getQuantity() + quantity);
       return cartItemMapper.toDTO(cartItemDao.save(cartItem));
     } else {
-      // Если нет - создаем новую запись
       CartItem cartItem = new CartItem();
       cartItem.setUser(user);
       cartItem.setBook(book);
@@ -55,6 +53,7 @@ public class CartService {
     cartItemDao.deleteById(cartItemId);
   }
 
+  @Transactional
   public void removeFromCartByBookId(Long userId, Long bookId) {
     cartItemDao.deleteByUserIdAndBookId(userId, bookId);
   }

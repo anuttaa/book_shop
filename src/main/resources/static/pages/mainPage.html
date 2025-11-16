@@ -60,27 +60,30 @@
                 </a>
                 <nav class="hidden md:flex items-center gap-9">
                     <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/">Home</a>
-                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/catalog.html">Catalog</a>
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/catalog">Catalog</a>
                     <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/promotions.html">Promotions</a>
                     <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/contacts.html">Contacts</a>
                 </nav>
             </div>
             <div class="flex flex-1 justify-end items-center gap-4">
                 <div class="flex gap-2" id="auth-buttons">
-                    <a href="/pages/login.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                    <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
                         <span class="truncate">Login</span>
                     </a>
-                    <a href="/pages/register.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                    <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
                         <span class="truncate">Registration</span>
                     </a>
                 </div>
                 <div class="hidden gap-2" id="user-actions">
                     <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative">
-                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
                         <span id="cart-counter" class="cart-counter absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center hidden">0</span>
                     </button>
                     <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                        <span class="material-symbols-outlined">favorite</span>
+                        <a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a>
+                    </button>
+                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                        <a href="/orders"><span class="material-symbols-outlined">orders</span></a>
                     </button>
                     <div class="flex items-center gap-2">
                         <span id="welcome-text" class="text-sm text-primary-text dark:text-white">Welcome, User!</span>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>The Book Nook - Order History</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+    <!-- HEADER -->
+    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-10">
+        <div class="flex items-center gap-8">
+            <div class="flex items-center gap-4 text-gray-900 dark:text-white">
+                <div class="size-6 text-primary">
+                    <span class="material-symbols-outlined text-3xl">import_contacts</span>
+                </div>
+                <h2 class="text-lg font-bold tracking-[-0.015em]">The Book Nook</h2>
+            </div>
+        </div>
+        <div class="flex flex-1 justify-center gap-8 px-8">
+            <div class="flex items-center gap-9">
+                <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="/">Home</a>
+                <a class="text-sm font-medium leading-normal text-primary dark:text-primary" href="/catalog">Books</a>
+                <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">My Account</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="flex max-w-[480px] cursor-pointer items-center justify-center rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white gap-2 text-sm font-bold px-2.5">
+                <a href="/cart"><span class="material-symbols-outlined text-xl">shopping_cart</span></a>
+            </button>
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
+                 style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCupFHNDq16WRSblclScM9h-yckcDSeOML-OJkPtHx-aZU6Z_9F3FsYKjYNZWUP2MZ-dZ5bEAx7-EzEngWPX5TOFBHbcPpYVwgLESyCWl1t0fNrSbQCIjfa7FXUZKMnx_J_RsQjrSE_c_L7Nix3Wt60cs9C7oDY2Pna0Br7Vmdt0HVxDEg_04OaldOH5X8BaIxvotvR94vrUkDAhsxV7UhdLwwRPeum5PhJQr0kRtl_x0sCqSJLeBUnFVIZ6tKKa0Fw42taeAQsXaw");'>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 px-4 sm:px-6 lg:px-8 py-10">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">My Order History</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">View your past orders and their status.</p>
+            </div>
+
+            <!-- ORDERS CONTAINER -->
+            <div id="orders-container" class="flex flex-col gap-4">
+                <!-- JS will inject orders here -->
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="mt-10 flex justify-center">
+                <nav aria-label="Pagination" class="flex items-center gap-2">
+                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">
+                        <span class="material-symbols-outlined text-lg">chevron_left</span>
+                    </a>
+                    <a aria-current="page" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary bg-primary text-sm font-medium text-white" href="#">1</a>
+                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">2</a>
+                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">3</a>
+                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">
+                        <span class="material-symbols-outlined text-lg">chevron_right</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/orders.js" defer></script>
+</body>
+</html>

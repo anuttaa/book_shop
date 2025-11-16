@@ -1,59 +1,61 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggle();
-
-    if (apiService.token) {
-        showNotification('You are already logged in. Redirecting...', 'info');
-        setTimeout(() => {
-            window.location.href = '../mainPage.html';
-        }, 2000);
-        return;
-    }
-
     const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
+    if (!loginForm) return;
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const submitButton = this.querySelector('button[type="submit"]');
+    loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-            console.log('Login attempt:', { username });
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const submitButton = loginForm.querySelector('button[type="submit"]');
 
-            if (!username || !password) {
-                showNotification('Please fill in all fields', 'error');
-                return;
-            }
+        if (!username || !password) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
 
-            try {
-                submitButton.textContent = 'Signing In...';
-                submitButton.disabled = true;
+        try {
+            submitButton.textContent = 'Signing In...';
+            submitButton.disabled = true;
 
-                const result = await apiService.login(username, password);
-                console.log('Login successful:', result);
+            const response = await fetch('/api/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
 
-                if (result.token) {
-                    apiService.setToken(result.token);
-                    console.log('Token saved to localStorage:', result.token);
+            if (!response.ok) throw new Error('Invalid credentials');
 
-                    showNotification('Login successful! Redirecting...', 'success');
+            const data = await response.json();
+            if (!data.token) throw new Error('No token received from server');
 
-                    setTimeout(() => {
-                        window.location.href = '../pages/mainPage.html';
-                    }, 1000);
-                } else {
-                    throw new Error('No token received from server');
-                }
+            apiService.setToken(data.token);
 
-            } catch (error) {
-                console.error('Login error:', error);
-                showNotification('Login failed: ' + (error.message || 'Invalid credentials'), 'error');
-            } finally {
-                submitButton.textContent = 'Login';
-                submitButton.disabled = false;
-            }
-        });
-    }
+            showNotification('Login successful! Redirecting...', 'success');
 
-    updateNavigationLinks();
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 800);
+
+        } catch (error) {
+            console.error('Login error:', error);
+            showNotification('Login failed: ' + error.message, 'error');
+        } finally {
+            submitButton.textContent = 'Login';
+            submitButton.disabled = false;
+        }
+    });
 });
+
+function setupPasswordToggle() {
+    const toggle = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    if (!toggle || !password) return;
+
+    toggle.addEventListener('click', () => {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        toggle.textContent = type === 'password' ? 'Show' : 'Hide';
+    });
+}

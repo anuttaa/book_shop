@@ -1,5 +1,6 @@
 package back.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class Review {
 
   @ManyToOne
   @JoinColumn(name = "book_id", nullable = false)
+  @JsonIgnore
   private Book book;
 
   @ManyToOne

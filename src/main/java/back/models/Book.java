@@ -1,6 +1,8 @@
 package back.models;
 
 import back.enums.BookType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,18 +49,23 @@ public class Book {
   private Integer timesAddedToCart = 0;
 
   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
   private List<Media> media;
 
   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private List<CartItem> cartItems;
 
   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private List<OrderItem> orderItems;
 
   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private List<Review> reviews;
 
   @ManyToMany(mappedBy = "books")
+  @JsonIgnore
   private List<Wishlist> wishlists = new ArrayList<>();
 
   @PrePersist
@@ -71,7 +78,6 @@ public class Book {
     updatedAt = LocalDateTime.now();
   }
 
-  // Геттер для рейтинга, который вычисляет среднее значение
   public Double getRating() {
     if (this.reviews == null || this.reviews.isEmpty()) {
       return 0.0;
@@ -81,15 +87,13 @@ public class Book {
       .mapToInt(Review::getRating)
       .sum();
 
-    return Math.round((sum / this.reviews.size()) * 10.0) / 10.0; // округление до 1 знака
+    return Math.round((sum / this.reviews.size()) * 10.0) / 10.0;
   }
 
-  // Сеттер (может быть пустым или использоваться для установки кэшированного значения)
   public void setRating(Double rating) {
     this.rating = rating;
   }
 
-  // Дополнительный метод для получения количества отзывов
   public Integer getReviewCount() {
     return this.reviews != null ? this.reviews.size() : 0;
   }

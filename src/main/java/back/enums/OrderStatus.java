@@ -1,9 +1,9 @@
 package back.enums;
 
 public enum OrderStatus {
-  CREATED,
-  PAID,
-  SHIPPED,
-  COMPLETED,
-  CANCELLED
+  created,
+  paid,
+  shipped,
+  completed,
+  cancelled
 }

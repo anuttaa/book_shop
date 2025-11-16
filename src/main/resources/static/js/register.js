@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (apiService.token) {
         showNotification('You are already logged in. Redirecting...', 'info');
         setTimeout(() => {
-            window.location.href = '../mainPage.html';
+            window.location.href = '/';
         }, 2000);
         return;
     }
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmPassword = document.getElementById('confirmPassword').value;
             const submitButton = this.querySelector('button[type="submit"]');
 
-            console.log('Form data:', { username, email, password, confirmPassword }); // для отладки
+            console.log('Form data:', { username, email, password, confirmPassword });
 
             if (!username || !email || !password || !confirmPassword) {
                 showNotification('Please fill in all fields', 'error');
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('Registration successful! Redirecting to login...', 'success');
 
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }, 2000);
 
             } catch (error) {
@@ -76,14 +76,35 @@ document.addEventListener('DOMContentLoaded', function() {
     updateNavigationLinks();
 });
 
+function setupPasswordToggle() {
+    const toggle = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    if (!toggle || !password) return;
+
+    toggle.addEventListener('click', () => {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        toggle.textContent = type === 'password' ? 'Show' : 'Hide';
+    });
+}
+
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+function isValidPassword(password) {
+    return password.length >= 6;
+}
+
 function updateNavigationLinks() {
     document.querySelectorAll('header a[href="#"]').forEach(link => {
         if (link.textContent.includes('Register')) {
-            link.href = 'register.html';
+            link.href = 'register';
         } else if (link.textContent.includes('Login')) {
-            link.href = 'login.html';
+            link.href = 'login';
         } else if (link.textContent.includes('Home')) {
-            link.href = '../mainPage.html';
+            link.href = '/';
         }
     });
 }

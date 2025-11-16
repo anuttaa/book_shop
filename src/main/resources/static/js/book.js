@@ -252,25 +252,52 @@ function updateBreadcrumbs(book) {
 }
 
 async function loadReviews(bookId) {
-    try {
-        // Здесь можно добавить вызов API для получения отзывов
-        // const reviews = await apiService.getBookReviews(bookId);
+    const reviewsContainer = document.getElementById('reviewsContainer');
+    reviewsContainer.innerHTML = '';
 
-        // Временно используем заглушку
-        const reviewsContainer = document.getElementById('reviewsContainer');
-        reviewsContainer.innerHTML = `
-            <div class="bg-white dark:bg-background-dark/50 border-2 border-dashed border-neutral-border dark:border-white/20 rounded-xl p-6 flex flex-col gap-4 items-center justify-center text-center hover:border-primary-alt dark:hover:border-primary hover:bg-primary-alt/5 dark:hover:bg-primary/10 transition-colors">
+    try {
+        const reviews = await apiService.getBookReviews(bookId);
+        console.log('Reviews from API:', reviews);
+
+        if (!reviews || reviews.length === 0) {
+            const noReviewsEl = document.createElement("div");
+            noReviewsEl.className = "bg-white dark:bg-background-dark/50 border-2 border-dashed border-neutral-border dark:border-white/20 rounded-xl p-6 flex flex-col gap-4 items-center justify-center text-center";
+            noReviewsEl.innerHTML = `
                 <p class="font-bold text-neutral-text dark:text-neutral-text-dark">No reviews yet</p>
                 <p class="text-gray-600 dark:text-gray-300 text-sm">Be the first to share your thoughts!</p>
                 <button onclick="openReviewModal()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 mt-2 bg-transparent text-primary-alt dark:text-primary border border-primary-alt dark:border-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-alt dark:hover:bg-primary hover:text-white dark:hover:text-black transition-colors">
                     <span class="truncate">Write a Review</span>
                 </button>
-            </div>
-        `;
+            `;
+            reviewsContainer.appendChild(noReviewsEl);
+            return;
+        }
+
+        reviews.forEach(review => {
+            const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+
+            const reviewEl = document.createElement("div");
+            reviewEl.className = "p-4 border border-neutral-border dark:border-neutral-text-dark rounded-lg shadow-sm mb-4";
+            reviewEl.innerHTML = `
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="font-bold text-lg">${review.username}</span>
+                    <span class="text-yellow-400">${stars}</span>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 text-sm">${review.comment}</p>
+            `;
+            reviewsContainer.appendChild(reviewEl);
+        });
+
     } catch (error) {
         console.error('Error loading reviews:', error);
+        const errorEl = document.createElement("p");
+        errorEl.className = "text-red-500 text-center";
+        errorEl.textContent = "Failed to load reviews";
+        reviewsContainer.appendChild(errorEl);
     }
 }
+
+
 
 async function loadRecommendations(bookId) {
     try {

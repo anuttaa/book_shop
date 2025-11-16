@@ -42,7 +42,6 @@ public class WishlistService {
     Book book = bookRepository.findById(bookId)
       .orElseThrow(() -> new RuntimeException("Book not found with id: " + bookId));
 
-    // Проверяем, нет ли уже этой книги в вишлисте
     if (!wishlist.getBooks().contains(book)) {
       wishlist.addBook(book);
       wishlistRepository.save(wishlist);
@@ -68,7 +67,6 @@ public class WishlistService {
     return wishlistRepository.existsByUserIdAndBookId(userId, bookId);
   }
 
-  // Вспомогательный метод для создания нового вишлиста
   private Wishlist createNewWishlist(Long userId) {
     Wishlist newWishlist = new Wishlist();
     User user = userService.getUserEntityById(userId);
@@ -76,7 +74,6 @@ public class WishlistService {
     return wishlistRepository.save(newWishlist);
   }
 
-  // Дополнительный метод для получения книг из вишлиста
   public List<BookDTO> getWishlistBooks(Long userId) {
     Wishlist wishlist = wishlistRepository.findByUserId(userId)
       .orElseThrow(() -> new RuntimeException("Wishlist not found for user: " + userId));

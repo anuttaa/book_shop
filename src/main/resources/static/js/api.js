@@ -16,48 +16,20 @@ class ApiService {
         console.log('Token removed');
     }
 
-    async request(endpoint, options = {}) {
-        const url = this.baseUrl + endpoint;
-        console.log('API Request:', url, options);
+    async request(path, options = {}) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (this.token) headers['Authorization'] = 'Bearer ' + this.token;
 
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            ...options
-        };
+        console.log('Fetching', this.baseUrl + path, headers);
 
-        if (this.token) {
-            config.headers['Authorization'] = `Bearer ${this.token}`;
+        const response = await fetch(this.baseUrl + path, { headers, ...options });
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('API error:', text);
+            throw new Error(text);
         }
-
-        try {
-            const response = await fetch(url, config);
-            console.log('API Response status:', response.status);
-
-            if (response.status === 401) {
-                this.removeToken();
-                window.location.href = '/pages/login.html';
-                throw new Error('Authentication required');
-            }
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('API Error:', errorText);
-                throw new Error(errorText || `HTTP error! status: ${response.status}`);
-            }
-
-            if (response.status === 204) {
-                return null;
-            }
-
-            const result = await response.json();
-            console.log('API Response data:', result);
-            return result;
-        } catch (error) {
-            console.error('API request failed:', error);
-            throw error;
-        }
+        return response.json();
     }
 
     // Auth methods
@@ -122,6 +94,7 @@ class ApiService {
     }
 
     normalizeBookType(type) {
+        console.log(type);
         if (!type) return 'physical';
         return type.toLowerCase();
     }
@@ -147,7 +120,7 @@ class ApiService {
     }
 
     async getBookReviews(bookId) {
-        return this.request(`/api/books/${bookId}/reviews`);
+        return this.request(`/api/reviews/book/${bookId}`);
     }
 
     // Media methods
@@ -203,14 +176,47 @@ class ApiService {
     }
 
     async removeFromWishlist(bookId) {
-        return this.request('/api/wishlist/remove?bookId=' + bookId, {
-            method: 'DELETE'
+        const headers = {};
+        if (this.token) headers['Authorization'] = 'Bearer ' + this.token;
+
+        const response = await fetch(`${this.baseUrl}/api/wishlist/remove?bookId=${bookId}`, {
+            method: 'DELETE',
+            headers
         });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || `HTTP error! status: ${response.status}`);
+        }
     }
 
     async checkInWishlist(bookId) {
-        return this.request('/api/wishlist/check?bookId=' + bookId);
+        return this.request(`/api/wishlist/check/${bookId}`);
     }
+
+   // Orders methods
+   async getUserOrders() {
+       return this.request('/api/orders');
+   }
+
+   async createOrderFromCart() {
+       return this.request('/api/orders/create-from-cart', {
+           method: 'POST'
+       });
+   }
+
+   async payOrder(orderId) {
+       return this.request(`/api/orders/${orderId}/pay`, {
+           method: 'POST'
+       });
+   }
+
+   async deleteOrder(orderId) {
+       return this.request(`/api/orders/${orderId}`, {
+           method: 'DELETE'
+       });
+   }
+
 }
 
 const apiService = new ApiService();

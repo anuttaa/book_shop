@@ -43,12 +43,20 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
         .requestMatchers("/api/books/**").permitAll()
-        .requestMatchers("/", "/pages/**", "/css/**", "/js/**", "/images/**").permitAll()
+        .requestMatchers("/api/media/**").permitAll()
+        .requestMatchers("/api/reviews/**").permitAll()
+        .requestMatchers("/api/users/**").permitAll()
+        .requestMatchers("/", "/pages/**", "/css/**", "/js/**", "/images/**",
+          "/login", "/register","/catalog", "/cart", "/wishlist", "/orders", "/login.html", "/register.html").permitAll()
+
+
         .anyRequest().authenticated())
       .authenticationProvider(authenticationProvider())
       .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
     return http.build();
   }
+
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {

@@ -35,13 +35,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     final String requestPath = request.getServletPath();
     final String method = request.getMethod();
 
-    // ✅ Разрешаем статические файлы и публичные endpoints без аутентификации
     if (isPublicEndpoint(requestPath, method)) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    // 🔐 Для всех остальных endpoints проверяем JWT токен
     final String authHeader = request.getHeader("Authorization");
     System.out.println("AuthHeader = " + authHeader);
 
@@ -82,7 +80,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return;
       }
     } else if (username == null) {
-      // ❌ Если токена нет для защищенного endpoint
       System.out.println("No JWT token provided for protected endpoint: " + requestPath);
       sendErrorResponse(response, "Authentication required");
       return;
@@ -91,29 +88,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  // ✅ Разрешаем статические файлы и публичные API без аутентификации
   private boolean isPublicEndpoint(String path, String method) {
-    // Статические файлы
+
     if (path.startsWith("/pages/") ||
       path.startsWith("/css/") ||
       path.startsWith("/js/") ||
       path.startsWith("/images/") ||
       path.equals("/") ||
-      path.equals("/mainPage.html") ||
-      path.equals("/index.html") ||
-      path.endsWith(".html") ||
-      path.endsWith(".css") ||
-      path.endsWith(".js") ||
-      path.endsWith(".ico")) {
+      path.equals("/favicon.ico") ||
+      path.equals("/login") ||
+      path.equals("/register") ||
+      path.equals("/login.html") ||
+      path.equals("/register.html")) {
       return true;
     }
 
-    // ✅ Разрешаем ВСЕ методы для всех эндпоинтов /api/books/**
-    if (path.startsWith("/api/books/")) {
+    if (path.equals("/api/books") || path.startsWith("/api/books/")) {
       return true;
     }
 
-    // Публичные API endpoints
+    if (path.startsWith("/api/media/")) {
+      return true;
+    }
+
+    if (path.startsWith("/api/reviews/")) {
+      return true;
+    }
+
+    if (path.startsWith("/api/users")) {
+      return true;
+    }
+
+    if (path.equals("/login") || path.equals("/register") ||
+      path.equals("/catalog") || path.equals("/cart") ||
+      path.equals("/wishlist") || path.equals("/orders")) {
+      return true;
+    }
+
     return ("/api/users/register".equals(path) && "POST".equalsIgnoreCase(method)) ||
       ("/api/users/login".equals(path) && "POST".equalsIgnoreCase(method));
   }

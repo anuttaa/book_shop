@@ -1,5 +1,6 @@
 package back.dto;
 
+import back.enums.BookType;
 import back.models.Media;
 import lombok.Data;
 import lombok.Getter;
@@ -22,5 +23,7 @@ public class BookDTO {
   private Integer reviewCount;
   private Integer timesAddedToCart;
   private LocalDateTime createdAt;
+  private BookType type;
+  private String cover;
 }
 

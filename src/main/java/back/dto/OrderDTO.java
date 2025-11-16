@@ -16,7 +16,7 @@ import java.util.List;
 public class OrderDTO {
   private Long id;
   private User user;
-  private OrderStatus status = OrderStatus.CREATED;
+  private OrderStatus status = OrderStatus.created;
   private Double totalPrice;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Book Store - Catalog</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#135bec",
+                "background-light": "#f6f6f8",
+                "background-dark": "#101622",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+    <script src="/js/api.js"></script>
+    <script src="/js/catalog.js" type="module" defer></script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-[#101622] dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-20 w-full bg-background-light dark:bg-background-dark/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-2 text-primary">
+                        <span class="material-symbols-outlined text-3xl">import_contacts</span>
+                        <h2 class="text-xl font-bold leading-tight tracking-tight text-[#101622] dark:text-white">Book Store</h2>
+                    </div>
+                    <nav class="hidden md:flex items-center gap-6">
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/">Home</a>
+                        <a class="text-sm font-medium text-primary dark:text-primary" href="/catalog">Catalog</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Promotions</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Contacts</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                        <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
+                    </button>
+                    <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                        <a href="/cart"><span class="material-symbols-outlined text-2xl">shopping_cart</span></a>
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAyy16CUoqbNbWmuSqdZEHIxeftJdar2gDKKp55fRSKWedF-MwBgo7ZxqXTez5Z5MmV9HgcHQ-QeY0qLIGHWxqANyUJcFp0Bp3O4jKsbqAOz3PWi6h8gFynGJ9_Iz60ZTihhpYXtKWjeEwcWXeygKeGvQ_dRPbwqiUXaBe9FjZabrlcXCPgzdNOFaYaaThzbuvXJsYcgNHxdIS5f_JRBn_PP1OWZyVicc9FtnylqImvWzhjvOS5pFvxRUW5PE6bZAr9SrBZjOJ4svs");'></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-8">
+
+            <!-- SIDEBAR FILTERS -->
+            <aside class="hidden md:block">
+                <div class="sticky top-24">
+                    <div class="flex flex-col gap-6 p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                        <h3 class="text-lg font-bold text-[#101622] dark:text-white">Filters</h3>
+                        <div class="flex flex-col gap-6">
+                            <!-- Genre -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Genre</label>
+                                <div id="genres" class="flex flex-col gap-2">
+                                    <!-- JS will render genres here -->
+                                </div>
+                            </div>
+                            <!-- Author -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Author</label>
+                                <div id="authors" class="flex flex-col gap-2">
+                                    <!-- JS will render authors here -->
+                                </div>
+                            </div>
+                            <!-- Price Range -->
+                            <div class="mb-4">
+                                <label class="text-sm text-gray-600 dark:text-gray-300">Price:</label>
+                                <div class="flex items-center gap-2">
+                                    <span id="price-value">$0 - $100</span>
+                                    <input type="range" min="0" max="100" value="100" id="price-slider" class="w-full">
+                                </div>
+                            </div>
+                            <!-- Format -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Format</label>
+                                <div id="formats" class="flex flex-col gap-2">
+                                    <!-- JS will render formats here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CATALOG -->
+            <div class="flex flex-col gap-6">
+                <!-- Search & Sort -->
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <label class="relative w-full sm:max-w-md">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                        <input id="search" class="form-input w-full h-12 pl-10 pr-4 rounded-lg text-[#101622] dark:text-white border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-sm"
+                               placeholder="Search by title or author..." value=""/>
+                    </label>
+                    <div class="relative w-full sm:w-auto">
+                        <select id="sort" class="appearance-none w-full sm:w-48 pl-3 pr-10 h-12 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-[#101622] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <option value="popularity">Sort by: Popularity</option>
+                            <option value="priceAsc">Price: Low to High</option>
+                            <option value="priceDesc">Price: High to Low</option>
+                            <option value="rating">Rating</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRID FOR BOOKS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="book-grid">
+                    <!-- JS will render books here -->
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="flex items-center justify-center pt-8">
+                    <nav id="pagination" aria-label="Pagination" class="flex items-center gap-2">
+                        <!-- JS will render pagination here -->
+                    </nav>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+</body>
+</html>
