@@ -1,9 +1,12 @@
 package back.controller;
 
 import back.dto.BookDTO;
+import back.models.User;
 import back.service.BookService;
+import back.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.List;
 public class BookController {
 
   private final BookService bookService;
+  private final UserService userService;
 
   @GetMapping
   public ResponseEntity<List<BookDTO>> getAllBooks() {
@@ -50,13 +54,56 @@ public class BookController {
   }
 
   @GetMapping("/recommended")
-  public ResponseEntity<List<BookDTO>> getRecommendedBooks() {
-    return ResponseEntity.ok(bookService.getRecommendedBooks());
+  public ResponseEntity<List<BookDTO>> getRecommendedBooks(Authentication authentication) {
+    User user = null;
+    if (authentication != null) {
+      try {
+        user = userService.getUserEntityByUsername(authentication.getName());
+      } catch (RuntimeException e) {
+        System.out.println("User not found, using default recommendations: " + e.getMessage());
+      }
+    }
+
+    List<BookDTO> recommendations = bookService.getRecommendedBooks(user);
+
+    if (user != null) {
+      System.out.println("Personalized recommendations for user: " + user.getUsername());
+    } else {
+      System.out.println("Default recommendations for guest user");
+    }
+
+    return ResponseEntity.ok(recommendations);
   }
 
   @GetMapping("/popular")
-  public ResponseEntity<List<BookDTO>> getPopularBooks() {
-    return ResponseEntity.ok(bookService.getPopularBooks());
+  public ResponseEntity<List<BookDTO>> getPopularBooks(Authentication authentication) {
+    User user = null;
+    if (authentication != null) {
+      try {
+        user = userService.getUserEntityByUsername(authentication.getName());
+      } catch (RuntimeException e) {
+        System.out.println("User not found, using default popular books: " + e.getMessage());
+      }
+    }
+    return ResponseEntity.ok(bookService.getPopularBooks(user));
+  }
+
+  @GetMapping("/top-rated")
+  public ResponseEntity<List<BookDTO>> getTopRatedBooks() {
+    return ResponseEntity.ok(bookService.getTopRatedBooks());
+  }
+
+  @GetMapping("/genre/{genre}")
+  public ResponseEntity<List<BookDTO>> getBooksByGenre(@PathVariable String genre) {
+    List<BookDTO> books = bookService.getAllBooks().stream()
+      .filter(book -> book.getGenre() != null && book.getGenre().equalsIgnoreCase(genre))
+      .collect(java.util.stream.Collectors.toList());
+    return ResponseEntity.ok(books);
+  }
+
+  @GetMapping("/new-arrivals")
+  public ResponseEntity<List<BookDTO>> getNewArrivals() {
+    List<BookDTO> newArrivals = bookService.getRecommendedBooks(null);
+    return ResponseEntity.ok(newArrivals);
   }
 }
-

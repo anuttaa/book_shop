@@ -1,0 +1,145 @@
+@startuml
+title Диаграмма классов онлайн-платформы для подбора и покупки книг
+
+left to right direction
+
+class User {
+  - id: Long
+  - username: String
+  - email: String
+  - passwordHash: String
+  - role: Role
+  - subscribed: Boolean
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+  - avatarMedia: Media
+  --
+  + onCreate(): void
+  + onUpdate(): void
+}
+
+class Book {
+  - id: Long
+  - title: String
+  - author: String
+  - description: String
+  - genre: String
+  - price: Double
+  - type: BookType
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+  - status: String
+  - timesAddedToCart: Integer
+  --
+  + getRating(): Double
+  + setRating(Double): void
+  + getReviewCount(): Integer
+  + onCreate(): void
+  + onUpdate(): void
+}
+
+class Order {
+  - id: Long
+  - status: OrderStatus
+  - totalPrice: Double
+  - createdAt: LocalDateTime
+  - updatedAt: LocalDateTime
+  --
+  + onCreate(): void
+  + onUpdate(): void
+}
+
+class OrderItem {
+  - id: Long
+  - quantity: Integer
+  - price: Double
+}
+
+class CartItem {
+  - id: Long
+  - quantity: Integer
+  - addedAt: LocalDateTime
+  --
+  + onCreate(): void
+}
+
+class Review {
+  - id: Long
+  - rating: Integer
+  - comment: String
+  - createdAt: LocalDateTime
+  --
+  + onCreate(): void
+}
+
+class Wishlist {
+  - id: Long
+  - createdAt: LocalDateTime
+  --
+  + addBook(Book): void
+  + removeBook(Book): void
+  + onCreate(): void
+}
+
+class Media {
+  - id: Long
+  - fileType: FileType
+  - fileName: String
+  - fileUrl: String
+  - createdAt: LocalDateTime
+  --
+  + onCreate(): void
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum BookType {
+  electronic
+  physical
+}
+
+enum OrderStatus {
+  created
+  paid
+  shipped
+  completed
+  cancelled
+}
+
+enum FileType {
+  image
+  video
+  audio
+  pdf
+}
+
+' Компактное позиционирование 3x3
+User -[hidden]right- Book
+Book -[hidden]right- Order
+
+OrderItem -[hidden]down- User
+CartItem -[hidden]down- Book
+Review -[hidden]down- Order
+
+Wishlist -[hidden]down- OrderItem
+Media -[hidden]down- CartItem
+
+' Связи между классами
+User --> CartItem
+User --> Order
+User --> Review
+User --> Wishlist
+User --> Media
+
+Book --> CartItem
+Book --> OrderItem
+Book --> Review
+Book --> Wishlist
+Book --> Media
+
+Order --> OrderItem
+
+@enduml

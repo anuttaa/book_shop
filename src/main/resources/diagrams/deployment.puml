@@ -1,0 +1,19 @@
+@startuml
+title Диаграмма развертывания онлайн-платформы для подбора и покупки книг
+
+node "Клиентское устройство" as client {
+  [Веб-браузер]
+}
+
+node "Веб-сервер" as server {
+  [Spring Boot Application]
+}
+
+node "Сервер БД" as db {
+  [MySQL Database]
+}
+
+client -> server : HTTP/HTTPS
+server -> db : JDBC
+
+@enduml

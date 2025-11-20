@@ -53,18 +53,22 @@
 
     <nav class="hidden md:flex items-center gap-6 text-gray-800 dark:text-gray-200">
         <a href="/" class="text-sm font-medium hover:text-primary">Home</a>
-        <a href="/browse.html" class="text-sm font-medium hover:text-primary">Browse</a>
-        <a href="/bestsellers.html" class="text-sm font-medium hover:text-primary">Bestsellers</a>
-        <a href="/about.html" class="text-sm font-medium hover:text-primary">About</a>
+        <a href="/catalog" class="text-sm font-medium hover:text-primary">Catalog</a>
     </nav>
 
     <div class="flex items-center gap-4">
+        <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+            <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
+        </button>
+        <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+            <a href="/orders"><span class="material-symbols-outlined text-2xl">orders</span></a>
+        </button>
         <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-            <span class="material-symbols-outlined">shopping_cart</span>
+            <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
             <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</div>
         </button>
         <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-            <span class="material-symbols-outlined">account_circle</span>
+            <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
         </button>
     </div>
 </header>

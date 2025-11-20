@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>BookStore - Your Online Book Destination</title>
+    <title>BookStore - Ваш онлайн-магазин книг</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
@@ -59,34 +59,34 @@
                     <h1 class="text-primary-text dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">BookStore</h1>
                 </a>
                 <nav class="hidden md:flex items-center gap-9">
-                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/">Home</a>
-                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/catalog">Catalog</a>
-                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/promotions.html">Promotions</a>
-                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/contacts.html">Contacts</a>
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/">Главная</a>
+                    <a class="text-primary-text dark:text-gray-300 dark:hover:text-white text-sm font-medium leading-normal" href="/catalog">Каталог</a>
                 </nav>
             </div>
             <div class="flex flex-1 justify-end items-center gap-4">
                 <div class="flex gap-2" id="auth-buttons">
                     <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                        <span class="truncate">Login</span>
+                        <span class="truncate">Войти</span>
                     </a>
                     <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                        <span class="truncate">Registration</span>
+                        <span class="truncate">Регистрация</span>
                     </a>
                 </div>
                 <div class="hidden gap-2" id="user-actions">
-                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 relative">
+                    <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                        <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
+                    </button>
+                    <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                        <a href="/orders"><span class="material-symbols-outlined text-2xl">orders</span></a>
+                    </button>
+                    <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
                         <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
-                        <span id="cart-counter" class="cart-counter absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center hidden">0</span>
+                        <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</div>
                     </button>
-                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                        <a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a>
-                    </button>
-                    <button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
-                        <a href="/orders"><span class="material-symbols-outlined">orders</span></a>
+                    <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
+                        <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
                     </button>
                     <div class="flex items-center gap-2">
-                        <span id="welcome-text" class="text-sm text-primary-text dark:text-white">Welcome, User!</span>
                         <button onclick="logout()" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
                             <span class="material-symbols-outlined">logout</span>
                         </button>
@@ -99,33 +99,37 @@
                 <section class="relative w-full h-[500px] bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAtUgmhfjZdFT6eoOWKuMEMnaLHNeQXL3rGtZeXjFc7e_skV6g5sSaq75ibAjNxYZEeHzZDFkfQFivPKqPDflYuRwnsOyyomt3Fodb5bisFpCfOfygfoYwGy31Qcc8lcf3HUy4Winfl6gKD1-2F6g2lblttr1uH-QkWBKVH3-ILhnG3-T0vPYkNJO779FlaSPZfKZYa13LqtXfo0cMn3Z0Bk4I1Fuqe5iQFQcB4pfB7MpW9vsGPsg0sxVY2xRyxGP_OtKpGAXz5cpw");'>
                     <div class="absolute inset-0 bg-black/40"></div>
                     <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
-                        <h1 class="text-5xl font-black leading-tight tracking-tight mb-4">New Arrivals: Bestsellers of the Year</h1>
-                        <p class="text-lg mb-8 max-w-2xl">Discover the most talked-about books of the year. Unforgettable stories and characters await you.</p>
+                        <h1 class="text-5xl font-black leading-tight tracking-tight mb-4">Новые поступления: Бестселлеры года</h1>
+                        <p class="text-lg mb-8 max-w-2xl">Откройте для себя самые обсуждаемые книги года. Вас ждут незабываемые истории и персонажи.</p>
                         <div class="flex gap-4">
                             <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]">
-                                <span class="truncate">View</span>
+                                <span class="truncate">Смотреть</span>
                             </button>
                             <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white/20 backdrop-blur-sm text-white text-base font-bold leading-normal tracking-[0.015em]">
-                                <span class="truncate">Buy Now</span>
+                                <span class="truncate">Купить сейчас</span>
                             </button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Recommended Books Section -->
+                <!-- Рекомендуемые книги -->
                 <section class="px-4 sm:px-6 lg:px-8 py-10">
-                    <h2 class="text-primary-text dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Recommended</h2>
+                    <h2 class="text-primary-text dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Рекомендуемые</h2>
                     <div id="recommended-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        <!-- Books will be loaded dynamically -->
+                        <!-- Книги будут загружены динамически -->
                     </div>
                 </section>
 
-                <!-- Popular Books Section -->
+                <!-- Популярные книги -->
                 <section class="px-4 sm:px-6 lg:px-8 py-10">
-                    <h2 class="text-primary-text dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Popular</h2>
+                    <h2 class="text-primary-text dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">Популярные</h2>
                     <div id="popular-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        <!-- Books will be loaded dynamically -->
+                        <!-- Книги будут загружены динамически -->
                     </div>
+                </section>
+                <section id="top-rated-section" class="py-8">
+                    <h2 class="section-title text-2xl font-bold text-primary-text dark:text-white mb-6">Книги с высоким рейтингом</h2>
+                    <div id="top-rated-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"></div>
                 </section>
             </div>
         </main>
@@ -134,12 +138,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div class="col-span-1 md:col-span-2">
                         <h3 class="font-bold text-primary-text dark:text-white text-lg mb-2">BookStore</h3>
-                        <p class="text-sm text-secondary-text dark:text-gray-400">123 Bookworm Lane, Readington, BK 12345</p>
+                        <p class="text-sm text-secondary-text dark:text-gray-400">ул. Книголюбов, 123, Ридингтон, BK 12345</p>
                         <p class="text-sm text-secondary-text dark:text-gray-400">Email: support@bookstore.com</p>
-                        <p class="text-sm text-secondary-text dark:text-gray-400">Phone: (123) 456-7890</p>
+                        <p class="text-sm text-secondary-text dark:text-gray-400">Телефон: (123) 456-7890</p>
                     </div>
                     <div>
-                        <h3 class="font-bold text-primary-text dark:text-white mb-4">Follow Us</h3>
+                        <h3 class="font-bold text-primary-text dark:text-white mb-4">Мы в соцсетях</h3>
                         <div class="flex space-x-4">
                             <a class="text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">
                                 <svg aria-hidden="true" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fill-rule="evenodd"></path></svg>
@@ -153,29 +157,19 @@
                         </div>
                     </div>
                     <div>
-                        <h3 class="font-bold text-primary-text dark:text-white mb-4">Legal</h3>
+                        <h3 class="font-bold text-primary-text dark:text-white mb-4">Правовая информация</h3>
                         <ul class="space-y-2">
-                            <li><a class="text-sm text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">Privacy Policy</a></li>
-                            <li><a class="text-sm text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">Terms of Use</a></li>
+                            <li><a class="text-sm text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">Политика конфиденциальности</a></li>
+                            <li><a class="text-sm text-secondary-text dark:text-gray-400 hover:text-primary dark:hover:text-white" href="#">Условия использования</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="mt-8 border-t border-gray-200 dark:border-gray-800 pt-8 text-center">
-                    <p class="text-sm text-secondary-text dark:text-gray-400">© 2024 BookStore. All rights reserved.</p>
+                    <p class="text-sm text-secondary-text dark:text-gray-400">© 2024 BookStore. Все права защищены.</p>
                 </div>
             </div>
         </footer>
     </div>
 </div>
-
-<script>
-    // Обработка ошибок загрузки картинок
-    document.addEventListener('error', function(e) {
-        if (e.target.tagName === 'DIV' && e.target.style.backgroundImage) {
-            console.warn('Failed to load background image:', e.target.style.backgroundImage);
-            e.target.style.backgroundImage = "url('/images/default-book.jpg')";
-        }
-    }, true);
-</script>
 </body>
 </html>

@@ -1,14 +1,20 @@
 package back.service;
 
-import back.dao.BookDao;
+import back.dao.*;
 import back.dto.BookDTO;
+import back.enums.Role;
 import back.mappers.BookMapper;
 import back.models.Book;
+import back.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +24,9 @@ public class BookService {
 
   private final BookDao bookRepository;
   private final BookMapper bookMapper;
+  private final OrderDao orderRepository;
+  private final WishlistDao wishlistRepository;
+  private final ReviewDao reviewRepository;
 
   public List<BookDTO> getAllBooks() {
     return bookRepository.findAll()
@@ -76,27 +85,307 @@ public class BookService {
       .collect(Collectors.toList());
   }
 
-  public List<BookDTO> getRecommendedBooks() {
-    return bookRepository.findTop10ByOrderByCreatedAtDesc()
-      .stream()
-      .map(this::enrichBookWithRating)
-      .map(bookMapper::toDTO)
-      .collect(Collectors.toList());
+  public List<BookDTO> getRecommendedBooks(User user) {
+    if (user != null && user.getRole() != Role.guest) {
+      List<BookDTO> personalized = getPersonalizedRecommendations(user);
+
+      if (personalized.size() < 5) {
+        System.out.println("Only " + personalized.size() + " personalized recommendations, adding default ones");
+        List<BookDTO> defaultRecs = getDefaultRecommendedBooks();
+        Set<Long> personalizedIds = personalized.stream()
+          .map(BookDTO::getId)
+          .collect(Collectors.toSet());
+
+        List<BookDTO> additional = defaultRecs.stream()
+          .filter(book -> !personalizedIds.contains(book.getId()))
+          .limit(10 - personalized.size())
+          .collect(Collectors.toList());
+
+        personalized.addAll(additional);
+      }
+
+      return personalized.stream().limit(15).collect(Collectors.toList());
+    } else {
+      return getDefaultRecommendedBooks();
+    }
   }
 
-  public List<BookDTO> getPopularBooks() {
-    return bookRepository.findTop10ByOrderByTimesAddedToCartDesc()
-      .stream()
-      .map(this::enrichBookWithRating)
-      .map(bookMapper::toDTO)
-      .collect(Collectors.toList());
+  public List<BookDTO> getPopularBooks(User user) {
+    if (user != null && user.getRole() != Role.guest) {
+      return getPersonalizedPopularBooks(user);
+    } else {
+      return getDefaultPopularBooks();
+    }
   }
 
   public List<BookDTO> getTopRatedBooks() {
-    return getAllBooks().stream()
+    return bookRepository.findTop15ByOrderByCreatedAtDesc()
+      .stream()
+      .map(this::enrichBookWithRating)
       .filter(book -> book.getRating() > 0)
       .sorted((b1, b2) -> Double.compare(b2.getRating(), b1.getRating()))
-      .limit(10)
+      .limit(15)
+      .map(bookMapper::toDTO)
+      .collect(Collectors.toList());
+  }
+
+  private List<BookDTO> getPersonalizedRecommendations(User user) {
+    try {
+      System.out.println("=== PERSONALIZED RECOMMENDATIONS DEBUG ===");
+      System.out.println("User: " + user.getUsername() + ", ID: " + user.getId());
+
+      List<BookDTO> recommendations = new ArrayList<>();
+
+      System.out.println("1. Genre-based recommendations...");
+      List<BookDTO> genreRecommendations = getGenreBasedRecommendations(user);
+      System.out.println("Genre recommendations: " + genreRecommendations.size());
+      recommendations.addAll(genreRecommendations);
+
+      System.out.println("2. Author-based recommendations...");
+      List<BookDTO> authorRecommendations = getAuthorBasedRecommendations(user);
+      System.out.println("Author recommendations: " + authorRecommendations.size());
+      recommendations.addAll(authorRecommendations);
+
+      System.out.println("3. Wishlist-based recommendations...");
+      List<BookDTO> wishlistRecommendations = getWishlistBasedRecommendations(user);
+      System.out.println("Wishlist recommendations: " + wishlistRecommendations.size());
+      recommendations.addAll(wishlistRecommendations);
+
+      System.out.println("4. Similar users recommendations...");
+      List<BookDTO> similarUsersRecommendations = getSimilarUsersRecommendations(user);
+      System.out.println("Similar users recommendations: " + similarUsersRecommendations.size());
+      recommendations.addAll(similarUsersRecommendations);
+
+      System.out.println("Total recommendations before filtering: " + recommendations.size());
+
+      List<BookDTO> finalRecommendations = removeDuplicatesAndLimit(recommendations, 15);
+      System.out.println("Final recommendations: " + finalRecommendations.size());
+      System.out.println("=== END DEBUG ===");
+
+      return finalRecommendations;
+
+    } catch (Exception e) {
+      System.out.println("Error getting personalized recommendations: " + e.getMessage());
+      e.printStackTrace();
+      return getDefaultRecommendedBooks();
+    }
+  }
+
+  private List<BookDTO> getGenreBasedRecommendations(User user) {
+    try {
+      List<Object[]> favoriteGenres = bookRepository.findUserFavoriteGenres(user.getId());
+      System.out.println("Favorite genres for user " + user.getId() + ": " + favoriteGenres);
+
+      if (favoriteGenres.isEmpty()) {
+        System.out.println("No favorite genres found, returning default books");
+        return getDefaultRecommendedBooks().stream().limit(5).collect(Collectors.toList());
+      }
+
+      List<String> topGenres = favoriteGenres.stream()
+        .limit(3)
+        .map(obj -> (String) obj[0])
+        .collect(Collectors.toList());
+
+      System.out.println("Top genres: " + topGenres);
+
+      List<Book> genreBooks = bookRepository.findBooksByGenresExcludingUserBooks(
+        topGenres, user.getId(), 8
+      );
+
+      System.out.println("Found " + genreBooks.size() + " books in favorite genres");
+
+      if (genreBooks.isEmpty() && !topGenres.isEmpty()) {
+        System.out.println("Trying without user exclusion...");
+        genreBooks = bookRepository.findByGenreContainingIgnoreCase(topGenres.get(0))
+          .stream()
+          .limit(8)
+          .collect(Collectors.toList());
+      }
+
+      List<Book> wishlistBooks = wishlistRepository.findBooksByUser(user.getId());
+      Set<Long> wishlistBookIds = wishlistBooks.stream()
+        .map(Book::getId)
+        .collect(Collectors.toSet());
+
+      List<Book> filteredBooks = genreBooks.stream()
+        .filter(book -> !wishlistBookIds.contains(book.getId()))
+        .collect(Collectors.toList());
+
+      System.out.println("After wishlist filtering: " + filteredBooks.size() + " books");
+
+      return filteredBooks.stream()
+        .map(this::enrichBookWithRating)
+        .map(bookMapper::toDTO)
+        .collect(Collectors.toList());
+
+    } catch (Exception e) {
+      System.out.println("Error in genre-based recommendations: " + e.getMessage());
+      e.printStackTrace();
+      return new ArrayList<>();
+    }
+  }
+  private List<BookDTO> getAuthorBasedRecommendations(User user) {
+    try {
+      List<Object[]> favoriteAuthors = bookRepository.findUserFavoriteAuthors(user.getId());
+      List<String> topAuthors = favoriteAuthors.stream()
+        .limit(3)
+        .map(obj -> (String) obj[0])
+        .collect(Collectors.toList());
+
+      if (!topAuthors.isEmpty()) {
+        List<Book> authorBooks = bookRepository.findBooksByAuthorsExcludingUserBooks(
+          topAuthors, user.getId(), 8
+        );
+
+        List<Book> wishlistBooks = wishlistRepository.findBooksByUser(user.getId());
+        Set<Long> wishlistBookIds = wishlistBooks.stream()
+          .map(Book::getId)
+          .collect(Collectors.toSet());
+
+        List<Book> filteredBooks = authorBooks.stream()
+          .filter(book -> !wishlistBookIds.contains(book.getId()))
+          .collect(Collectors.toList());
+
+        return filteredBooks.stream()
+          .map(this::enrichBookWithRating)
+          .map(bookMapper::toDTO)
+          .collect(Collectors.toList());
+      }
+    } catch (Exception e) {
+      System.out.println("Error in author-based recommendations: " + e.getMessage());
+    }
+
+    return new ArrayList<>();
+  }
+
+  private List<BookDTO> getWishlistBasedRecommendations(User user) {
+    try {
+      List<Book> wishlistBooks = wishlistRepository.findBooksByUser(user.getId());
+
+      if (!wishlistBooks.isEmpty()) {
+        Set<String> wishlistGenres = wishlistBooks.stream()
+          .map(Book::getGenre)
+          .collect(Collectors.toSet());
+
+        Set<String> wishlistAuthors = wishlistBooks.stream()
+          .map(Book::getAuthor)
+          .filter(Objects::nonNull)
+          .collect(Collectors.toSet());
+
+        List<Book> genreRecommendations = new ArrayList<>();
+        if (!wishlistGenres.isEmpty()) {
+          genreRecommendations = bookRepository.findBooksByGenresExcludingUserBooks(
+            new ArrayList<>(wishlistGenres), user.getId(), 5
+          );
+        }
+
+        List<Book> authorRecommendations = new ArrayList<>();
+        if (!wishlistAuthors.isEmpty()) {
+          authorRecommendations = bookRepository.findBooksByAuthorsExcludingUserBooks(
+            new ArrayList<>(wishlistAuthors), user.getId(), 5
+          );
+        }
+
+        List<Book> allRecommendations = new ArrayList<>();
+        allRecommendations.addAll(genreRecommendations);
+        allRecommendations.addAll(authorRecommendations);
+
+        Set<Long> wishlistBookIds = wishlistBooks.stream()
+          .map(Book::getId)
+          .collect(Collectors.toSet());
+
+        List<Book> filteredRecommendations = allRecommendations.stream()
+          .filter(book -> !wishlistBookIds.contains(book.getId()))
+          .collect(Collectors.toList());
+
+        return filteredRecommendations.stream()
+          .map(this::enrichBookWithRating)
+          .map(bookMapper::toDTO)
+          .collect(Collectors.toList());
+      }
+    } catch (Exception e) {
+      System.out.println("Error in wishlist-based recommendations: " + e.getMessage());
+    }
+
+    return new ArrayList<>();
+  }
+
+  private List<BookDTO> getSimilarUsersRecommendations(User user) {
+    try {
+      List<Book> similarUsersBooks = bookRepository.findBooksFromSimilarUsers(user.getId(), 10);
+
+      return similarUsersBooks.stream()
+        .map(this::enrichBookWithRating)
+        .map(bookMapper::toDTO)
+        .collect(Collectors.toList());
+    } catch (Exception e) {
+      System.out.println("Error in similar users recommendations: " + e.getMessage());
+      return new ArrayList<>();
+    }
+  }
+
+  private List<BookDTO> getPersonalizedPopularBooks(User user) {
+    try {
+      List<BookDTO> personalizedPopular = new ArrayList<>();
+
+      List<Object[]> favoriteGenres = bookRepository.findUserFavoriteGenres(user.getId());
+      if (!favoriteGenres.isEmpty()) {
+        List<String> topGenres = favoriteGenres.stream()
+          .limit(2)
+          .map(obj -> (String) obj[0])
+          .collect(Collectors.toList());
+
+        List<Book> genrePopular = bookRepository.findBooksByGenresExcludingUserBooks(
+          topGenres, user.getId(), 10
+        );
+        personalizedPopular.addAll(genrePopular.stream()
+          .map(this::enrichBookWithRating)
+          .map(bookMapper::toDTO)
+          .collect(Collectors.toList()));
+      }
+
+      if (personalizedPopular.size() < 15) {
+        List<BookDTO> defaultPopular = getDefaultPopularBooks();
+        Set<Long> addedBookIds = personalizedPopular.stream()
+          .map(BookDTO::getId)
+          .collect(Collectors.toSet());
+
+        List<BookDTO> additionalBooks = defaultPopular.stream()
+          .filter(book -> !addedBookIds.contains(book.getId()))
+          .limit(15 - personalizedPopular.size())
+          .collect(Collectors.toList());
+
+        personalizedPopular.addAll(additionalBooks);
+      }
+
+      return personalizedPopular.stream().limit(15).collect(Collectors.toList());
+
+    } catch (Exception e) {
+      System.out.println("Error getting personalized popular books: " + e.getMessage());
+      return getDefaultPopularBooks();
+    }
+  }
+
+  private List<BookDTO> getDefaultRecommendedBooks() {
+    return bookRepository.findTop15ByOrderByCreatedAtDesc()
+      .stream()
+      .map(this::enrichBookWithRating)
+      .map(bookMapper::toDTO)
+      .collect(Collectors.toList());
+  }
+
+  private List<BookDTO> getDefaultPopularBooks() {
+    return bookRepository.findTop15ByOrderByTimesAddedToCartDesc()
+      .stream()
+      .map(this::enrichBookWithRating)
+      .map(bookMapper::toDTO)
+      .collect(Collectors.toList());
+  }
+
+  private List<BookDTO> removeDuplicatesAndLimit(List<BookDTO> books, int limit) {
+    return books.stream()
+      .distinct()
+      .limit(limit)
       .collect(Collectors.toList());
   }
 
@@ -107,5 +396,3 @@ public class BookService {
     return book;
   }
 }
-
-

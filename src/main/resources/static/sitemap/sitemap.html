@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта сайта - BookStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f6f6f8;
+            color: #111318;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #135bec;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        h2 {
+            color: #111318;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #135bec;
+        }
+        .sitemap-section {
+            margin-bottom: 30px;
+        }
+        .sitemap-list {
+            list-style: none;
+            padding: 0;
+        }
+        .sitemap-list li {
+            margin: 8px 0;
+        }
+        .sitemap-list a {
+            text-decoration: none;
+            color: #616f89;
+            font-weight: 500;
+            padding: 10px 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .sitemap-list a:hover {
+            color: #135bec;
+            background-color: #f0f4ff;
+            transform: translateX(5px);
+        }
+        .sitemap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            color: #135bec;
+            font-size: 18px;
+            width: 24px;
+        }
+        .info-box {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border-left: 4px solid #135bec;
+        }
+        .info-box h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0;
+            color: #135bec;
+        }
+        .new-badge {
+            background: #135bec;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: auto;
+        }
+        @media (max-width: 768px) {
+            body { padding: 20px; }
+            .container { padding: 20px; }
+            .sitemap-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Полная карта сайта BookStore</h1>
+
+    <div class="sitemap-grid">
+        <div class="sitemap-section">
+            <h2>Основные страницы</h2>
+            <ul class="sitemap-list">
+                <li><a href="/"><span class="material-symbols-outlined">home</span>Главная страница</a></li>
+                <li><a href="/catalog"><span class="material-symbols-outlined">menu_book</span>Каталог книг</a></li>
+                <li><a href="/pages/book.html?id=53"><span class="material-symbols-outlined">book</span>Страница книги</a></li>
+            </ul>
+        </div>
+
+        <div class="sitemap-section">
+            <h2>Мой аккаунт</h2>
+            <ul class="sitemap-list">
+                <li><a href="/profile"><span class="material-symbols-outlined">person</span>Личный кабинет</a></li>
+                <li><a href="/orders"><span class="material-symbols-outlined">inventory_2</span>Мои заказы</a></li>
+                <li><a href="/wishlist"><span class="material-symbols-outlined">favorite</span>Список желаний</a></li>
+                <li><a href="/cart"><span class="material-symbols-outlined">shopping_cart</span>Корзина покупок</a></li>
+                <li><a href="/my-reviews"><span class="material-symbols-outlined">reviews</span>Мои отзывы</a></li>
+                <li><a href="/my-ebooks"><span class="material-symbols-outlined">auto_stories</span>Мои электронные книги</a></li>
+            </ul>
+        </div>
+
+        <div class="sitemap-section">
+            <h2>Вход и регистрация</h2>
+            <ul class="sitemap-list">
+                <li><a href="/login"><span class="material-symbols-outlined">login</span>Вход в аккаунт</a></li>
+                <li><a href="/register"><span class="material-symbols-outlined">person_add</span>Регистрация</a></li>
+            </ul>
+        </div>
+
+        <div class="sitemap-section">
+            <h2>Информация</h2>
+            <ul class="sitemap-list">
+                <li><a href="/about"><span class="material-symbols-outlined">info</span>О компании</a></li>
+                <li><a href="/contacts"><span class="material-symbols-outlined">contact_page</span>Контакты</a></li>
+            </ul>
+        </div>
+
+        <div class="sitemap-section">
+            <h2>⚙Администрирование</h2>
+            <ul class="sitemap-list">
+                <li><a href="/admin"><span class="material-symbols-outlined">admin_panel_settings</span>Панель администратора</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

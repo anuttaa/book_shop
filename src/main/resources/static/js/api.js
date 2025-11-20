@@ -16,21 +16,67 @@ class ApiService {
         console.log('Token removed');
     }
 
-    async request(path, options = {}) {
-        const headers = { 'Content-Type': 'application/json' };
-        if (this.token) headers['Authorization'] = 'Bearer ' + this.token;
+   async request(path, options = {}, expectJson = true) {
+       const headers = { 'Content-Type': 'application/json' };
+       if (this.token) headers['Authorization'] = 'Bearer ' + this.token;
 
-        console.log('Fetching', this.baseUrl + path, headers);
+       console.log('Fetching', this.baseUrl + path, {
+           headers,
+           method: options.method || 'GET'
+       });
 
-        const response = await fetch(this.baseUrl + path, { headers, ...options });
-        console.log('Response status:', response.status);
-        if (!response.ok) {
-            const text = await response.text();
-            console.error('API error:', text);
-            throw new Error(text);
-        }
-        return response.json();
-    }
+       try {
+           const response = await fetch(this.baseUrl + path, {
+               headers,
+               ...options,
+               credentials: 'include'
+           });
+
+           console.log('Response status:', response.status);
+
+           if (response.status === 403) {
+               console.warn('Access forbidden, checking token validity...');
+           }
+
+           const text = await response.text();
+
+           if (!response.ok) {
+               console.error('API error:', {
+                   status: response.status,
+                   statusText: response.statusText,
+                   body: text
+               });
+               throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+           }
+
+           return expectJson && text ? JSON.parse(text) : text;
+       } catch (error) {
+           console.error('Network error:', error);
+           throw error;
+       }
+   }
+
+   async reorder(orderId) {
+       try {
+           const orders = await this.getUserOrders();
+           const order = orders.find(o => o.id == orderId);
+
+           if (!order || !order.orderItems) {
+               throw new Error("Order not found or has no items");
+           }
+
+           for (const item of order.orderItems) {
+               if (item.book && item.book.id) {
+                   await this.addToCart(item.book.id, item.quantity || 1);
+               }
+           }
+
+           return { success: true, message: "Items added to cart" };
+       } catch (error) {
+           console.error("Reorder error:", error);
+           throw error;
+       }
+   }
 
     // Auth methods
     async login(username, password) {
@@ -77,6 +123,94 @@ class ApiService {
         return await response.json();
     }
 
+   // User methods
+    async getProfile() {
+        return this.request('/api/users/me');
+    }
+
+    async updateProfile(profileData) {
+        return this.request('/api/users/me', {
+            method: 'PUT',
+            body: JSON.stringify(profileData)
+        });
+    }
+
+    async changePassword(currentPassword, newPassword) {
+        return this.request('/api/users/me/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ currentPassword, newPassword })
+        }, false);
+    }
+
+    async getSubscription() {
+        return this.request('/api/users/me/subscription');
+    }
+
+    async updateSubscription(subscribed) {
+        return this.request('/api/users/me/subscription', {
+            method: 'PUT',
+            body: JSON.stringify({ subscribed })
+        });
+    }
+
+    async deleteAccount() {
+        return this.request('/api/users/me', {
+            method: 'DELETE'
+        }, false);
+    }
+
+    async getUsers() {
+        return this.request('/api/users/admin/all', {
+            method: 'GET'
+        });
+    }
+
+    async blockUser(userId) {
+        return this.request(`/api/users/admin/${userId}/block`, {
+            method: 'PUT'
+        });
+    }
+
+    async unblockUser(userId) {
+        return this.request(`/api/users/admin/${userId}/unblock`, {
+            method: 'PUT'
+        });
+    }
+
+    async updateUserRole(userId, role) {
+        return this.request(`/api/users/admin/${userId}/role`, {
+            method: 'PUT',
+            body: JSON.stringify({ role })
+        });
+    }
+
+    async createUser(userData) {
+        return this.request('/api/users/admin', {
+            method: 'POST',
+            body: JSON.stringify(userData)
+        });
+    }
+
+    async updateUser(userId, userData) {
+        return this.request(`/api/users/admin/${userId}`, {
+            method: 'PUT',
+            body: JSON.stringify(userData)
+        });
+    }
+
+    async deleteUser(userId) {
+        return this.request(`/api/users/admin/${userId}`, {
+            method: 'DELETE'
+        }, false);
+    }
+
+    async resetUserPassword(userId, newPassword) {
+        return this.request(`/api/users/admin/${userId}/reset-password`, {
+            method: 'POST',
+            body: JSON.stringify({ newPassword })
+        }, false);
+    }
+
     // Book methods
     async getBooks() {
         try {
@@ -111,16 +245,53 @@ class ApiService {
         return this.request(`/api/books/${id}`);
     }
 
-    async getRecommendedBooks() {
-        return this.request('/api/books/recommended');
+    async getBookReviews(bookId) {
+        return this.request(`/api/reviews/book/${bookId}`);
     }
+
+    async searchBooks(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.request(`/api/books/search?${query}`);
+    }
+
+    async createBook(book) {
+        return this.request('/api/books', {
+            method: 'POST',
+            body: JSON.stringify(book)
+        });
+    }
+
+    async updateBook(id, book) {
+        return this.request(`/api/books/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(book)
+        });
+    }
+
+    async deleteBook(id) {
+        return this.request(`/api/books/${id}`, {
+            method: 'DELETE'
+        }, false);
+    }
+
+    async getRecommendedBooks() {
+            return this.request('/api/books/recommended');
+        }
 
     async getPopularBooks() {
         return this.request('/api/books/popular');
     }
 
-    async getBookReviews(bookId) {
-        return this.request(`/api/reviews/book/${bookId}`);
+    async getTopRatedBooks() {
+        return this.request('/api/books/top-rated');
+    }
+
+    async getBooksByGenre(genre) {
+        return this.request(`/api/books/genre/${genre}`);
+    }
+
+    async getNewArrivals() {
+        return this.request('/api/books/new-arrivals');
     }
 
     // Media methods
@@ -199,10 +370,20 @@ class ApiService {
        return this.request('/api/orders');
    }
 
+   async getOrders() {
+       return this.request('/api/orders/admin/all');
+   }
+
    async createOrderFromCart() {
        return this.request('/api/orders/create-from-cart', {
            method: 'POST'
        });
+   }
+   async updateOrder(orderId, orderData) {
+        return this.request(`/api/orders/${orderId}`, {
+            method: 'PUT',
+            body: JSON.stringify(orderData)
+        });
    }
 
    async payOrder(orderId) {
@@ -217,6 +398,71 @@ class ApiService {
        });
    }
 
+   // Review methods
+   async addReview(bookId, reviewData) {
+       return this.request(`/api/reviews?bookId=${bookId}`, {
+           method: 'POST',
+           body: JSON.stringify(reviewData)
+       });
+   }
+
+   async updateReview(reviewId, reviewData) {
+       return this.request(`/api/reviews/${reviewId}`, {
+           method: 'PUT',
+           body: JSON.stringify(reviewData)
+       });
+   }
+
+   async deleteReview(reviewId) {
+       return this.request(`/api/reviews/${reviewId}`, {
+           method: 'DELETE'
+       }, false);
+   }
+
+   async getUserReviews() {
+       return this.request('/api/reviews/my');
+   }
+
+   // Avatar methods
+    async getMyAvatar() {
+        try {
+            const response = await this.request('/api/users/me/avatar');
+            console.log('API getMyAvatar response:', response);
+            return response;
+        } catch (error) {
+            console.error('API getMyAvatar error:', error);
+            throw error;
+        }
+    }
+
+    async getUserAvatar(userId) {
+        return this.request(`/api/users/${userId}/avatar`);
+    }
+
+    async setMyAvatar(avatarUrl, fileName) {
+        return this.request('/api/users/me/avatar', {
+            method: 'PUT',
+            body: JSON.stringify({
+                avatarUrl: avatarUrl,
+                fileName: fileName
+            })
+        });
+    }
+
+    async deleteMyAvatar() {
+        return this.request('/api/users/me/avatar', {
+            method: 'DELETE'
+        }, false);
+    }
 }
 
-const apiService = new ApiService();
+function parseJwt(token) {
+    try {
+        const payload = token.split('.')[1];
+        return JSON.parse(atob(payload));
+    } catch (e) {
+        return {};
+    }
+}
+
+window.apiService = new ApiService();

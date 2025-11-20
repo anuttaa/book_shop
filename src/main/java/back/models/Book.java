@@ -45,6 +45,8 @@ public class Book {
   @Transient
   private Double rating;
 
+  private String status = "active";
+
   @Column(name = "times_added_to_cart")
   private Integer timesAddedToCart = 0;
 

@@ -39,4 +39,14 @@ public class PageController {
   public String ordersPage() {
     return "forward:/pages/orders.html";
   }
+
+  @GetMapping("/profile")
+  public String profilePage() {
+    return "forward:/pages/profile.html";
+  }
+
+  @GetMapping("/admin")
+  public String adminPage() {
+    return "forward:/pages/admin.html";
+  }
 }

@@ -14,17 +14,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WishlistDao extends JpaRepository<Wishlist, Long> {
-  // Найти вишлист по пользователю
   Optional<Wishlist> findByUserId(Long userId);
 
-  // Проверить есть ли книга в вишлисте пользователя
-  @Query("SELECT COUNT(b) > 0 FROM Wishlist w JOIN w.books b WHERE w.user.id = :userId AND b.id = :bookId")
+  @Query("SELECT COUNT(w) > 0 FROM Wishlist w JOIN w.books b WHERE w.user.id = :userId AND b.id = :bookId")
   boolean existsByUserIdAndBookId(@Param("userId") Long userId, @Param("bookId") Long bookId);
 
-  // Удалить книгу из вишлиста
   @Modifying
   @Query("DELETE FROM Wishlist w WHERE w.user.id = :userId AND :book MEMBER OF w.books")
   void removeBookFromWishlist(@Param("userId") Long userId, @Param("book") Book book);
+
+  // Исправленный запрос - используем books вместо book
+  @Query("SELECT b FROM Wishlist w JOIN w.books b WHERE w.user.id = :userId")
+  List<Book> findBooksByUser(@Param("userId") Long userId);
 }
 
 

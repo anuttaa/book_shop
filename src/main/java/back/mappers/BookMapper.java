@@ -20,7 +20,7 @@ public interface BookMapper {
     if (book.getMedia() != null && !book.getMedia().isEmpty()) {
       return book.getMedia().get(0).getFileUrl();
     }
-    return "/images/default-book.jpg";
+    return null;
   }
 }
 

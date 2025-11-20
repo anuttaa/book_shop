@@ -1,7 +1,6 @@
 package back.dto;
 
 import back.enums.FileType;
-import back.models.Book;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

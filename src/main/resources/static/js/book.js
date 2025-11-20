@@ -4,6 +4,7 @@ let currentBook = null;
 document.addEventListener('DOMContentLoaded', function() {
     loadBookDetails();
     checkAuthStatus();
+     updateAuthUI();
 });
 
 function loadBookDetails() {
@@ -251,13 +252,47 @@ function updateBreadcrumbs(book) {
     `;
 }
 
+async function checkUserReview(bookId) {
+    if (!apiService.token) {
+        console.log('No token, user not logged in');
+        return null;
+    }
+
+    try {
+        console.log('Checking user reviews for book:', bookId);
+        const userReviews = await apiService.getUserReviews();
+        console.log('User reviews:', userReviews);
+
+        const userReview = userReviews.find(review => review.bookId === bookId);
+        console.log('Found user review for this book:', userReview);
+
+        return userReview;
+    } catch (error) {
+        console.error('Error checking user review:', error);
+        return null;
+    }
+}
+
 async function loadReviews(bookId) {
     const reviewsContainer = document.getElementById('reviewsContainer');
     reviewsContainer.innerHTML = '';
 
     try {
         const reviews = await apiService.getBookReviews(bookId);
-        console.log('Reviews from API:', reviews);
+        const userReview = await checkUserReview(bookId);
+
+        console.log('All reviews from API:', reviews);
+        console.log('Current user review:', userReview);
+
+        const reviewButton = document.createElement("div");
+        reviewButton.className = "mb-6 text-center";
+        reviewButton.innerHTML = `
+            <button onclick="openReviewModal()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-alt dark:bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mx-auto">
+                <span class="material-symbols-outlined mr-2">rate_review</span>
+                <span class="truncate">Write a Review</span>
+            </button>
+        `;
+        reviewsContainer.appendChild(reviewButton);
 
         if (!reviews || reviews.length === 0) {
             const noReviewsEl = document.createElement("div");
@@ -265,39 +300,288 @@ async function loadReviews(bookId) {
             noReviewsEl.innerHTML = `
                 <p class="font-bold text-neutral-text dark:text-neutral-text-dark">No reviews yet</p>
                 <p class="text-gray-600 dark:text-gray-300 text-sm">Be the first to share your thoughts!</p>
-                <button onclick="openReviewModal()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 mt-2 bg-transparent text-primary-alt dark:text-primary border border-primary-alt dark:border-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-alt dark:hover:bg-primary hover:text-white dark:hover:text-black transition-colors">
-                    <span class="truncate">Write a Review</span>
-                </button>
             `;
             reviewsContainer.appendChild(noReviewsEl);
             return;
         }
 
         reviews.forEach(review => {
-            const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+            const stars = generateStarIcons(review.rating);
+
+            const isUserReview = userReview && userReview.id === review.id;
+
+            console.log(`Review ${review.id}: isUserReview = ${isUserReview}, username = ${review.username}`);
 
             const reviewEl = document.createElement("div");
-            reviewEl.className = "p-4 border border-neutral-border dark:border-neutral-text-dark rounded-lg shadow-sm mb-4";
+            reviewEl.className = `p-4 border border-neutral-border dark:border-neutral-text-dark rounded-lg shadow-sm mb-4 bg-white dark:bg-background-dark/30 ${
+                isUserReview ? 'ring-2 ring-green-500 relative' : ''
+            }`;
+
+            let actionButtons = '';
+            if (isUserReview) {
+                actionButtons = `
+                    <div class="flex gap-2 ml-3">
+                        <button onclick="editReviewModal(${review.id})"
+                                class="flex items-center gap-1 px-2 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors text-sm"
+                                title="Edit review">
+                            <span class="material-symbols-outlined text-base">edit</span>
+                            <span>Edit</span>
+                        </button>
+                        <button onclick="deleteReview(${review.id})"
+                                class="flex items-center gap-1 px-2 py-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors text-sm"
+                                title="Delete review">
+                            <span class="material-symbols-outlined text-base">delete</span>
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                `;
+            }
+
             reviewEl.innerHTML = `
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="font-bold text-lg">${review.username}</span>
-                    <span class="text-yellow-400">${stars}</span>
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-lg text-neutral-text dark:text-neutral-text-dark">${review.username}</span>
+                        ${isUserReview ?
+                          '<span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span>Your Review</span>' : ''}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex text-yellow-500 text-lg">
+                            ${stars}
+                        </div>
+                    </div>
                 </div>
-                <p class="text-gray-700 dark:text-gray-300 text-sm">${review.comment}</p>
+
+                <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-3">${review.comment}</p>
+
+                <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-600">
+                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                        ${review.createdAt ? `Posted: ${new Date(review.createdAt).toLocaleDateString()}` : ''}
+                        ${review.updatedAt && review.updatedAt !== review.createdAt ?
+                          `<br><span class="text-gray-400">Edited: ${new Date(review.updatedAt).toLocaleDateString()}</span>` : ''}
+                    </div>
+                    ${actionButtons}
+                </div>
             `;
             reviewsContainer.appendChild(reviewEl);
         });
 
     } catch (error) {
         console.error('Error loading reviews:', error);
-        const errorEl = document.createElement("p");
-        errorEl.className = "text-red-500 text-center";
-        errorEl.textContent = "Failed to load reviews";
+        const errorEl = document.createElement("div");
+        errorEl.className = "text-center py-8";
+        errorEl.innerHTML = `
+            <span class="material-symbols-outlined text-red-500 text-4xl mb-2">error</span>
+            <p class="text-red-500">Failed to load reviews</p>
+            <button onclick="loadReviews(${bookId})" class="mt-2 text-primary-alt dark:text-primary text-sm hover:underline">
+                Try Again
+            </button>
+        `;
         reviewsContainer.appendChild(errorEl);
     }
 }
 
+function editReviewModal(reviewId) {
+    loadReviewForEditing(reviewId);
+}
 
+async function loadReviewForEditing(reviewId) {
+    try {
+        const userReviews = await apiService.getUserReviews();
+        const reviewToEdit = userReviews.find(review => review.id === reviewId);
+
+        if (!reviewToEdit) {
+            showNotification('Review not found or you do not have permission to edit it', 'error');
+            return;
+        }
+
+        createEditReviewModal(reviewToEdit);
+
+    } catch (error) {
+        console.error('Error loading review for editing:', error);
+        showNotification('Failed to load review for editing', 'error');
+    }
+}
+
+function createEditReviewModal(review) {
+    if (reviewModal) {
+        reviewModal.remove();
+    }
+
+    reviewModal = document.createElement('dialog');
+    reviewModal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm';
+    reviewModal.innerHTML = `
+        <div class="bg-white dark:bg-background-dark rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-neutral-text dark:text-neutral-text-dark">Edit Review</h3>
+                <button onclick="closeReviewModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="editReviewForm" class="space-y-4">
+                <input type="hidden" id="editReviewId" value="${review.id}">
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-neutral-text dark:text-neutral-text-dark">Rating</label>
+                    <div class="flex space-x-1" id="editRatingStars">
+                        ${[1,2,3,4,5].map(i => `
+                            <button type="button"
+                                    class="text-2xl transition-colors duration-200"
+                                    data-rating="${i}"
+                                    onclick="setEditRating(${i})">
+                                <span class="material-symbols-outlined ${i <= review.rating ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'}">star</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <input type="hidden" id="editSelectedRating" name="rating" value="${review.rating}" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="editReviewComment" class="block text-sm font-medium text-neutral-text dark:text-neutral-text-dark">Your Review</label>
+                    <textarea
+                        id="editReviewComment"
+                        name="comment"
+                        rows="4"
+                        class="w-full px-3 py-2 border border-neutral-border dark:border-white/20 rounded-lg bg-white dark:bg-background-dark/50 text-neutral-text dark:text-neutral-text-dark placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-alt dark:focus:ring-primary focus:border-transparent resize-none"
+                        placeholder="Share your thoughts about this book..."
+                        maxlength="500"
+                        required>${review.comment || ''}</textarea>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 text-right">
+                        <span id="editCharCount">${review.comment ? review.comment.length : 0}</span>/500 characters
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeReviewModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" id="updateReviewBtn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                        Update Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(reviewModal);
+    reviewModal.showModal();
+
+    document.getElementById('editReviewComment').addEventListener('input', updateEditCharCount);
+    document.getElementById('editReviewForm').addEventListener('submit', updateReview);
+}
+
+function setEditRating(rating) {
+    const stars = document.querySelectorAll('#editRatingStars button');
+    const selectedRatingInput = document.getElementById('editSelectedRating');
+
+    stars.forEach((star, index) => {
+        const icon = star.querySelector('.material-symbols-outlined');
+        if (index < rating) {
+            icon.textContent = 'star';
+            icon.classList.remove('text-gray-300', 'dark:text-gray-600');
+            icon.classList.add('text-yellow-500');
+        } else {
+            icon.textContent = 'star';
+            icon.classList.remove('text-yellow-500');
+            icon.classList.add('text-gray-300', 'dark:text-gray-600');
+        }
+    });
+
+    selectedRatingInput.value = rating;
+}
+
+function updateEditCharCount() {
+    const textarea = document.getElementById('editReviewComment');
+    const charCount = document.getElementById('editCharCount');
+    charCount.textContent = textarea.value.length;
+}
+
+async function updateReview(event) {
+    event.preventDefault();
+
+    const reviewId = document.getElementById('editReviewId').value;
+    const rating = parseInt(document.getElementById('editSelectedRating').value);
+    const comment = document.getElementById('editReviewComment').value.trim();
+    const submitBtn = document.getElementById('updateReviewBtn');
+
+    if (!rating || !comment) {
+        showNotification('Please provide both rating and comment', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+        Updating...
+    `;
+
+    try {
+        const reviewData = {
+            rating: rating,
+            comment: comment
+        };
+
+        const response = await apiService.updateReview(reviewId, reviewData);
+
+        console.log('Review updated successfully:', response);
+        showNotification('Review updated successfully!', 'success');
+        closeReviewModal();
+
+        await loadReviews(currentBookId);
+
+        await updateBookRating();
+
+    } catch (error) {
+        console.error('Error updating review:', error);
+
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showNotification('Authentication failed. Please log in again.', 'error');
+        } else if (error.message.includes('400')) {
+            showNotification('Invalid review data. Please check your input.', 'error');
+        } else {
+            showNotification('Failed to update review. Please try again.', 'error');
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Update Review';
+    }
+}
+
+async function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        await apiService.deleteReview(reviewId);
+        showNotification('Review deleted successfully!', 'success');
+
+        await loadReviews(currentBookId);
+
+        await updateBookRating();
+
+    } catch (error) {
+        console.error('Error deleting review:', error);
+
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showNotification('Authentication failed. Please log in again.', 'error');
+        } else {
+            showNotification('Failed to delete review. Please try again.', 'error');
+        }
+    }
+}
+
+function generateStarIcons(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += '<span class="material-symbols-outlined text-base">star</span>';
+        } else {
+            stars += '<span class="material-symbols-outlined text-base text-gray-300 dark:text-gray-600">star</span>';
+        }
+    }
+    return stars;
+}
 
 async function loadRecommendations(bookId) {
     try {
@@ -432,14 +716,208 @@ function openBookPage(bookId) {
     window.location.href = `book.html?id=${bookId}`;
 }
 
+let reviewModal = null;
+
 function openReviewModal() {
     if (!apiService.token) {
         showNotification('Please login to write a review', 'error');
         return;
     }
-    // Здесь можно добавить модальное окно для написания отзыва
-    showNotification('Review feature coming soon!', 'info');
+
+    createReviewModal();
+    reviewModal.showModal();
 }
+
+function createReviewModal() {
+    if (reviewModal) {
+        reviewModal.remove();
+    }
+
+    reviewModal = document.createElement('dialog');
+    reviewModal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm';
+    reviewModal.innerHTML = `
+        <div class="bg-white dark:bg-background-dark rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-neutral-text dark:text-neutral-text-dark">Write a Review</h3>
+                <button onclick="closeReviewModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="reviewForm" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-neutral-text dark:text-neutral-text-dark">Rating</label>
+                    <div class="flex space-x-1" id="ratingStars">
+                        ${[1,2,3,4,5].map(i => `
+                            <button type="button"
+                                    class="text-2xl transition-colors duration-200"
+                                    data-rating="${i}"
+                                    onclick="setRating(${i})">
+                                <span class="material-symbols-outlined text-gray-300 dark:text-gray-600 hover:text-yellow-400">star</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <input type="hidden" id="selectedRating" name="rating" value="0" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="reviewComment" class="block text-sm font-medium text-neutral-text dark:text-neutral-text-dark">Your Review</label>
+                    <textarea
+                        id="reviewComment"
+                        name="comment"
+                        rows="4"
+                        class="w-full px-3 py-2 border border-neutral-border dark:border-white/20 rounded-lg bg-white dark:bg-background-dark/50 text-neutral-text dark:text-neutral-text-dark placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-alt dark:focus:ring-primary focus:border-transparent resize-none"
+                        placeholder="Share your thoughts about this book..."
+                        maxlength="500"
+                        required></textarea>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 text-right">
+                        <span id="charCount">0</span>/500 characters
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeReviewModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitReviewBtn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-alt dark:bg-primary rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(reviewModal);
+
+    document.getElementById('reviewComment').addEventListener('input', updateCharCount);
+    document.getElementById('reviewForm').addEventListener('submit', submitReview);
+}
+
+function setRating(rating) {
+    const stars = document.querySelectorAll('#ratingStars button');
+    const selectedRatingInput = document.getElementById('selectedRating');
+
+    stars.forEach((star, index) => {
+        const icon = star.querySelector('.material-symbols-outlined');
+        if (index < rating) {
+            icon.textContent = 'star';
+            icon.classList.remove('text-gray-300', 'dark:text-gray-600');
+            icon.classList.add('text-yellow-500');
+        } else {
+            icon.textContent = 'star';
+            icon.classList.remove('text-yellow-500');
+            icon.classList.add('text-gray-300', 'dark:text-gray-600');
+        }
+    });
+
+    selectedRatingInput.value = rating;
+    updateSubmitButton();
+}
+
+function updateCharCount() {
+    const textarea = document.getElementById('reviewComment');
+    const charCount = document.getElementById('charCount');
+    charCount.textContent = textarea.value.length;
+    updateSubmitButton();
+}
+
+function updateSubmitButton() {
+    const rating = parseInt(document.getElementById('selectedRating').value);
+    const comment = document.getElementById('reviewComment').value.trim();
+    const submitBtn = document.getElementById('submitReviewBtn');
+
+    submitBtn.disabled = !(rating > 0 && comment.length > 0 && comment.length <= 500);
+}
+
+function closeReviewModal() {
+    if (reviewModal) {
+        reviewModal.remove();
+        reviewModal = null;
+    }
+}
+
+async function submitReview(event) {
+    event.preventDefault();
+
+    const rating = parseInt(document.getElementById('selectedRating').value);
+    const comment = document.getElementById('reviewComment').value.trim();
+    const submitBtn = document.getElementById('submitReviewBtn');
+
+    if (!rating || !comment) {
+        showNotification('Please provide both rating and comment', 'error');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+        Submitting...
+    `;
+
+    try {
+        const reviewData = {
+            rating: rating,
+            comment: comment
+        };
+
+        const response = await apiService.addReview(currentBookId, reviewData);
+
+        console.log('Review submitted successfully:', response);
+        showNotification('Review submitted successfully!', 'success');
+        closeReviewModal();
+
+        await loadReviews(currentBookId);
+
+        await updateBookRating();
+
+    } catch (error) {
+        console.error('Error submitting review:', error);
+
+        if (error.message.includes('401') || error.message.includes('403')) {
+            showNotification('Authentication failed. Please log in again.', 'error');
+        } else if (error.message.includes('400')) {
+            showNotification('Invalid review data. Please check your input.', 'error');
+        } else if (error.message.includes('409')) {
+            showNotification('You have already reviewed this book.', 'error');
+        } else {
+            showNotification('Failed to submit review. Please try again.', 'error');
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+    }
+}
+
+async function updateBookRating() {
+    try {
+        const updatedBook = await apiService.getBookById(currentBookId);
+
+        const ratingSection = document.getElementById('ratingSection');
+        if (updatedBook.rating && updatedBook.rating > 0) {
+            const stars = generateStarRating(updatedBook.rating);
+            ratingSection.innerHTML = `
+                <div class="flex text-yellow-500">
+                    ${stars}
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">${updatedBook.rating.toFixed(2)} ${updatedBook.reviewCount ? `(${updatedBook.reviewCount} ratings)` : ''}</p>
+            `;
+        }
+    } catch (error) {
+        console.error('Error updating book rating:', error);
+    }
+}
+
+document.addEventListener('click', function(event) {
+    if (reviewModal && event.target === reviewModal) {
+        closeReviewModal();
+    }
+});
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && reviewModal) {
+        closeReviewModal();
+    }
+});
 
 function showLoadingState() {
     document.getElementById('bookTitle').textContent = 'Loading...';

@@ -1,0 +1,1060 @@
+function loadBookManagementPage(container) {
+    if (!container) {
+        container = document.querySelector('main');
+    }
+
+    container.innerHTML = `
+        <div class="p-8">
+            <!-- PageHeading -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h1 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight">Book Management</h1>
+                <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-DEFAULT h-10 px-4 bg-secondary text-secondary-content text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90" onclick="openAddBookModal()">
+                    <span class="material-symbols-outlined">add</span>
+                    <span class="truncate">Add New Book</span>
+                </button>
+            </div>
+
+            <div class="bg-content-light dark:bg-content-dark rounded-lg shadow-sm">
+                <!-- SearchBar & Chips -->
+                <div class="p-4 border-b border-border-light dark:border-border-dark">
+                    <div class="flex flex-col gap-4">
+                        <!-- Поиск -->
+                        <div class="flex-1">
+                            <label class="flex flex-col min-w-40 h-10 w-full">
+                                <div class="flex w-full flex-1 items-stretch rounded-DEFAULT h-full">
+                                    <div class="text-subtle-light dark:text-subtle-dark flex border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark items-center justify-center pl-3 rounded-l-DEFAULT border-r-0">
+                                        <span class="material-symbols-outlined">search</span>
+                                    </div>
+                                    <input id="searchInput" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-DEFAULT text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-full placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search by title, author, or genre..." value=""/>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Фильтры -->
+                        <div class="filters-sticky bg-content-light dark:bg-content-dark">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <!-- Genre Filter -->
+                                <div class="relative">
+                                    <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            data-target="genres">
+                                        <span class="material-symbols-outlined text-base">filter_list</span>
+                                        <p class="text-sm font-medium">Genre</p>
+                                        <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
+                                    </button>
+                                    <div id="genres" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg w-48">
+                                        <!-- Genres will be loaded dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Author Filter -->
+                                <div class="relative">
+                                    <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            data-target="authors">
+                                        <span class="material-symbols-outlined text-base">filter_list</span>
+                                        <p class="text-sm font-medium">Author</p>
+                                        <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
+                                    </button>
+                                    <div id="authors" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg w-48">
+                                        <!-- Authors will be loaded dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Format Filter -->
+                                <div class="relative">
+                                    <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            data-target="formats">
+                                        <span class="material-symbols-outlined text-base">filter_list</span>
+                                        <p class="text-sm font-medium">Format</p>
+                                        <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
+                                    </button>
+                                    <div id="formats" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg w-48">
+                                        <!-- Formats will be loaded dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Price Filter -->
+                                <div class="relative">
+                                    <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                            data-target="price">
+                                        <span class="material-symbols-outlined text-base">filter_list</span>
+                                        <p class="text-sm font-medium">Price</p>
+                                        <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
+                                    </button>
+                                    <div id="price" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-lg w-64">
+                                        <div class="mb-2">
+                                            <span id="price-value" class="text-sm font-medium text-text-light dark:text-text-dark">$0 - $100</span>
+                                        </div>
+                                        <input type="range" id="price-slider" min="0" max="100" value="100"
+                                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                                    </div>
+                                </div>
+
+                                <!-- Reset Filters Button -->
+                                <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark px-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                        onclick="resetFilters()">
+                                    <span class="material-symbols-outlined text-subtle-light dark:text-subtle-dark text-xl">restart_alt</span>
+                                    <p class="text-subtle-light dark:text-subtle-dark text-sm font-medium">Reset Filters</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-subtle-light dark:text-subtle-dark uppercase bg-background-light dark:bg-background-dark">
+                        <tr>
+                            <th class="p-4" scope="col">
+                                <input id="selectAll" class="h-4 w-4 rounded border-border-light dark:border-border-dark bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-2 focus:ring-offset-0 focus:ring-primary/50" type="checkbox"/>
+                            </th>
+                            <th class="px-4 py-3" scope="col">Cover</th>
+                            <th class="px-4 py-3 min-w-64" scope="col">Title</th>
+                            <th class="px-4 py-3 min-w-40" scope="col">Author</th>
+                            <th class="px-4 py-3" scope="col">Genre</th>
+                            <th class="px-4 py-3" scope="col">Type</th>
+                            <th class="px-4 py-3" scope="col">Price</th>
+                            <th class="px-4 py-3" scope="col">In Cart</th>
+                            <th class="px-4 py-3" scope="col">Status</th>
+                            <th class="px-4 py-3 text-right" scope="col">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                        <!-- Books will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="p-8 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p class="mt-2 text-subtle-light dark:text-subtle-dark">Loading books...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden p-8 text-center">
+                    <span class="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark mb-4">menu_book</span>
+                    <h3 class="text-lg font-medium text-text-light dark:text-text-dark mb-2">No books found</h3>
+                    <p class="text-subtle-light dark:text-subtle-dark mb-4">Get started by adding your first book to the catalog.</p>
+                    <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-DEFAULT h-10 px-4 bg-secondary text-secondary-content text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90" onclick="openAddBookModal()">
+                        <span class="material-symbols-outlined">add</span>
+                        <span class="truncate">Add New Book</span>
+                    </button>
+                </div>
+
+                <!-- Pagination -->
+                <div class="hidden flex items-center justify-between p-4 border-t border-border-light dark:border-border-dark" id="paginationContainer">
+                    <span class="text-sm text-subtle-light dark:text-subtle-dark">Showing <span class="font-semibold text-text-light dark:text-text-dark" id="showingRange">1-0</span> of <span class="font-semibold text-text-light dark:text-text-dark" id="totalBooks">0</span></span>
+                    <div class="flex items-center gap-2">
+                        <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="previousPage()">Previous</button>
+                        <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="nextPage()">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Book Modal -->
+        <div id="addBookModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Add New Book</h3>
+                    <button onclick="closeAddBookModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <form id="addBookForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Cover Image URL</label>
+                            <input type="url" name="imageUrl"
+                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
+                                   placeholder="https://example.com/book-cover.jpg">
+                            <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Optional: Provide a URL for the book cover image</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Title *</label>
+                            <input type="text" name="title" required
+                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Author *</label>
+                            <input type="text" name="author" required
+                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Genre *</label>
+                            <input type="text" name="genre" required
+                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Price *</label>
+                            <input type="number" step="0.01" min="0" name="price" required
+                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Type *</label>
+                            <select name="type" required
+                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                                <option value="PHYSICAL">Physical</option>
+                                <option value="ELECTRONIC">Electronic</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Description</label>
+                            <textarea name="description" rows="3"
+                                      class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
+                                      placeholder="Enter book description..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4 border-t border-border-light dark:border-border-dark">
+                        <button type="button" onclick="closeAddBookModal()"
+                                class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Cancel</button>
+                        <button type="submit"
+                                class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Add Book</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    initializeBookManagement();
+    loadBooks();
+}
+
+function initializeBookManagement() {
+    setupBooksEventListeners();
+}
+
+function setupBooksEventListeners() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(() => {
+            currentSearch = searchInput.value;
+            currentBookPage = 1;
+            filterAndDisplayBooks();
+        }, 300));
+    }
+
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', toggleSelectAll);
+    }
+
+    const addBookForm = document.getElementById('addBookForm');
+    if (addBookForm) {
+        addBookForm.addEventListener('submit', handleAddBook);
+    }
+
+    const priceSlider = document.getElementById('price-slider');
+    const priceValue = document.getElementById('price-value');
+    if (priceSlider) {
+        priceSlider.addEventListener('input', () => {
+            priceFilter.max = parseFloat(priceSlider.value);
+            if (priceValue) {
+                priceValue.textContent = `$0 - $${priceSlider.value}`;
+            }
+            currentBookPage = 1;
+            filterAndDisplayBooks();
+        });
+    }
+
+    setupFilterDropdowns();
+
+    document.addEventListener('click', closeAllFilters);
+}
+
+function setupFilterDropdowns() {
+    const filterToggles = document.querySelectorAll('.filter-toggle');
+
+    filterToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const targetId = toggle.dataset.target;
+            const dropdown = document.getElementById(targetId);
+            if (!dropdown) return;
+
+            const isOpen = !dropdown.classList.contains('hidden');
+
+            closeAllFilters();
+
+            if (!isOpen) {
+                dropdown.classList.remove('hidden');
+                toggle.classList.add('bg-primary/10', 'text-primary');
+
+                const icon = toggle.querySelector('.expand-icon');
+                if (icon) {
+                    icon.textContent = 'expand_less';
+                }
+            }
+        });
+    });
+}
+
+function closeAllFilters() {
+    const dropdowns = document.querySelectorAll('.filter-dropdown');
+    const toggles = document.querySelectorAll('.filter-toggle');
+
+    dropdowns.forEach(dropdown => {
+        dropdown.classList.add('hidden');
+    });
+
+    toggles.forEach(toggle => {
+        toggle.classList.remove('bg-primary/10', 'text-primary');
+        const icon = toggle.querySelector('.expand-icon');
+        if (icon) {
+            icon.textContent = 'expand_more';
+        }
+    });
+}
+
+async function loadBooks() {
+    try {
+        showLoadingState();
+
+        const books = await apiService.getBooks();
+        allBooks = books;
+
+        await loadFilters(books);
+
+        const priceSlider = document.getElementById('price-slider');
+        const priceValue = document.getElementById('price-value');
+        if (priceSlider && !priceSlider.dataset.loaded) {
+            const maxPrice = Math.max(...books.map(b => parseFloat(b.price) || 0), 100);
+            priceSlider.max = Math.ceil(maxPrice);
+            priceSlider.value = priceSlider.max;
+            if (priceValue) {
+                priceValue.textContent = `$0 - $${priceSlider.value}`;
+            }
+            priceFilter.max = parseFloat(priceSlider.value);
+            priceSlider.dataset.loaded = 'true';
+        }
+
+        filterAndDisplayBooks();
+
+    } catch (error) {
+        console.error('Error loading books:', error);
+        showError('Failed to load books');
+    }
+}
+
+async function loadFilters(books) {
+    const genresContainer = document.getElementById('genres');
+    if (genresContainer && genresContainer.dataset.loaded) return;
+
+    const genres = [...new Set(books.map(b => b.genre).filter(Boolean))];
+    const authors = [...new Set(books.map(b => b.author).filter(Boolean))];
+    const formats = ['PHYSICAL', 'ELECTRONIC'];
+
+    if (genresContainer) createFilter(genresContainer, 'genres', genres);
+
+    const authorsContainer = document.getElementById('authors');
+    if (authorsContainer) createFilter(authorsContainer, 'authors', authors);
+
+    const formatsContainer = document.getElementById('formats');
+    if (formatsContainer) createFilter(formatsContainer, 'formats', formats, true);
+
+    if (genresContainer) genresContainer.dataset.loaded = true;
+}
+
+function createFilter(container, key, options, toLower = false) {
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (options.length === 0) {
+        container.innerHTML = '<p class="text-sm text-subtle-light dark:text-subtle-dark">No options available</p>';
+        return;
+    }
+
+    const visibleOptions = options.slice(0, 5);
+    const hiddenOptions = options.slice(5);
+
+    const allWrapper = document.createElement('div');
+    allWrapper.className = 'flex items-center mb-2';
+    allWrapper.innerHTML = `
+        <input class="filter-checkbox h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-transparent"
+               type="checkbox" id="${key}-all" checked data-value="all" />
+        <label class="ml-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer" for="${key}-all">All</label>
+    `;
+    container.appendChild(allWrapper);
+
+    visibleOptions.forEach((item, i) => {
+        const checkbox = createCheckbox(item, key, i, toLower);
+        if (checkbox) container.appendChild(checkbox);
+    });
+
+    if (hiddenOptions.length) {
+        const hiddenContainer = document.createElement('div');
+        hiddenContainer.id = `${key}-hidden`;
+        hiddenContainer.className = 'hidden';
+        hiddenOptions.forEach((item, i) => {
+            const checkbox = createCheckbox(item, key, i + 5, toLower);
+            if (checkbox) hiddenContainer.appendChild(checkbox);
+        });
+        container.appendChild(hiddenContainer);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = 'Show More';
+        btn.className = 'text-sm text-primary underline mt-2 hover:no-underline';
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = hiddenContainer.classList.contains('hidden');
+            hiddenContainer.classList.toggle('hidden');
+            btn.textContent = isHidden ? 'Show Less' : 'Show More';
+        });
+        container.appendChild(btn);
+    }
+
+    setupFilterCheckboxes(container, key, toLower);
+}
+
+function createCheckbox(label, key, index, toLower = false) {
+    const id = `${key}-${index}`;
+    const value = toLower ? label.toLowerCase() : label;
+    const displayLabel = key === 'formats' ?
+        (label === 'ELECTRONIC' ? 'E-book' : 'Physical') :
+        label;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex items-center mb-2';
+    wrapper.innerHTML = `
+        <input class="filter-checkbox h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-transparent"
+               type="checkbox" id="${id}" data-value="${value}" />
+        <label class="ml-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer truncate" for="${id}" title="${displayLabel}">${displayLabel}</label>
+    `;
+    return wrapper;
+}
+
+function setupFilterCheckboxes(container, key, toLower = false) {
+    const checkboxes = container.querySelectorAll('.filter-checkbox');
+
+    checkboxes.forEach(ch => {
+        ch.addEventListener('change', (e) => {
+            e.stopPropagation();
+
+            if (ch.dataset.value === 'all') {
+                if (ch.checked) {
+                    checkboxes.forEach(other => {
+                        if (other !== ch) other.checked = false;
+                    });
+                }
+            } else {
+                const allCheckbox = container.querySelector('[data-value="all"]');
+                if (allCheckbox) allCheckbox.checked = false;
+
+                if (ch.checked) {
+                    checkboxes.forEach(other => {
+                        if (other !== ch && other.dataset.value !== 'all') {
+                            other.checked = false;
+                        }
+                    });
+                }
+            }
+
+            updateCurrentFilters(key, container, toLower);
+            currentBookPage = 1;
+            filterAndDisplayBooks();
+        });
+    });
+}
+
+function updateCurrentFilters(key, container, toLower = false) {
+    const checkboxes = container.querySelectorAll('.filter-checkbox');
+    const checkedBoxes = Array.from(checkboxes).filter(c => c.checked);
+
+    if (checkedBoxes.length === 0 || checkedBoxes.some(c => c.dataset.value === 'all')) {
+        currentFilters[key] = [];
+    } else {
+        currentFilters[key] = checkedBoxes
+            .filter(c => c.dataset.value !== 'all')
+            .map(c => toLower ? c.dataset.value.toLowerCase() : c.dataset.value);
+    }
+}
+
+function filterAndDisplayBooks() {
+    let filtered = applyFilters(allBooks);
+
+    if (currentSearch) {
+        const s = currentSearch.toLowerCase();
+        filtered = filtered.filter(b =>
+            (b.title && b.title.toLowerCase().includes(s)) ||
+            (b.author && b.author.toLowerCase().includes(s)) ||
+            (b.genre && b.genre.toLowerCase().includes(s))
+        );
+    }
+
+    filtered = applySort(filtered);
+    filteredBooks = filtered;
+
+    displayBooks();
+    updatePagination();
+}
+
+function applyFilters(books) {
+    let filtered = [...books];
+
+    if (currentFilters.genres.length) {
+        filtered = filtered.filter(b => currentFilters.genres.includes(b.genre));
+    }
+    if (currentFilters.authors.length) {
+        filtered = filtered.filter(b => currentFilters.authors.includes(b.author));
+    }
+    if (currentFilters.formats.length) {
+        filtered = filtered.filter(b => currentFilters.formats.includes(b.type));
+    }
+
+    filtered = filtered.filter(b => {
+        const price = parseFloat(b.price) || 0;
+        return price >= priceFilter.min && price <= priceFilter.max;
+    });
+
+    return filtered;
+}
+
+function applySort(books) {
+    if (!currentSort) return books;
+
+    const sorted = [...books];
+    switch(currentSort) {
+        case 'priceAsc':
+            sorted.sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0));
+            break;
+        case 'priceDesc':
+            sorted.sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0));
+            break;
+        case 'popularity':
+            sorted.sort((a, b) => (b.timesAddedToCart || 0) - (a.timesAddedToCart || 0));
+            break;
+        case 'titleAsc':
+            sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+            break;
+        case 'titleDesc':
+            sorted.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+            break;
+    }
+    return sorted;
+}
+
+async function displayBooks() {
+    const tableBody = document.getElementById('booksTableBody');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const paginationContainer = document.getElementById('paginationContainer');
+
+    if (!tableBody) return;
+
+    if (filteredBooks.length === 0) {
+        tableBody.innerHTML = '';
+        if (loadingState) loadingState.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
+        if (paginationContainer) paginationContainer.classList.add('hidden');
+        return;
+    }
+
+    const startIndex = (currentBookPage - 1) * booksPerPage;
+    const endIndex = startIndex + booksPerPage;
+    const booksToShow = filteredBooks.slice(startIndex, endIndex);
+
+    const booksWithCovers = await Promise.all(
+        booksToShow.map(async book => ({
+            ...book,
+            coverStyle: await getBookCoverStyle(book)
+        }))
+    );
+
+    tableBody.innerHTML = booksWithCovers.map(book => `
+        <tr class="border-b border-border-light dark:border-border-dark hover:bg-background-light dark:hover:bg-background-dark">
+            <td class="p-4">
+                <input class="book-checkbox h-4 w-4 rounded border-border-light dark:border-border-dark bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-2 focus:ring-offset-0 focus:ring-primary/50"
+                       type="checkbox" value="${book.id}"/>
+            </td>
+            <td class="px-4 py-2">
+                <div class="w-10 h-10 rounded-full bg-cover bg-center flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br from-primary to-blue-600"
+                     style="${book.coverStyle}">
+                    ${book.coverStyle ? '' : book.title.charAt(0).toUpperCase()}
+                </div>
+            </td>
+            <td class="px-4 py-2 font-medium text-text-light dark:text-text-dark">
+                <div class="max-w-64">
+                    <p class="truncate" title="${book.title}">${book.title}</p>
+                    ${book.description ? `<p class="text-xs text-subtle-light dark:text-subtle-dark truncate mt-1" title="${book.description}">${book.description}</p>` : ''}
+                </div>
+            </td>
+            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.author || 'Unknown'}</td>
+            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.genre || 'N/A'}</td>
+            <td class="px-4 py-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    book.type === 'electronic'
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                }">
+                    ${book.type === 'electronic' ? 'E-book' : 'Physical'}
+                </span>
+            </td>
+            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">$${(parseFloat(book.price) || 0).toFixed(2)}</td>
+            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.timesAddedToCart || 0}</td>
+            <td class="px-4 py-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    getStatusClass(book)
+                }">
+                    ${getStatusText(book)}
+                </span>
+            </td>
+            <td class="px-4 py-2 text-right">
+                <div class="flex justify-end gap-2">
+                    <button class="flex items-center justify-center size-8 rounded-full bg-primary/20 text-primary hover:bg-primary/30" onclick="editBook(${book.id})">
+                        <span class="material-symbols-outlined text-base">edit</span>
+                    </button>
+                    <button class="flex items-center justify-center size-8 rounded-full bg-destructive/20 text-destructive hover:bg-destructive/30" onclick="deleteBook(${book.id})">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    if (loadingState) loadingState.classList.add('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
+    if (paginationContainer) paginationContainer.classList.remove('hidden');
+}
+
+async function getBookCoverStyle(book) {
+    if (book.media && book.media.length > 0) {
+        const coverMedia = findCoverMedia(book.media);
+        if (coverMedia && coverMedia.fileUrl) {
+            return `background-image: url('${coverMedia.fileUrl}')`;
+        }
+    }
+
+    try {
+        const mediaList = await apiService.getBookMedia(book.id);
+        if (mediaList && mediaList.length > 0) {
+            const coverMedia = findCoverMedia(mediaList);
+            if (coverMedia && coverMedia.fileUrl) {
+                return `background-image: url('${coverMedia.fileUrl}')`;
+            }
+        }
+    } catch (error) {
+        console.warn(`Failed to load media for book ${book.id}:`, error);
+    }
+
+    return '';
+}
+
+function findCoverMedia(mediaList) {
+    if (!mediaList || mediaList.length === 0) return null;
+
+    let coverMedia = mediaList.find(media =>
+        media.fileType && media.fileType.toLowerCase().includes('image')
+    );
+
+    if (!coverMedia) {
+        coverMedia = mediaList.find(media =>
+            media.fileUrl && media.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+        );
+    }
+
+    return coverMedia || mediaList[0];
+}
+
+function getStatusClass(book) {
+    const inCart = book.timesAddedToCart || 0;
+    if (inCart > 10) return 'bg-secondary/20 text-secondary';
+    if (inCart > 0) return 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400';
+    return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+}
+
+function getStatusText(book) {
+    const inCart = book.timesAddedToCart || 0;
+    if (inCart > 10) return 'Popular';
+    if (inCart > 0) return 'Active';
+    return 'New';
+}
+
+function updatePagination() {
+    const paginationContainer = document.getElementById('paginationContainer');
+    const showingRange = document.getElementById('showingRange');
+    const totalBooks = document.getElementById('totalBooks');
+
+    if (!paginationContainer || !showingRange || !totalBooks) return;
+
+    const total = filteredBooks.length;
+    const startIndex = (currentBookPage - 1) * booksPerPage + 1;
+    const endIndex = Math.min(startIndex + booksPerPage - 1, total);
+
+    showingRange.textContent = `${startIndex}-${endIndex}`;
+    totalBooks.textContent = total;
+
+    const totalPages = Math.ceil(total / booksPerPage);
+    const paginationButtons = paginationContainer.querySelector('div:last-child');
+    if (!paginationButtons) return;
+
+    paginationButtons.innerHTML = '';
+
+    if (currentBookPage > 1) {
+        paginationButtons.innerHTML += `
+            <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="previousPage()">
+                Previous
+            </button>
+        `;
+    }
+
+    if (currentBookPage < totalPages) {
+        paginationButtons.innerHTML += `
+            <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="nextPage()">
+                Next
+            </button>
+        `;
+    }
+}
+
+function previousPage() {
+    if (currentBookPage > 1) {
+        currentBookPage--;
+        filterAndDisplayBooks();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+    if (currentBookPage < totalPages) {
+        currentBookPage++;
+        filterAndDisplayBooks();
+    }
+}
+
+function toggleSelectAll() {
+    const checkAll = document.getElementById('selectAll');
+    if (!checkAll) return;
+
+    const isChecked = checkAll.checked;
+    const checkboxes = document.querySelectorAll('.book-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+    });
+}
+
+function openAddBookModal() {
+    const modal = document.getElementById('addBookModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeAddBookModal() {
+    const modal = document.getElementById('addBookModal');
+    const form = document.getElementById('addBookForm');
+    if (modal) modal.classList.add('hidden');
+    if (form) form.reset();
+}
+
+async function handleAddBook(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const bookData = {
+        title: formData.get('title'),
+        author: formData.get('author'),
+        genre: formData.get('genre'),
+        price: parseFloat(formData.get('price')),
+        type: formData.get('type'),
+        description: formData.get('description')
+    };
+
+    const imageUrl = formData.get('imageUrl');
+
+    try {
+        if (!bookData.title || !bookData.author || !bookData.genre || !bookData.price) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        if (bookData.price < 0) {
+            showNotification('Price cannot be negative', 'error');
+            return;
+        }
+
+        const newBook = await apiService.createBook(bookData);
+
+        if (imageUrl) {
+            try {
+                const mediaData = {
+                    fileType: 'image',
+                    fileUrl: imageUrl,
+                    fileName: 'cover.jpg'
+                };
+                await apiService.addBookMedia(newBook.id, mediaData);
+            } catch (mediaError) {
+                console.error('Error adding book media:', mediaError);
+                showNotification('Book added but failed to save cover image', 'warning');
+            }
+        }
+
+        showNotification('Book added successfully!', 'success');
+        closeAddBookModal();
+        loadBooks();
+
+    } catch (error) {
+        console.error('Error adding book:', error);
+        showNotification('Failed to add book: ' + error.message, 'error');
+    }
+}
+
+async function handleEditBook(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const bookId = formData.get('id');
+    const bookData = {
+        title: formData.get('title'),
+        author: formData.get('author'),
+        genre: formData.get('genre'),
+        price: parseFloat(formData.get('price')),
+        type: formData.get('type'),
+        description: formData.get('description')
+    };
+
+    const imageUrl = formData.get('imageUrl');
+
+    try {
+        if (!bookData.title || !bookData.author || !bookData.genre || !bookData.price) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        if (bookData.price < 0) {
+            showNotification('Price cannot be negative', 'error');
+            return;
+        }
+
+        const updatedBook = await apiService.updateBook(bookId, bookData);
+
+        if (imageUrl) {
+            try {
+                const mediaData = {
+                    fileType: 'image',
+                    fileUrl: imageUrl,
+                    fileName: 'cover.jpg'
+                };
+                await apiService.addBookMedia(bookId, mediaData);
+            } catch (mediaError) {
+                console.error('Error updating book media:', mediaError);
+                showNotification('Book updated but failed to save cover image', 'warning');
+            }
+        }
+
+        showNotification('Book updated successfully!', 'success');
+        closeEditBookModal();
+        loadBooks();
+
+    } catch (error) {
+        console.error('Error updating book:', error);
+        showNotification('Failed to update book: ' + error.message, 'error');
+    }
+}
+
+function editBook(bookId) {
+    const book = allBooks.find(b => b.id === bookId);
+    if (!book) {
+        showNotification('Book not found', 'error');
+        return;
+    }
+
+    openEditBookModal(book);
+}
+
+async function openEditBookModal(book) {
+    let currentCover = '';
+    try {
+        const mediaList = await apiService.getBookMedia(book.id);
+        const coverMedia = mediaList.find(media => media.fileType === 'IMAGE');
+        if (coverMedia) {
+            currentCover = coverMedia.fileUrl;
+        }
+    } catch (error) {
+        console.error('Error loading book media:', error);
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'editBookModal';
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Edit Book</h3>
+                <button onclick="closeEditBookModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="editBookForm" class="space-y-4">
+                <input type="hidden" name="id" value="${book.id}">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Cover Image URL</label>
+                        <input type="url" name="imageUrl" value="${currentCover}"
+                               class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
+                               placeholder="https://example.com/book-cover.jpg">
+                        <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Optional: Provide a URL for the book cover image</p>
+                        ${currentCover ? `
+                            <div class="mt-2">
+                                <p class="text-xs text-subtle-light dark:text-subtle-dark mb-1">Current cover:</p>
+                                <img src="${currentCover}" alt="Current cover" class="w-20 h-28 object-cover rounded border">
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Title *</label>
+                        <input type="text" name="title" value="${book.title || ''}" required
+                               class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Author *</label>
+                        <input type="text" name="author" value="${book.author || ''}" required
+                               class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Genre *</label>
+                        <input type="text" name="genre" value="${book.genre || ''}" required
+                               class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Price *</label>
+                        <input type="number" step="0.01" min="0" name="price" value="${book.price || ''}" required
+                               class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Type *</label>
+                        <select name="type" required
+                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
+                            <option value="PHYSICAL" ${book.type === 'PHYSICAL' ? 'selected' : ''}>Physical</option>
+                            <option value="ELECTRONIC" ${book.type === 'ELECTRONIC' ? 'selected' : ''}>Electronic</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Description</label>
+                        <textarea name="description" rows="3"
+                                  class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
+                                  placeholder="Enter book description...">${book.description || ''}</textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-border-light dark:border-border-dark">
+                    <button type="button" onclick="closeEditBookModal()"
+                            class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Cancel</button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Update Book</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
+}
+
+function closeEditBookModal() {
+    const modal = document.getElementById('editBookModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+async function deleteBook(bookId) {
+    if (!confirm('Are you sure you want to delete this book?')) {
+        return;
+    }
+
+    try {
+        await apiService.deleteBook(bookId);
+        showNotification('Book deleted successfully!', 'success');
+        loadBooks();
+    } catch (error) {
+        console.error('Error deleting book:', error);
+        showNotification('Failed to delete book', 'error');
+    }
+}
+
+function resetFilters() {
+    currentSearch = '';
+    currentFilters = { genres: [], authors: [], formats: [] };
+    priceFilter = { min: 0, max: 100 };
+    currentBookPage = 1;
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.value = '';
+
+    const priceSlider = document.getElementById('price-slider');
+    const priceValue = document.getElementById('price-value');
+    if (priceSlider) {
+        priceSlider.value = priceSlider.max;
+        if (priceValue) {
+            priceValue.textContent = `$0 - $${priceSlider.value}`;
+        }
+    }
+
+    const checkboxes = document.querySelectorAll('.filter-checkbox, input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        if (checkbox.dataset.value === 'all') {
+            checkbox.checked = true;
+        } else {
+            checkbox.checked = false;
+        }
+    });
+
+    filterAndDisplayBooks();
+}
+
+function showLoadingState() {
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const tableBody = document.getElementById('booksTableBody');
+    const paginationContainer = document.getElementById('paginationContainer');
+
+    if (loadingState) loadingState.classList.remove('hidden');
+    if (emptyState) emptyState.classList.add('hidden');
+    if (tableBody) tableBody.innerHTML = '';
+    if (paginationContainer) paginationContainer.classList.add('hidden');
+}
+
+function showError(message) {
+    const tableBody = document.getElementById('booksTableBody');
+    const loadingState = document.getElementById('loadingState');
+
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="10" class="p-8 text-center text-destructive">
+                    <span class="material-symbols-outlined text-4xl mb-2">error</span>
+                    <p>${message}</p>
+                    <button onclick="loadBooks()" class="mt-4 px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90">
+                        Try Again
+                    </button>
+                </td>
+            </tr>
+        `;
+    }
+    if (loadingState) loadingState.classList.add('hidden');
+}
+
+window.loadBookManagementPage = loadBookManagementPage;
+window.openAddBookModal = openAddBookModal;
+window.closeAddBookModal = closeAddBookModal;
+window.editBook = editBook;
+window.deleteBook = deleteBook;
+window.resetFilters = resetFilters;
+window.previousPage = previousPage;
+window.nextPage = nextPage;

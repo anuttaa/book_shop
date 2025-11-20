@@ -6,7 +6,7 @@ function createBookCard(book) {
   const div = document.createElement('div');
   div.className = "flex flex-col group relative overflow-hidden rounded-xl";
 
-  const coverUrl = book.cover || '/images/default-book.jpg';
+  const coverUrl = book.cover || 'redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=cover';
 
   div.innerHTML = `
     <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-xl shadow-md"

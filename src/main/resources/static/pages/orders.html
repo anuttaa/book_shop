@@ -46,16 +46,20 @@
             <div class="flex items-center gap-9">
                 <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="/">Home</a>
                 <a class="text-sm font-medium leading-normal text-primary dark:text-primary" href="/catalog">Books</a>
-                <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="#">My Account</a>
+                <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="/profile">My Account</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <button class="flex max-w-[480px] cursor-pointer items-center justify-center rounded-lg h-10 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white gap-2 text-sm font-bold px-2.5">
-                <a href="/cart"><span class="material-symbols-outlined text-xl">shopping_cart</span></a>
+            <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
             </button>
-            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10"
-                 style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCupFHNDq16WRSblclScM9h-yckcDSeOML-OJkPtHx-aZU6Z_9F3FsYKjYNZWUP2MZ-dZ5bEAx7-EzEngWPX5TOFBHbcPpYVwgLESyCWl1t0fNrSbQCIjfa7FXUZKMnx_J_RsQjrSE_c_L7Nix3Wt60cs9C7oDY2Pna0Br7Vmdt0HVxDEg_04OaldOH5X8BaIxvotvR94vrUkDAhsxV7UhdLwwRPeum5PhJQr0kRtl_x0sCqSJLeBUnFVIZ6tKKa0Fw42taeAQsXaw");'>
-            </div>
+            <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
+                <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
+                <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</div>
+            </button>
+            <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
+                <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
+            </button>
         </div>
     </header>
 

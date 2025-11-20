@@ -2,6 +2,7 @@ package back.models;
 
 import back.enums.FileType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +20,13 @@ public class Media {
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "book_id", nullable = false)
+  @JoinColumn(name = "book_id")
   @JsonBackReference
   private Book book;
+
+  @OneToOne(mappedBy = "avatarMedia", fetch = FetchType.EAGER)
+  @JsonIgnore
+  private User user;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "file_type")
@@ -39,6 +44,4 @@ public class Media {
 
   @PrePersist
   protected void onCreate() { createdAt = LocalDateTime.now(); }
-
 }
-

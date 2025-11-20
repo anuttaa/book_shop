@@ -6,6 +6,7 @@ import back.dao.OrderItemDao;
 import back.dao.UserDao;
 import back.dto.CartItemDTO;
 import back.dto.OrderDTO;
+import back.dto.UpdateOrderRequest;
 import back.enums.OrderStatus;
 import back.mappers.OrderMapper;
 import back.models.Book;
@@ -96,6 +97,37 @@ public class OrderService {
 
   public void deleteOrder(Long orderId) {
     orderDao.deleteById(orderId);
+  }
+
+  public List<OrderDTO> getAllOrders() {
+    return orderDao.findAll().stream()
+      .map(orderMapper::toDTO)
+      .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public OrderDTO updateOrder(Long orderId, UpdateOrderRequest updateRequest) {
+    Order order = orderDao.findById(orderId)
+      .orElseThrow(() -> new RuntimeException("Order not found"));
+
+    if (updateRequest.getStatus() != null) {
+      try {
+        OrderStatus newStatus = OrderStatus.valueOf(updateRequest.getStatus().toLowerCase());
+        order.setStatus(newStatus);
+      } catch (IllegalArgumentException e) {
+        throw new RuntimeException("Invalid order status: " + updateRequest.getStatus());
+      }
+    }
+
+    if (updateRequest.getTotalPrice() != null) {
+      if (updateRequest.getTotalPrice() < 0) {
+        throw new RuntimeException("Total price cannot be negative");
+      }
+      order.setTotalPrice(updateRequest.getTotalPrice());
+    }
+
+    Order updatedOrder = orderDao.save(order);
+    return orderMapper.toDTO(updatedOrder);
   }
 }
 

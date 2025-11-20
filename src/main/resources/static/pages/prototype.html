@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Название товара - Интернет-магазин</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* Header */
+        header {
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: #333;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #666;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .icon-button:hover {
+            background: #f5f5f5;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .auth-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .auth-button.primary {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            padding: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumbs a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .breadcrumbs a:hover {
+            color: #333;
+        }
+
+        /* Product Section */
+        .product-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            padding: 20px 0 40px;
+        }
+
+        @media (min-width: 768px) {
+            .product-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Product Image */
+        .product-image {
+            background: #eee;
+            border-radius: 8px;
+            aspect-ratio: 2/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #999;
+        }
+
+        /* Product Info */
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .product-title {
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .product-author {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .product-author a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .product-author a:hover {
+            color: #333;
+        }
+
+        .product-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            width: 16px;
+            height: 16px;
+            background: #ddd;
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+        }
+
+        .star.filled {
+            background: #333;
+        }
+
+        .rating-text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .price {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .description {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .action-button.primary {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        .action-button:hover {
+            background: #f5f5f5;
+        }
+
+        .action-button.primary:hover {
+            background: #555;
+        }
+
+        /* Reviews Section */
+        .section {
+            padding: 40px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .reviews-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .review-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .reviewer-name {
+            font-weight: 500;
+        }
+
+        .review-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .review-text {
+            line-height: 1.5;
+            color: #666;
+        }
+
+        /* Recommendations Section */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: 2fr 2fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-image {
+            background: #eee;
+            aspect-ratio: 2/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #999;
+        }
+
+        .card-content {
+            padding: 12px;
+        }
+
+        .card-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 14px;
+            line-height: 1.3;
+        }
+
+        .card-author {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .card-price {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #333;
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            mask-position: center;
+            -webkit-mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+        }
+
+        .icon-cart {
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>');
+        }
+
+        .icon-favorite {
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>');
+        }
+
+        .icon-favorite-filled {
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+        }
+
+        .icon-account {
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>');
+        }
+
+        .icon-orders {
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 12h7v1.5h-7zm0-2.5h7V11h-7zm0 5h7V16h-7zM21 4H3c-1.1 0-2 .9-2 2v13c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 15h-9V6h9v13z"/></svg>');
+        }
+
+        .icon-star {
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>');
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <a href="/" class="logo">
+            <div class="logo-text">BookShop</div>
+        </a>
+
+        <nav>
+            <a href="/" class="nav-link">Главная</a>
+            <a href="/catalog" class="nav-link">Каталог</a>
+        </nav>
+
+        <div class="header-actions">
+            <div class="auth-buttons">
+                <a href="/login" class="auth-button">Войти</a>
+                <a href="/register" class="auth-button primary">Регистрация</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs">
+        <a href="/">Главная</a> /
+        <a href="/catalog">Каталог</a> /
+        <a href="/catalog/fiction">Художественная литература</a> /
+        <span>Название товара</span>
+    </div>
+
+    <!-- Product Section -->
+    <section class="product-section">
+        <div class="product-image">
+            К
+        </div>
+
+        <div class="product-info">
+            <h1 class="product-title">Название товара</h1>
+            <div class="product-author">
+                от <a href="#">Автор товара</a>
+            </div>
+
+            <div class="product-tags">
+                <span class="tag">Художественная литература</span>
+                <span class="tag">Роман</span>
+                <span class="tag">Современная проза</span>
+            </div>
+
+            <div class="rating">
+                <div class="stars">
+                    <div class="star filled"></div>
+                    <div class="star filled"></div>
+                    <div class="star filled"></div>
+                    <div class="star filled"></div>
+                    <div class="star"></div>
+                </div>
+                <span class="rating-text">4.2 (128 отзывов)</span>
+            </div>
+
+            <div class="price">1 200 руб.</div>
+
+            <p class="description">
+                Подробное описание товара. Здесь будет размещена информация о характеристиках,
+                особенностях и преимуществах данного товара. Описание может быть достаточно
+                объемным и содержать все необходимые детали для принятия решения о покупке.
+            </p>
+
+            <div class="action-buttons">
+                <button class="action-button primary">
+                    <span class="icon icon-cart"></span>
+                    В корзину
+                </button>
+                <button class="action-button" id="wishlistBtn">
+                    <span class="icon icon-favorite"></span>
+                    В избранное
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="section">
+        <h2 class="section-title">Отзывы покупателей</h2>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="reviewer-name">Анна Петрова</div>
+                    <div class="review-date">15.12.2023</div>
+                </div>
+                <div class="rating">
+                    <div class="stars">
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                    </div>
+                </div>
+                <p class="review-text">
+                    Отличный товар, полностью соответствует описанию.
+                    Качество на высшем уровне, рекомендую к покупке.
+                </p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="reviewer-name">Иван Сидоров</div>
+                    <div class="review-date">10.12.2023</div>
+                </div>
+                <div class="rating">
+                    <div class="stars">
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                        <div class="star filled"></div>
+                        <div class="star"></div>
+                    </div>
+                </div>
+                <p class="review-text">
+                    Хороший товар, но есть небольшие недочеты.
+                    В целом доволен покупкой, соответствует ожиданиям.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section class="section">
+        <h2 class="section-title">Вам может понравиться</h2>
+        <div class="recommendations-grid">
+            <a href="#" class="product-card">
+                <div class="card-image">Т1</div>
+                <div class="card-content">
+                    <div class="card-title">Название товара 1</div>
+                    <div class="card-author">Автор 1</div>
+                    <div class="card-price">950 руб.</div>
+                </div>
+            </a>
+
+            <a href="#" class="product-card">
+                <div class="card-image">Т2</div>
+                <div class="card-content">
+                    <div class="card-title">Название товара 2</div>
+                    <div class="card-author">Автор 2</div>
+                    <div class="card-price">1 100 руб.</div>
+                </div>
+            </a>
+
+            <a href="#" class="product-card">
+                <div class="card-image">Т3</div>
+                <div class="card-content">
+                    <div class="card-title">Название товара 3</div>
+                    <div class="card-author">Автор 3</div>
+                    <div class="card-price">800 руб.</div>
+                </div>
+            </a>
+
+            <a href="#" class="product-card">
+                <div class="card-image">Т4</div>
+                <div class="card-content">
+                    <div class="card-title">Название товара 4</div>
+                    <div class="card-author">Автор 4</div>
+                    <div class="card-price">1 350 руб.</div>
+                </div>
+            </a>
+
+            <a href="#" class="product-card">
+                <div class="card-image">Т5</div>
+                <div class="card-content">
+                    <div class="card-title">Название товара 5</div>
+                    <div class="card-author">Автор 5</div>
+                    <div class="card-price">900 руб.</div>
+                </div>
+            </a>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Toggle wishlist
+    document.getElementById('wishlistBtn').addEventListener('click', function() {
+        const icon = this.querySelector('.icon');
+        const isFavorite = icon.classList.contains('icon-favorite-filled');
+
+        if (isFavorite) {
+            icon.classList.remove('icon-favorite-filled');
+            icon.classList.add('icon-favorite');
+        } else {
+            icon.classList.remove('icon-favorite');
+            icon.classList.add('icon-favorite-filled');
+        }
+    });
+
+    // Add to cart
+    document.querySelector('.action-button.primary').addEventListener('click', function() {
+        alert('Товар добавлен в корзину');
+    });
+</script>
+</body>
+</html>

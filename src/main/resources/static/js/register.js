@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggle();
+    setupUsernameValidation();
 
     if (apiService.token) {
         showNotification('You are already logged in. Redirecting...', 'info');
@@ -42,6 +43,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            const isUsernameAvailable = await checkUsernameAvailability(username);
+            if (!isUsernameAvailable) {
+                showNotification('This username is already taken. Please choose a different one.', 'error');
+                return;
+            }
+
+            const isEmailAvailable = await checkEmailAvailability(email);
+            if (!isEmailAvailable) {
+                showNotification('This email is already registered. Please use a different email or login.', 'error');
+                return;
+            }
+
             try {
                 submitButton.textContent = 'Creating Account...';
                 submitButton.disabled = true;
@@ -65,7 +78,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.error('Registration error:', error);
-                showNotification('Registration failed: ' + (error.message || 'Unknown error'), 'error');
+
+                const errorMessage = error.message || '';
+                const lowerCaseError = errorMessage.toLowerCase();
+
+                if (lowerCaseError.includes('username') &&
+                    (lowerCaseError.includes('taken') ||
+                     lowerCaseError.includes('already exists') ||
+                     lowerCaseError.includes('occupied') ||
+                     lowerCaseError.includes('duplicate'))) {
+                    showNotification('This username is already taken. Please choose a different one.', 'error');
+                } else if (lowerCaseError.includes('email') &&
+                          (lowerCaseError.includes('taken') ||
+                           lowerCaseError.includes('already exists') ||
+                           lowerCaseError.includes('occupied') ||
+                           lowerCaseError.includes('duplicate'))) {
+                    showNotification('This email is already registered. Please use a different email or login.', 'error');
+                } else {
+                    showNotification('Registration failed: ' + errorMessage, 'error');
+                }
             } finally {
                 submitButton.textContent = 'Create Account';
                 submitButton.disabled = false;
@@ -75,6 +106,131 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateNavigationLinks();
 });
+
+async function checkUsernameAvailability(username) {
+    try {
+        const users = await apiService.getUsers();
+        const userExists = users.some(user =>
+            user.username.toLowerCase() === username.toLowerCase()
+        );
+        return !userExists;
+    } catch (error) {
+        console.error('Username availability check error:', error);
+        return true;
+    }
+}
+
+async function checkEmailAvailability(email) {
+    try {
+        const users = await apiService.getUsers();
+        const emailExists = users.some(user =>
+            user.email.toLowerCase() === email.toLowerCase()
+        );
+        return !emailExists;
+    } catch (error) {
+        console.error('Email availability check error:', error);
+        return true;
+    }
+}
+
+function setupUsernameValidation() {
+    const usernameInput = document.getElementById('username');
+    if (!usernameInput) return;
+
+    let timeoutId;
+
+    usernameInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const username = this.value.trim();
+
+        if (username.length >= 3) {
+            timeoutId = setTimeout(async () => {
+                const isAvailable = await checkUsernameAvailability(username);
+                updateUsernameValidationUI(isAvailable, 'username');
+            }, 500);
+        } else {
+            clearValidationUI('username');
+        }
+    });
+}
+
+function setupEmailValidation() {
+    const emailInput = document.getElementById('email');
+    if (!emailInput) return;
+
+    let timeoutId;
+
+    emailInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const email = this.value.trim();
+
+        if (email.length >= 5 && isValidEmail(email)) {
+            timeoutId = setTimeout(async () => {
+                const isAvailable = await checkEmailAvailability(email);
+                updateEmailValidationUI(isAvailable);
+            }, 500);
+        } else {
+            clearValidationUI('email');
+        }
+    });
+}
+
+function updateUsernameValidationUI(isAvailable, fieldType) {
+    const usernameInput = document.getElementById('username');
+    const existingFeedback = usernameInput.parentNode.querySelector('.username-feedback');
+
+    if (existingFeedback) {
+        existingFeedback.remove();
+    }
+
+    const feedback = document.createElement('div');
+    feedback.className = `username-feedback text-sm mt-1 ${isAvailable ? 'text-green-600' : 'text-red-600'}`;
+    feedback.textContent = isAvailable ? 'Username is available' : 'Username is already taken';
+
+    usernameInput.parentNode.appendChild(feedback);
+
+    if (isAvailable) {
+        usernameInput.classList.remove('border-red-500');
+        usernameInput.classList.add('border-green-500');
+    } else {
+        usernameInput.classList.remove('border-green-500');
+        usernameInput.classList.add('border-red-500');
+    }
+}
+
+function updateEmailValidationUI(isAvailable) {
+    const emailInput = document.getElementById('email');
+    const existingFeedback = emailInput.parentNode.querySelector('.email-feedback');
+
+    if (existingFeedback) {
+        existingFeedback.remove();
+    }
+
+    const feedback = document.createElement('div');
+    feedback.className = `email-feedback text-sm mt-1 ${isAvailable ? 'text-green-600' : 'text-red-600'}`;
+    feedback.textContent = isAvailable ? 'Email is available' : 'Email is already registered';
+
+    emailInput.parentNode.appendChild(feedback);
+
+    if (isAvailable) {
+        emailInput.classList.remove('border-red-500');
+        emailInput.classList.add('border-green-500');
+    } else {
+        emailInput.classList.remove('border-green-500');
+        emailInput.classList.add('border-red-500');
+    }
+}
+
+function clearValidationUI(fieldType) {
+    const input = document.getElementById(fieldType);
+    const existingFeedback = input.parentNode.querySelector(`.${fieldType}-feedback`);
+
+    if (existingFeedback) {
+        existingFeedback.remove();
+    }
+
+    input.classList.remove('border-red-500', 'border-green-500');
+}
 
 function setupPasswordToggle() {
     const toggle = document.querySelector('#togglePassword');
@@ -108,3 +264,5 @@ function updateNavigationLinks() {
         }
     });
 }
+
+setupEmailValidation();

@@ -16,6 +16,10 @@ const formatsContainer = document.getElementById('formats');
 const priceSlider = document.getElementById('price-slider');
 const priceValue = document.getElementById('price-value');
 
+document.addEventListener('DOMContentLoaded', function() {
+     updateAuthUI();
+});
+
 async function loadBooks() {
     try {
         const books = await apiService.getBooks();
@@ -264,7 +268,7 @@ async function getBookCover(book){
         const cover = findCoverMedia(mediaList);
         if(cover && (cover.fileUrl || cover.url)) return cover.fileUrl || cover.url;
     }catch(e){console.warn('Failed to load media for book',book.id,e);}
-    return '/images/default-book.jpg';
+    return "redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=cover";
 }
 
 function findCoverMedia(mediaList){

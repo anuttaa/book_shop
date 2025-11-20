@@ -1,0 +1,105 @@
+@startuml
+title Диаграмма компонентов онлайн-платформы для подбора и покупки книг
+
+package "Frontend" {
+  [Веб-браузер] as browser
+  [admin.js] as admin_js
+  [catalog.js] as catalog_js
+  [book.js] as book_js
+  [cart.js] as cart_js
+  [wishlist.js] as wish_js
+  [orders.js] as orders_js
+  [profile.js] as profile_js
+  [login.js] as login_js
+  [register.js] as register_js
+  [api.js] as api_js
+  [utils.js] as utils_js
+}
+
+package "Backend Controllers" {
+  [Admin\nController] as admin_ctrl
+  [Book\nController] as book_ctrl
+  [Cart\nController] as cart_ctrl
+  [Order\nController] as order_ctrl
+  [User\nController] as user_ctrl
+  [Wishlist\nController] as wish_ctrl
+  [Review\nController] as review_ctrl
+  [Media\nController] as media_ctrl
+}
+
+package "Backend Services" {
+  [Admin\nService] as admin_srv
+  [Book\nService] as book_srv
+  [Cart\nService] as cart_srv
+  [Order\nService] as order_srv
+  [User\nService] as user_srv
+  [Wishlist\nService] as wish_srv
+  [Review\nService] as review_srv
+  [Auth\nService] as auth_srv
+  [Media\nService] as media_srv
+}
+
+package "Backend DAO" {
+  [Book\nDAO] as book_dao
+  [CartItem\nDAO] as cart_dao
+  [Order\nDAO] as order_dao
+  [User\nDAO] as user_dao
+  [Wishlist\nDAO] as wish_dao
+  [Review\nDAO] as review_dao
+  [Media\nDAO] as media_dao
+}
+
+package "Database" {
+  [MySQL] as db
+}
+
+' Frontend connections
+browser --> catalog_js
+browser --> book_js
+browser --> cart_js
+browser --> orders_js
+browser --> profile_js
+browser --> utils_js
+
+api_js --> admin_ctrl : HTTP/REST
+api_js --> book_ctrl : HTTP/REST
+api_js --> cart_ctrl : HTTP/REST
+api_js --> order_ctrl : HTTP/REST
+api_js --> user_ctrl : HTTP/REST
+api_js --> wish_ctrl : HTTP/REST
+api_js --> review_ctrl : HTTP/REST
+api_js --> media_ctrl : HTTP/REST
+
+browser --> api_js
+browser --> admin_js
+browser --> wish_js
+browser --> login_js
+browser --> register_js
+
+' Backend connections
+admin_ctrl --> admin_srv
+book_ctrl --> book_srv
+cart_ctrl --> cart_srv
+order_ctrl --> order_srv
+user_ctrl --> user_srv
+wish_ctrl --> wish_srv
+review_ctrl --> review_srv
+media_ctrl --> media_srv
+admin_srv --> book_dao
+book_srv --> book_dao
+cart_srv --> cart_dao
+order_srv --> order_dao
+user_srv --> user_dao
+wish_srv --> wish_dao
+review_srv --> review_dao
+media_srv --> media_dao
+
+book_dao --> db
+cart_dao --> db
+order_dao --> db
+user_dao --> db
+wish_dao --> db
+review_dao --> db
+media_dao --> db
+
+@enduml

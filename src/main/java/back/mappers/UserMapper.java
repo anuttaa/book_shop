@@ -10,11 +10,15 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
 
   @Mapping(target = "password", source = "passwordHash")
-  @Mapping(target = "role", expression = "java(user.getRole() != null ? user.getRole().name() : \"USER\")")
+  @Mapping(target = "role", expression = "java(user.getRole() != null ? user.getRole().name().toLowerCase() : \"user\")")
+  @Mapping(target = "subscribed", source = "subscribed")
+  @Mapping(target = "status", expression = "java(getUserStatus(user))")
   UserDTO toDTO(User user);
 
   @Mapping(target = "passwordHash", ignore = true)
   @Mapping(target = "role", expression = "java(mapRole(dto.getRole()))")
+  @Mapping(target = "subscribed", source = "subscribed")
+  @Mapping(target = "avatarMediaId", ignore = true)
   User toEntity(UserDTO dto);
 
   default Role mapRole(String role) {
@@ -22,10 +26,17 @@ public interface UserMapper {
       return Role.user;
     }
     try {
-      return Role.valueOf(role.toUpperCase());
+      return Role.valueOf(role.toLowerCase());
     } catch (IllegalArgumentException e) {
       return Role.user;
     }
+  }
+
+  default String getUserStatus(User user) {
+    if (user == null || user.getRole() == null) {
+      return "active";
+    }
+    return user.getRole() == Role.guest ? "blocked" : "active";
   }
 }
 

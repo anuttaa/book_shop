@@ -4,9 +4,9 @@ import back.dto.OrderDTO;
 import back.models.Order;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class, OrderItemMapper.class})
 public interface OrderMapper {
   OrderDTO toDTO(Order order);
-  Order toEntity(OrderDTO dto);
+  Order toEntity(OrderDTO orderDTO);
 }
 

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="ru">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Book Store - Catalog</title>
+    <title>Книжный магазин - Каталог</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -45,23 +45,40 @@
                 <div class="flex items-center gap-8">
                     <div class="flex items-center gap-2 text-primary">
                         <span class="material-symbols-outlined text-3xl">import_contacts</span>
-                        <h2 class="text-xl font-bold leading-tight tracking-tight text-[#101622] dark:text-white">Book Store</h2>
+                        <h2 class="text-xl font-bold leading-tight tracking-tight text-[#101622] dark:text-white">Книжный магазин</h2>
                     </div>
                     <nav class="hidden md:flex items-center gap-6">
-                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/">Home</a>
-                        <a class="text-sm font-medium text-primary dark:text-primary" href="/catalog">Catalog</a>
-                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Promotions</a>
-                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Contacts</a>
+                        <a class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="/">Главная</a>
+                        <a class="text-sm font-medium text-primary dark:text-primary" href="/catalog">Каталог</a>
                     </nav>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-                        <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
-                    </button>
-                    <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-                        <a href="/cart"><span class="material-symbols-outlined text-2xl">shopping_cart</span></a>
-                    </button>
-                    <div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAyy16CUoqbNbWmuSqdZEHIxeftJdar2gDKKp55fRSKWedF-MwBgo7ZxqXTez5Z5MmV9HgcHQ-QeY0qLIGHWxqANyUJcFp0Bp3O4jKsbqAOz3PWi6h8gFynGJ9_Iz60ZTihhpYXtKWjeEwcWXeygKeGvQ_dRPbwqiUXaBe9FjZabrlcXCPgzdNOFaYaaThzbuvXJsYcgNHxdIS5f_JRBn_PP1OWZyVicc9FtnylqImvWzhjvOS5pFvxRUW5PE6bZAr9SrBZjOJ4svs");'></div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden gap-2" id="user-actions">
+                            <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                                <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
+                            </button>
+                            <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                                <a href="/orders"><span class="material-symbols-outlined text-2xl">orders</span></a>
+                            </button>
+                            <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
+                                <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
+                                <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold" id="cartCount">2</div>
+                            </button>
+                            <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
+                                <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
+                            </button>
+                        </div>
+
+                        <div class="flex gap-2" id="auth-buttons">
+                            <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                                <span class="truncate">Вход</span>
+                            </a>
+                            <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                                <span class="truncate">Регистрация</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,25 +92,25 @@
             <aside class="hidden md:block">
                 <div class="sticky top-24">
                     <div class="flex flex-col gap-6 p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
-                        <h3 class="text-lg font-bold text-[#101622] dark:text-white">Filters</h3>
+                        <h3 class="text-lg font-bold text-[#101622] dark:text-white">Фильтры</h3>
                         <div class="flex flex-col gap-6">
                             <!-- Genre -->
                             <div class="flex flex-col gap-3">
-                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Genre</label>
+                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Жанр</label>
                                 <div id="genres" class="flex flex-col gap-2">
                                     <!-- JS will render genres here -->
                                 </div>
                             </div>
                             <!-- Author -->
                             <div class="flex flex-col gap-3">
-                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Author</label>
+                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Автор</label>
                                 <div id="authors" class="flex flex-col gap-2">
                                     <!-- JS will render authors here -->
                                 </div>
                             </div>
                             <!-- Price Range -->
                             <div class="mb-4">
-                                <label class="text-sm text-gray-600 dark:text-gray-300">Price:</label>
+                                <label class="text-sm text-gray-600 dark:text-gray-300">Цена:</label>
                                 <div class="flex items-center gap-2">
                                     <span id="price-value">$0 - $100</span>
                                     <input type="range" min="0" max="100" value="100" id="price-slider" class="w-full">
@@ -101,7 +118,7 @@
                             </div>
                             <!-- Format -->
                             <div class="flex flex-col gap-3">
-                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Format</label>
+                                <label class="text-sm font-semibold text-[#101622] dark:text-white">Формат</label>
                                 <div id="formats" class="flex flex-col gap-2">
                                     <!-- JS will render formats here -->
                                 </div>
@@ -118,14 +135,14 @@
                     <label class="relative w-full sm:max-w-md">
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
                         <input id="search" class="form-input w-full h-12 pl-10 pr-4 rounded-lg text-[#101622] dark:text-white border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-sm"
-                               placeholder="Search by title or author..." value=""/>
+                               placeholder="Поиск по названию или автору..." value=""/>
                     </label>
                     <div class="relative w-full sm:w-auto">
                         <select id="sort" class="appearance-none w-full sm:w-48 pl-3 pr-10 h-12 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-[#101622] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50">
-                            <option value="popularity">Sort by: Popularity</option>
-                            <option value="priceAsc">Price: Low to High</option>
-                            <option value="priceDesc">Price: High to Low</option>
-                            <option value="rating">Rating</option>
+                            <option value="popularity">Сортировка: По популярности</option>
+                            <option value="priceAsc">Цена: По возрастанию</option>
+                            <option value="priceDesc">Цена: По убыванию</option>
+                            <option value="rating">По рейтингу</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
                             <span class="material-symbols-outlined">expand_more</span>

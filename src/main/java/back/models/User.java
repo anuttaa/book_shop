@@ -56,11 +56,15 @@ public class User {
   @JsonIgnore
   private List<Wishlist> wishlist;
 
+  @OneToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "avatar_media_id")
+  @JsonIgnore
+  private Media avatarMedia;
+
   @PrePersist
   protected void onCreate() { createdAt = LocalDateTime.now(); }
 
   @PreUpdate
   protected void onUpdate() { updatedAt = LocalDateTime.now(); }
-
 }
 

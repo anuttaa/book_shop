@@ -15,12 +15,12 @@ import java.util.List;
 @Data
 public class OrderDTO {
   private Long id;
-  private User user;
+  private UserDTO user;
   private OrderStatus status = OrderStatus.created;
   private Double totalPrice;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-  private List<OrderItem> orderItems;
+  private List<OrderItemDTO> orderItems;
 }
 
 

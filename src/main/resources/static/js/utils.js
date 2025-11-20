@@ -46,3 +46,34 @@ function handleApiError(error) {
         showNotification(error.message || 'An error occurred', 'error');
     }
 }
+
+function updateAuthUI() {
+    const isLoggedIn = checkAuthStatus();
+
+    const userActions = document.getElementById('userActions');
+    const authButtons = document.getElementById('authButtons');
+    const userActionsMain = document.getElementById('user-actions');
+    const authButtonsMain = document.getElementById('auth-buttons');
+
+    if (isLoggedIn) {
+        if (userActions) userActions.classList.remove('hidden');
+        if (userActionsMain) userActionsMain.classList.remove('hidden');
+        if (authButtons) authButtons.classList.add('hidden');
+        if (authButtonsMain) authButtonsMain.classList.add('hidden');
+    } else {
+        if (userActions) userActions.classList.add('hidden');
+        if (userActionsMain) userActionsMain.classList.add('hidden');
+        if (authButtons) authButtons.classList.remove('hidden');
+        if (authButtonsMain) authButtonsMain.classList.remove('hidden');
+    }
+}
+
+function checkAuthStatus() {
+    return localStorage.getItem('isLoggedIn') === 'true' ||
+           document.cookie.includes('auth_token') ||
+           false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateAuthUI();
+});

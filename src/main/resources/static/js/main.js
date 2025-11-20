@@ -10,6 +10,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+document.addEventListener('error', function(e) {
+    if (e.target.tagName === 'DIV' && e.target.style.backgroundImage) {
+        console.warn('Failed to load background image:', e.target.style.backgroundImage);
+        e.target.style.backgroundImage = "url('redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=📚')";
+    }
+}, true);
+
+async function updateUserAvatarUI() {
+    const userAvatarButton = document.querySelector('button a[href="/profile"]');
+    if (!userAvatarButton) return;
+
+    try {
+        const avatarData = await apiService.getMyAvatar();
+
+        const avatarContainer = userAvatarButton.parentElement;
+
+        if (avatarData && avatarData.avatarUrl) {
+            avatarContainer.innerHTML = `
+                <a href="/profile" class="flex items-center justify-center w-10 h-10 rounded-lg overflow-hidden">
+                    <img src="${avatarData.avatarUrl}"
+                         alt="User Avatar"
+                         class="w-full h-full object-cover"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <span class="material-symbols-outlined hidden">account_circle</span>
+                </a>
+            `;
+        } else {
+            avatarContainer.innerHTML = `
+                <a href="/profile" class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
+                    <span class="material-symbols-outlined">account_circle</span>
+                </a>
+            `;
+        }
+    } catch (error) {
+        console.error('Failed to load user avatar:', error);
+        userAvatarButton.innerHTML = '<span class="material-symbols-outlined">account_circle</span>';
+    }
+}
+
 function updateAuthUI() {
     const authButtons = document.getElementById('auth-buttons');
     const userActions = document.getElementById('user-actions');
@@ -21,6 +60,7 @@ function updateAuthUI() {
         if (userActions) {
             userActions.style.display = 'flex';
         }
+        updateUserAvatarUI();
     } else {
         authButtons.style.display = 'flex';
         if (userActions) {
@@ -28,6 +68,24 @@ function updateAuthUI() {
         }
 
         showGuestMessage();
+    }
+}
+
+async function updateCartCounter() {
+    try {
+        const cart = await apiService.getCart();
+        const counter = document.getElementById('cart-counter');
+        if (counter && cart && cart.items) {
+            const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+            counter.textContent = totalItems;
+            counter.classList.toggle('hidden', totalItems === 0);
+        }
+    } catch (error) {
+        console.error('Error updating cart counter:', error);
+        const counter = document.getElementById('cart-counter');
+        if (counter) {
+            counter.classList.add('hidden');
+        }
     }
 }
 
@@ -47,10 +105,10 @@ function showGuestMessage() {
                 Please login or register to browse our book collection
             </p>
             <div class="flex justify-center gap-4">
-                <a href="/pages/login.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
                     <span class="truncate">Login</span>
                 </a>
-                <a href="/pages/register.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
                     <span class="truncate">Register</span>
                 </a>
             </div>
@@ -80,8 +138,56 @@ function logout() {
 
 async function loadBooksFromDB() {
     try {
+        const [recommended, popular, topRated] = await Promise.all([
+            apiService.getRecommendedBooks(),
+            apiService.getPopularBooks(),
+            apiService.getTopRatedBooks()
+        ]);
+
+        console.log('Recommended books:', recommended);
+        console.log('Popular books:', popular);
+        console.log('Top rated books:', topRated);
+
+        await displayBooks('recommended-books', recommended || []);
+        await displayBooks('popular-books', popular || []);
+        await displayBooks('top-rated-books', topRated || []);
+
+        updateSectionTitles();
+
+    } catch (error) {
+        console.error('Error loading books from DB:', error);
+        showNotification('Failed to load books from database', 'error');
+
+        await loadAllBooksFallback();
+    }
+}
+
+function updateSectionTitles() {
+     const isLoggedIn = !!apiService.token;
+
+     const recommendedTitle = document.querySelector('#recommended-books .section-title');
+     const popularTitle = document.querySelector('#popular-books .section-title');
+     const topRatedTitle = document.querySelector('#top-rated-books .section-title');
+
+     if (recommendedTitle) {
+         recommendedTitle.textContent = isLoggedIn ?
+             'Recommended For You' : 'New Arrivals';
+     }
+
+     if (popularTitle) {
+         popularTitle.textContent = isLoggedIn ?
+             'Popular in Your Network' : 'Most Popular Books';
+     }
+
+     if (topRatedTitle) {
+         topRatedTitle.textContent = 'Top Rated Books';
+     }
+ }
+
+async function loadAllBooksFallback() {
+    try {
+        console.log('Using fallback book loading method...');
         const allBooks = await apiService.getBooks();
-        console.log('Books loaded from DB:', allBooks);
 
         if (allBooks && allBooks.length > 0) {
             const processedBooks = allBooks.map(book => ({
@@ -90,23 +196,21 @@ async function loadBooksFromDB() {
                 reviewCount: book.reviews ? book.reviews.length : 0
             }));
 
-            const recommended = processedBooks.slice(0, 5);
+            const recommended = processedBooks.slice(0, 15);
             const popular = processedBooks
                 .sort((a, b) => (b.timesAddedToCart || 0) - (a.timesAddedToCart || 0))
-                .slice(0, 5);
-
-            console.log('Recommended books:', recommended);
-            console.log('Popular books:', popular);
+                .slice(0, 15);
+            const topRated = processedBooks
+                .filter(book => book.rating > 0)
+                .sort((a, b) => b.rating - a.rating)
+                .slice(0, 15);
 
             await displayBooks('recommended-books', recommended);
             await displayBooks('popular-books', popular);
-
-        } else {
-            console.log('No books in DB');
+            await displayBooks('top-rated-books', topRated);
         }
-    } catch (error) {
-        console.error('Error loading books from DB:', error);
-        showNotification('Failed to load books from database', 'error');
+    } catch (fallbackError) {
+        console.error('Fallback book loading also failed:', fallbackError);
     }
 }
 
@@ -210,7 +314,7 @@ async function getBookCover(book) {
         console.warn(`Failed to load media for book ${book.id}:`, error);
     }
 
-    return '/images/default-book.jpg';
+    return 'redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=📚';
 }
 
 function findCoverMedia(mediaList) {
