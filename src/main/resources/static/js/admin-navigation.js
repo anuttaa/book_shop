@@ -25,7 +25,6 @@ function initializeNavigation() {
 }
 
 function navigateTo(page) {
-    console.log('Navigating to:', page);
     currentAppPage = page;
     updateActiveNavItem(page);
     loadPageContent(page);

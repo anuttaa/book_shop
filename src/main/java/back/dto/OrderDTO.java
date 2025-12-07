@@ -1,8 +1,6 @@
 package back.dto;
 
 import back.enums.OrderStatus;
-import back.models.OrderItem;
-import back.models.User;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

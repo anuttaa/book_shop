@@ -45,18 +45,11 @@ public class ReviewController {
   public ResponseEntity<List<ReviewDTO>> getMyReviews() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    System.out.println("=== /api/reviews/my called ===");
-    System.out.println("SecurityContext auth: " + authentication);
-
     if (authentication == null || !authentication.isAuthenticated() ||
       "anonymousUser".equals(authentication.getPrincipal())) {
-      System.out.println("User not authenticated");
       return ResponseEntity.status(401).build();
     }
-
     String username = authentication.getName();
-    System.out.println("Username: " + username);
-
     User user = userService.getUserEntityByUsername(username);
     return ResponseEntity.ok(reviewService.getReviewsByUser(user.getId()));
   }

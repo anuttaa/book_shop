@@ -204,28 +204,21 @@ async function loadAnalyticsData() {
     try {
         showAnalyticsLoadingState();
 
-        console.log('Loading analytics data...');
+        
 
         const [orders, books, users] = await Promise.all([
             apiService.getOrders().catch(error => {
-                console.warn('Failed to load orders:', error);
                 return [];
             }),
             apiService.getBooks().catch(error => {
-                console.warn('Failed to load books:', error);
                 throw new Error('Books data is required for analytics');
             }),
             apiService.getUsers().catch(error => {
-                console.warn('Failed to load users:', error);
                 return [];
             })
         ]);
 
-        console.log('Data loaded successfully:', {
-            orders: orders.length,
-            books: books.length,
-            users: users.length
-        });
+        
 
         processAnalyticsData(orders, books, users);
         displayAnalyticsData();
@@ -248,11 +241,7 @@ function processAnalyticsData(orders, books, users) {
         const validBooks = Array.isArray(books) ? books : [];
         const validUsers = Array.isArray(users) ? users : [];
 
-        console.log('Processing data:', {
-            orders: validOrders.length,
-            books: validBooks.length,
-            users: validUsers.length
-        });
+        
 
         const filteredOrders = filterOrdersByDateRange(validOrders);
 
@@ -262,12 +251,7 @@ function processAnalyticsData(orders, books, users) {
         analyticsData.genreData = calculateGenreData(filteredOrders, validBooks);
         analyticsData.topBooks = calculateTopBooks(filteredOrders, validBooks);
 
-        console.log('Processed analytics data:', {
-            stats: analyticsData.stats,
-            revenueData: analyticsData.revenueData.length,
-            genreData: analyticsData.genreData.length,
-            topBooks: analyticsData.topBooks.length
-        });
+        
 
     } catch (error) {
         console.error('Error processing analytics data:', error);
@@ -307,7 +291,7 @@ function filterOrdersByDateRange(orders) {
             const orderDate = new Date(order.createdAt);
             return orderDate >= startDate && !isNaN(orderDate.getTime());
         } catch (error) {
-            console.warn('Invalid order date:', order.createdAt);
+            
             return false;
         }
     });
@@ -361,7 +345,7 @@ function calculateRevenueData(orders) {
             }
             dailyRevenue[date] += revenue;
         } catch (error) {
-            console.warn('Invalid order data:', order);
+            
         }
     });
 
@@ -376,11 +360,8 @@ function calculateRevenueData(orders) {
 }
 
 function calculateGenreData(orders, books) {
-    console.log('=== CALCULATING GENRE DATA ===');
-    console.log('Orders count:', orders.length);
 
     if (!orders || orders.length === 0) {
-        console.log('No orders available');
         return [];
     }
 
@@ -405,33 +386,27 @@ function calculateGenreData(orders, books) {
                 }
                 genreSales[genre] += item.quantity || 1;
                 itemsWithBooks++;
-                console.log(`Added ${item.quantity || 1} units to genre "${genre}" from book "${item.book.title}"`);
+                
             } else {
-                console.log('Item has no book object or genre:', item);
+                
             }
         });
     });
 
-    console.log('Orders with items:', ordersWithItems);
-    console.log('Total order items:', totalOrderItems);
-    console.log('Items with valid books:', itemsWithBooks);
-    console.log('Genre sales object:', genreSales);
+    
 
     const result = Object.entries(genreSales)
         .map(([genre, units]) => ({ genre, units }))
         .sort((a, b) => b.units - a.units);
 
-    console.log('Final genre data result:', result);
-    console.log('=== END GENRE CALCULATION ===');
+    
 
     return result;
 }
 
 function calculateTopBooks(orders, books) {
-    console.log('=== CALCULATING TOP BOOKS ===');
 
     if (!orders || orders.length === 0) {
-        console.log('No orders available');
         return [];
     }
 
@@ -457,26 +432,24 @@ function calculateTopBooks(orders, books) {
                 bookSales[bookId].revenue += quantity * price;
                 itemsWithBooks++;
             } else {
-                console.log('Item has no book object:', item);
+                
             }
         });
     });
 
-    console.log('Items with valid books:', itemsWithBooks);
-    console.log('Book sales object:', bookSales);
+    
 
     const result = Object.values(bookSales)
         .sort((a, b) => b.units - a.units)
         .slice(0, 10);
 
-    console.log('Final top books result:', result);
-    console.log('=== END TOP BOOKS CALCULATION ===');
+    
 
     return result;
 }
 
 function displayAnalyticsData() {
-    console.log('Displaying analytics data:', analyticsData);
+    
 
     displayStats();
     displayRevenueChart();
@@ -494,10 +467,10 @@ function displayStats() {
 
     if (!hasData) {
         statsContainer.innerHTML = `
-            <div class="col-span-4 p-8 text-center text-subtle-light dark:text-subtle-dark">
+            <div class="col-span-4 p-8 text-center text-subtle-light">
                 <span class="material-symbols-outlined text-4xl mb-2">analytics</span>
-                <p class="text-lg mb-2">No sales data available</p>
-                <p class="text-sm">No orders found for the selected period or you may not have access to order data.</p>
+                <p class="text-lg mb-2">Нет данных по продажам</p>
+                <p class="text-sm">Заказы за выбранный период не найдены или нет доступа к данным.</p>
             </div>
         `;
         return;
@@ -505,24 +478,24 @@ function displayStats() {
 
     statsContainer.innerHTML = `
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
-            <p class="text-subtle-light dark:text-subtle-dark text-base font-medium leading-normal">Total Revenue</p>
+            <p class="text-subtle-light text-base font-medium leading-normal">Всего выручка</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">$${formatNumber(stats.totalRevenue || 0)}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.totalRevenue)}% vs previous period</p>
+            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.totalRevenue)}% к предыдущему периоду</p>
         </div>
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
-            <p class="text-subtle-light dark:text-subtle-dark text-base font-medium leading-normal">Units Sold</p>
+            <p class="text-subtle-light text-base font-medium leading-normal">Продано единиц</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">${formatNumber(stats.totalUnits || 0)}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.totalUnits)}% vs previous period</p>
+            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.totalUnits)}% к предыдущему периоду</p>
         </div>
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
-            <p class="text-subtle-light dark:text-subtle-dark text-base font-medium leading-normal">Average Order Value</p>
+            <p class="text-subtle-light text-base font-medium leading-normal">Средний чек</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">$${(stats.avgOrderValue || 0).toFixed(2)}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.avgOrderValue)}% vs previous period</p>
+            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.avgOrderValue)}% к предыдущему периоду</p>
         </div>
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
-            <p class="text-subtle-light dark:text-subtle-dark text-base font-medium leading-normal">New Customers</p>
+            <p class="text-subtle-light text-base font-medium leading-normal">Новые покупатели</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">${stats.newCustomers || 0}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.newCustomers)}% vs previous period</p>
+            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.newCustomers)}% к предыдущему периоду</p>
         </div>
     `;
 }
@@ -532,7 +505,7 @@ function displayRevenueChart() {
     const totalRevenue = revenueData?.reduce((sum, day) => sum + (day.revenue || 0), 0) || 0;
     const revenueChange = calculateGrowth(totalRevenue);
 
-    console.log('Revenue data:', { revenueData, totalRevenue, revenueChange });
+    
 
     const revenueTotal = document.getElementById('revenueTotal');
     const revenueChangeElement = document.getElementById('revenueChange');
@@ -545,14 +518,14 @@ function displayRevenueChart() {
 
     const chartContainer = document.getElementById('revenueChart');
     if (chartContainer) {
-        console.log('Creating revenue chart with data length:', revenueData.length);
+        
         chartContainer.innerHTML = createRevenueSVG(revenueData);
     }
 }
 
 function createRevenueSVG(data) {
     if (!data || data.length === 0) {
-        return createFallbackChart('No revenue data available for the selected period');
+        return createFallbackChart('Нет данных по выручке за выбранный период');
     }
 
     const validData = data.filter(d =>
@@ -585,11 +558,11 @@ function createRevenueSVG(data) {
         return `
             <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none">
                 <path d="${areaPath}" fill="url(#gradient)" fill-opacity="0.2"/>
-                <path d="${linePath}" stroke="#007BFF" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <path d="${linePath}" stroke="#522B47" stroke-width="2" stroke-linecap="round" fill="none"/>
                 <defs>
                     <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#007BFF" stop-opacity="0.3"/>
-                        <stop offset="100%" stop-color="#007BFF" stop-opacity="0"/>
+                        <stop offset="0%" stop-color="#522B47" stop-opacity="0.3"/>
+                        <stop offset="100%" stop-color="#522B47" stop-opacity="0"/>
                     </linearGradient>
                 </defs>
             </svg>
@@ -644,7 +617,7 @@ function displayGenreChart() {
 
     if (chartContainer && legendContainer) {
         if (genreData.length === 0 || totalUnits === 0) {
-            chartContainer.innerHTML = createFallbackChart('No genre sales data available');
+            chartContainer.innerHTML = createFallbackChart('Нет данных по продажам жанров');
             legendContainer.innerHTML = '';
         } else {
             chartContainer.innerHTML = createGenrePieChart(genreData, totalUnits);
@@ -655,14 +628,11 @@ function displayGenreChart() {
 
 function createGenrePieChart(genreData, totalUnits) {
     if (!genreData || genreData.length === 0 || totalUnits === 0) {
-        return '<div class="text-subtle-light dark:text-subtle-dark text-center">No genre data available</div>';
+        return '<div class="text-subtle-light dark:text-subtle-dark text-center">Нет данных по жанрам</div>';
     }
 
-    const colors = [
-        '#007BFF', '#28A745', '#FFC107', '#DC3545', '#6F42C1',
-        '#FD7E14', '#20C997', '#E83E8C', '#6610F2', '#6F42C1',
-        '#D63384', '#0DCAF0', '#198754', '#FFC107', '#0DCAF0'
-    ];
+    const baseColors = ['#522B47', '#E0DDCF', '#F1F0EA'];
+    const colors = Array(16).fill(null).map((_, i) => baseColors[i % baseColors.length]);
 
     let currentOffset = 0;
 
@@ -687,7 +657,7 @@ function createGenrePieChart(genreData, totalUnits) {
             </svg>
             <div class="absolute flex flex-col items-center">
                 <span class="text-2xl font-bold text-text-light dark:text-text-dark">${formatNumber(totalUnits)}</span>
-                <span class="text-sm text-subtle-light dark:text-subtle-dark">Total Units</span>
+                <span class="text-sm text-subtle-light dark:text-subtle-dark">Всего продано</span>
             </div>
         </div>
     `;
@@ -696,12 +666,7 @@ function createGenrePieChart(genreData, totalUnits) {
 function createGenreLegend(genreData, totalUnits) {
     if (!genreData || genreData.length === 0) return '';
 
-    const colors = [
-        'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500',
-        'bg-purple-500', 'bg-orange-500', 'bg-teal-500', 'bg-pink-500',
-        'bg-indigo-500', 'bg-cyan-500', 'bg-rose-500', 'bg-lime-500',
-        'bg-amber-500', 'bg-emerald-500', 'bg-violet-500', 'bg-fuchsia-500'
-    ];
+    const colors = ['bg-primary','bg-secondary','bg-background-light'];
 
     const midPoint = Math.ceil(genreData.length / 2);
     const firstColumn = genreData.slice(0, midPoint);
@@ -763,7 +728,7 @@ function displayTopBooks() {
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="5" class="px-6 py-8 text-center text-subtle-light dark:text-subtle-dark">
-                        No sales data available for the selected period.
+                        Нет данных о продажах за выбранный период.
                     </td>
                 </tr>
             `;
@@ -781,7 +746,7 @@ function displayTopBooks() {
             `).join('');
         }
 
-        tableInfo.textContent = `Showing 1 to ${Math.min(topBooks.length, 10)} of ${topBooks.length} results`;
+        tableInfo.textContent = `Показано 1–${Math.min(topBooks.length, 10)} из ${topBooks.length}`;
     }
 }
 
@@ -816,11 +781,11 @@ function showAnalyticsError(message) {
 function exportToCSV() {
     const topBooks = analyticsData.topBooks;
     if (!topBooks || topBooks.length === 0) {
-        showNotification('No data to export', 'warning');
+        showNotification('Нет данных для экспорта', 'warning');
         return;
     }
 
-    const headers = ['Book Title', 'Author', 'Genre', 'Units Sold', 'Total Revenue'];
+    const headers = ['Название', 'Автор', 'Жанр', 'Продано', 'Выручка'];
     const csvData = topBooks.map(item => [
         `"${(item.book.title || 'Unknown').replace(/"/g, '""')}"`,
         `"${(item.book.author || 'Unknown').replace(/"/g, '""')}"`,

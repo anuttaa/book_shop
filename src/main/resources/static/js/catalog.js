@@ -30,14 +30,14 @@ async function loadBooks() {
             const maxPrice = Math.max(...books.map(b => parseFloat(b.price) || 0), 100);
             priceSlider.max = Math.ceil(maxPrice);
             priceSlider.value = priceSlider.max;
-            priceValue.textContent = `$0 - $${priceSlider.value}`;
+            priceValue.textContent = `0–${priceSlider.value} $`;
             priceFilter.max = parseFloat(priceSlider.value);
             priceSlider.dataset.loaded = 'true';
         }
 
         const booksWithMedia = await Promise.all(
             books.map(async book => {
-                const image = await getBookCover(book);
+        const image = await getBookCover(book);
                 const type = book.type ? book.type.toLowerCase() : 'physical';
                 const rating = book.rating !== undefined ? book.rating : await calculateBookRating(book);
                 return { ...book, image, type, rating, price: parseFloat(book.price) || 0 };
@@ -67,7 +67,7 @@ async function loadBooks() {
 
     } catch (e) {
         console.error('Error loading books:', e);
-        grid.innerHTML = `<p class="col-span-full text-center text-red-500">Failed to load books</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-text-light">Не удалось загрузить книги</p>`;
     }
 }
 
@@ -84,39 +84,20 @@ async function loadFilters(books) {
 
 function createFilter(container, key, options, toLower=false) {
     container.innerHTML = '';
-    const visibleOptions = options.slice(0, 5);
-    const hiddenOptions = options.slice(5);
-
-    visibleOptions.forEach((item, i) => container.appendChild(createCheckbox(item, key, i, toLower)));
-    if (hiddenOptions.length) {
-        const hiddenContainer = document.createElement('div');
-        hiddenContainer.style.display = 'none';
-        hiddenOptions.forEach((item, i) => hiddenContainer.appendChild(createCheckbox(item, key, i+5, toLower)));
-        container.appendChild(hiddenContainer);
-
-        const btn = document.createElement('button');
-        btn.textContent = 'Show More';
-        btn.className = 'text-sm text-primary underline mt-2';
-        btn.addEventListener('click', () => {
-            hiddenContainer.style.display = hiddenContainer.style.display === 'none' ? 'block' : 'none';
-            btn.textContent = hiddenContainer.style.display === 'none' ? 'Show More' : 'Show Less';
-        });
-        container.appendChild(btn);
-    }
-
+    options.forEach((item, i) => container.appendChild(createCheckbox(item, key, i, toLower)));
     setupSingleSelect(container, key, toLower);
 }
 
 function createCheckbox(label, key, index, toLower=false) {
     const id = `${key}-${index}`;
     const value = label;
-    const displayLabel = key === 'formats' ? (label === 'electronic' ? 'E-book' : 'Physical') : label;
+    const displayLabel = key === 'formats' ? (label === 'electronic' ? 'Электронная' : 'Печатная') : label;
 
     const wrapper = document.createElement('div');
     wrapper.className = 'flex items-center';
     wrapper.innerHTML = `
-        <input class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary" type="checkbox" id="${id}" checked data-value="${value}" />
-        <label class="ml-2 text-sm text-gray-600 dark:text-gray-300" for="${id}">${displayLabel}</label>
+        <input class="h-4 w-4 rounded border-border-light text-primary" type="checkbox" id="${id}" data-value="${value}" />
+        <label class="ml-2 text-sm text-text-light" for="${id}">${displayLabel}</label>
     `;
     return wrapper;
 }
@@ -159,7 +140,7 @@ function applySort(books) {
 
 priceSlider.addEventListener('input', () => {
     priceFilter.max = parseFloat(priceSlider.value);
-    priceValue.textContent = `$0 - $${priceSlider.value}`;
+    priceValue.textContent = `0–${priceSlider.value} $`;
     currentPage = 1;
     loadBooks();
 });
@@ -167,27 +148,25 @@ priceSlider.addEventListener('input', () => {
 function renderBooks(books) {
     grid.innerHTML = '';
     if (!books.length) {
-        grid.innerHTML = `<p class="col-span-full text-center text-gray-500 dark:text-gray-400">No books found</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-text-light">Книги не найдены</p>`;
         return;
     }
 
     books.forEach(book => {
-        const displayType = book.type === 'electronic' ? 'E-book' : 'Physical';
-        const typeClasses = book.type === 'electronic'
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        const displayType = book.type === 'electronic' ? 'Электронная' : 'Печатная';
+        const typeClasses = 'bg-secondary text-text-light';
 
         const html = `
         <div class="book-card group relative flex flex-col overflow-hidden rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm transition-all hover:shadow-lg max-h-[500px]" data-id="${book.id}">
-            <div class="aspect-[3/4] overflow-hidden">
-                <img class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105" src="${book.image}" alt="${book.title}" />
-                <div class="absolute top-2 right-2">
+            <div class="aspect-[3/4] overflow-hidden relative">
+                <img class="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105" src="${book.image || 'redirect:https://via.placeholder.com/120x160/522B47/F1F0EA?text=cover'}" alt="${book.title}" />
+                <div class="absolute top-2 right-2 z-10">
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${typeClasses}">
                         ${displayType}
                     </span>
                 </div>
             </div>
-            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 z-10">
                 <button class="add-to-cart flex items-center justify-center h-12 w-12 rounded-full bg-white/90 text-primary hover:bg-white backdrop-blur-sm transition-colors" data-id="${book.id}">
                     <span class="material-symbols-outlined text-2xl">add_shopping_cart</span>
                 </button>
@@ -217,7 +196,19 @@ function renderBooks(books) {
         btn.addEventListener('click', async e => {
             e.stopPropagation();
             const id = btn.dataset.id;
-            await apiService.addToCart(id);
+            if (!apiService.token) {
+                showNotification('Войдите, чтобы добавлять товары в корзину', 'error');
+                return;
+            }
+            try {
+                await apiService.addToCart(id);
+                showNotification('Книга добавлена в корзину!', 'success');
+                if (typeof updateCartCounter === 'function') {
+                    updateCartCounter();
+                }
+            } catch (error) {
+                showNotification('Не удалось добавить книгу в корзину: ' + error.message, 'error');
+            }
         });
     });
 
@@ -225,7 +216,22 @@ function renderBooks(books) {
         btn.addEventListener('click', async e => {
             e.stopPropagation();
             const id = btn.dataset.id;
-            await apiService.addToWishlist(id);
+            if (!apiService.token) {
+                showNotification('Войдите, чтобы управлять избранным', 'error');
+                return;
+            }
+            try {
+                const isInWishlist = await apiService.checkInWishlist(id);
+                if (isInWishlist) {
+                    await apiService.removeFromWishlist(id);
+                    showNotification('Книга удалена из избранного', 'success');
+                } else {
+                    await apiService.addToWishlist(id);
+                    showNotification('Книга добавлена в избранное!', 'success');
+                }
+            } catch (error) {
+                showNotification('Не удалось обновить избранное: ' + error.message, 'error');
+            }
         });
     });
 }
@@ -239,7 +245,7 @@ function renderStars(rating=0) {
     for (let i=1;i<=5;i++){
         if (rating>=i) stars+=`<span class="material-symbols-outlined !text-base">star</span>`;
         else if (rating>=i-0.5) stars+=`<span class="material-symbols-outlined !text-base">star_half</span>`;
-        else stars+=`<span class="material-symbols-outlined !text-base text-gray-300 dark:text-gray-600">star</span>`;
+        else stars+=`<span class="material-symbols-outlined !text-base text-gray-300">star</span>`;
     }
     return stars;
 }
@@ -247,7 +253,7 @@ function renderStars(rating=0) {
 function renderPagination() {
     if(!paginationContainer) return;
     paginationContainer.innerHTML='';
-    const createBtn = (num, active=false)=>`<a class="inline-flex items-center justify-center h-9 w-9 text-sm font-medium ${active?'bg-primary text-white':'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg'}" href="#" data-page="${num}">${num}</a>`;
+    const createBtn = (num, active=false)=>`<a class="inline-flex items-center justify-center h-9 w-9 text-sm font-medium ${active?'bg-primary text-white':'text-gray-500 hover:bg-gray-200 rounded-lg'}" href="#" data-page="${num}">${num}</a>`;
     for(let i=1;i<=totalPages;i++) paginationContainer.insertAdjacentHTML('beforeend', createBtn(i,i===currentPage));
     paginationContainer.querySelectorAll('a[data-page]').forEach(btn=>{
         btn.addEventListener('click', e=>{
@@ -267,7 +273,7 @@ async function getBookCover(book){
         const mediaList = await apiService.getBookMedia(book.id);
         const cover = findCoverMedia(mediaList);
         if(cover && (cover.fileUrl || cover.url)) return cover.fileUrl || cover.url;
-    }catch(e){console.warn('Failed to load media for book',book.id,e);}
+    }catch(e){ }
     return "redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=cover";
 }
 
@@ -290,7 +296,7 @@ async function calculateBookRating(book){
             const sum = reviews.reduce((total,r)=>total+(r.rating||0),0);
             return Math.round((sum/reviews.length)*10)/10;
         }
-    }catch(e){console.warn('Failed to load reviews for book',book.id,e);}
+    }catch(e){ }
     return 0.0;
 }
 
@@ -298,3 +304,4 @@ searchInput.addEventListener('input', e => { currentSearch = searchInput.value; 
 sortSelect.addEventListener('change', e => { currentSort = sortSelect.value; currentPage=1; loadBooks(); });
 
 loadBooks();
+

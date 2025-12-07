@@ -18,7 +18,11 @@ public interface UserMapper {
   @Mapping(target = "passwordHash", ignore = true)
   @Mapping(target = "role", expression = "java(mapRole(dto.getRole()))")
   @Mapping(target = "subscribed", source = "subscribed")
-  @Mapping(target = "avatarMediaId", ignore = true)
+  @Mapping(target = "avatarMedia", ignore = true)
+  @Mapping(target = "cartItems", ignore = true)
+  @Mapping(target = "orders", ignore = true)
+  @Mapping(target = "reviews", ignore = true)
+  @Mapping(target = "wishlist", ignore = true)
   User toEntity(UserDTO dto);
 
   default Role mapRole(String role) {

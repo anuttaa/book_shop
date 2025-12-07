@@ -1,109 +1,96 @@
 class ApiService {
-    constructor() {
-        this.baseUrl = 'http://localhost:8080';
-        this.token = localStorage.getItem('token');
+  constructor() {
+    this.baseUrl = 'http://localhost:8080';
+    this.token = localStorage.getItem('token');
+  }
+
+  setToken(token) {
+    if (!token) {
+      this.token = null;
+      localStorage.removeItem('token');
+      return;
     }
 
-    setToken(token) {
-        this.token = token;
-        localStorage.setItem('token', token);
-        console.log('Token saved:', token);
+    this.token = token;
+    localStorage.setItem('token', token);
+  }
+
+
+  removeToken() {
+    this.token = null;
+    localStorage.removeItem('token');
+  }
+
+  async request(path, options = {}, expectJson = true) {
+    const headers = { 'Content-Type': 'application/json' };
+
+    if (this.token) {
+      headers['Authorization'] = 'Bearer ' + this.token;
+    } else {
+      
     }
+    try {
+      const response = await fetch(this.baseUrl + path, {
+        headers,
+        ...options,
+        credentials: 'include'
+      });
 
-    removeToken() {
-        this.token = null;
-        localStorage.removeItem('token');
-        console.log('Token removed');
+      const text = await response.text();
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+      }
+
+      return expectJson && text ? JSON.parse(text) : text;
+    } catch (error) {
+      
+      throw error;
     }
+  }
 
-   async request(path, options = {}, expectJson = true) {
-       const headers = { 'Content-Type': 'application/json' };
-       if (this.token) headers['Authorization'] = 'Bearer ' + this.token;
-
-       console.log('Fetching', this.baseUrl + path, {
-           headers,
-           method: options.method || 'GET'
-       });
-
-       try {
-           const response = await fetch(this.baseUrl + path, {
-               headers,
-               ...options,
-               credentials: 'include'
-           });
-
-           console.log('Response status:', response.status);
-
-           if (response.status === 403) {
-               console.warn('Access forbidden, checking token validity...');
-           }
-
-           const text = await response.text();
-
-           if (!response.ok) {
-               console.error('API error:', {
-                   status: response.status,
-                   statusText: response.statusText,
-                   body: text
-               });
-               throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
-           }
-
-           return expectJson && text ? JSON.parse(text) : text;
-       } catch (error) {
-           console.error('Network error:', error);
-           throw error;
-       }
-   }
-
-   async reorder(orderId) {
-       try {
-           const orders = await this.getUserOrders();
-           const order = orders.find(o => o.id == orderId);
+  async reorder(orderId) {
+    try {
+      const orders = await this.getUserOrders();
+      const order = orders.find(o => o.id == orderId);
 
            if (!order || !order.orderItems) {
                throw new Error("Order not found or has no items");
            }
 
-           for (const item of order.orderItems) {
-               if (item.book && item.book.id) {
-                   await this.addToCart(item.book.id, item.quantity || 1);
-               }
-           }
-
-           return { success: true, message: "Items added to cart" };
-       } catch (error) {
-           console.error("Reorder error:", error);
-           throw error;
-       }
-   }
-
-    // Auth methods
-    async login(username, password) {
-        console.log('Login attempt with:', { username });
-        const response = await fetch(this.baseUrl + '/api/users/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password })
-        });
-
-        console.log('Login response status:', response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Login error response:', errorText);
-            throw new Error(errorText || 'Login failed');
+      for (const item of order.orderItems) {
+        if (item.book && item.book.id) {
+          await this.addToCart(item.book.id, item.quantity || 1);
         }
+      }
+
+      return { success: true, message: "Items added to cart" };
+    } catch (error) {
+      
+      throw error;
+    }
+  }
+
+  async login(username, password) {
+    const response = await fetch(this.baseUrl + '/api/users/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || 'Login failed');
+    }
 
         const result = await response.json();
-        console.log('Login successful, token received');
         return result;
     }
 
     async register(userData) {
-        console.log('Register attempt with:', userData);
+        
         const response = await fetch(this.baseUrl + '/api/users/register', {
             method: 'POST',
             headers: {
@@ -112,7 +99,7 @@ class ApiService {
             body: JSON.stringify(userData)
         });
 
-        console.log('Register response status:', response.status);
+        
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -228,7 +215,7 @@ class ApiService {
     }
 
     normalizeBookType(type) {
-        console.log(type);
+        
         if (!type) return 'physical';
         return type.toLowerCase();
     }
@@ -427,7 +414,6 @@ class ApiService {
     async getMyAvatar() {
         try {
             const response = await this.request('/api/users/me/avatar');
-            console.log('API getMyAvatar response:', response);
             return response;
         } catch (error) {
             console.error('API getMyAvatar error:', error);

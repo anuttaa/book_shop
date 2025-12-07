@@ -26,28 +26,19 @@ public class OrderController {
   @GetMapping
   public ResponseEntity<List<OrderDTO>> getCurrentUserOrders() {
     try {
-      System.out.println("=== OrderController.getCurrentUserOrders() ===");
-
       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-      System.out.println("Direct auth: " + auth);
-      System.out.println("Direct auth name: " + (auth != null ? auth.getName() : "null"));
 
       if (auth != null && auth.isAuthenticated()) {
         String username = auth.getName();
-        System.out.println("Looking for user: " + username);
 
         User user = userDao.findByUsername(username)
           .orElseThrow(() -> new RuntimeException("User not found directly: " + username));
-
-        System.out.println("Found user directly: " + user.getUsername() + " ID: " + user.getId());
         return ResponseEntity.ok(orderService.getOrdersByUser(user.getId()));
       }
 
       throw new RuntimeException("Not authenticated");
 
     } catch (Exception e) {
-      System.err.println("Error in getCurrentUserOrders: " + e.getMessage());
-      e.printStackTrace();
       return ResponseEntity.status(500).build();
     }
   }

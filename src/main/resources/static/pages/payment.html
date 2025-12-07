@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html class="light" lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BookStore — Оплата заказа</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+  <header class="header">
+    <div class="actions">
+      <a class="brand" href="/">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 21V3h14v18l-7-3-7 3zM7 5v12.2l5-2.15 5 2.15V5H7z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg>
+        <h1>BookStore</h1>
+      </a>
+      <nav class="nav">
+        <a href="/">Главная</a>
+        <a href="/catalog">Каталог</a>
+        <a id="admin-link" href="/admin" class="hidden">Админ-панель</a>
+      </nav>
+    </div>
+    <div class="actions">
+      <div id="auth-buttons" class="actions">
+        <a href="/login" class="btn btn-secondary">Войти</a>
+        <a href="/register" class="btn btn-primary">Регистрация</a>
+      </div>
+      <div id="user-actions" class="actions hidden">
+        <button class="icon-btn"><a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a></button>
+        <button class="icon-btn"><a href="/orders"><span class="material-symbols-outlined">receipt_long</span></a></button>
+        <button class="icon-btn cart"><a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a><div id="cart-counter" class="badge hidden">0</div></button>
+        <button class="icon-btn"><a href="/profile"><span class="material-symbols-outlined">account_circle</span></a></button>
+        <button class="btn btn-secondary" onclick="logout()"><span class="material-symbols-outlined">logout</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-3xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Оплата заказа</h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">Проверьте детали заказа и выберите способ оплаты.</p>
+      </div>
+
+      <div id="paymentContainer" class="flex flex-col gap-6"></div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/payment.js"></script>
+</body>
+</html>

@@ -25,33 +25,24 @@ public class AvatarService {
 
   public AvatarDTO getAvatar(Long userId) {
     try {
-      System.out.println("=== AVATAR DEBUG ===");
-      System.out.println("User ID: " + userId);
 
       User user = userRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
       Media avatarMedia = user.getAvatarMedia();
-      System.out.println("User avatarMedia: " + avatarMedia);
 
       if (avatarMedia == null) {
-        System.out.println("User has no avatarMedia");
         return createEmptyAvatarDTO();
       }
 
-      System.out.println("Found media - ID: " + avatarMedia.getId() + ", URL: " + avatarMedia.getFileUrl());
 
       MediaDTO mediaDTO = mediaMapper.toDTO(avatarMedia);
 
       AvatarDTO avatarDTO = convertToAvatarDTO(mediaDTO);
-      System.out.println("Final AvatarDTO URL: " + avatarDTO.getFileUrl());
-      System.out.println("=== END DEBUG ===");
 
       return avatarDTO;
 
     } catch (Exception e) {
-      System.out.println("Error in getAvatar: " + e.getMessage());
-      e.printStackTrace();
       return createEmptyAvatarDTO();
     }
   }
@@ -73,18 +64,14 @@ public class AvatarService {
       avatar.setFileUrl(avatarUrl);
 
       Media savedAvatar = mediaRepository.save(avatar);
-      System.out.println("Saved avatar media ID: " + savedAvatar.getId());
 
       user.setAvatarMedia(savedAvatar);
       userRepository.save(user);
-      System.out.println("Updated user avatarMedia to: " + savedAvatar.getId());
 
       MediaDTO mediaDTO = mediaMapper.toDTO(savedAvatar);
       return convertToAvatarDTO(mediaDTO);
 
     } catch (Exception e) {
-      System.out.println("Error in setAvatar: " + e.getMessage());
-      e.printStackTrace();
       throw new RuntimeException("Failed to set avatar: " + e.getMessage(), e);
     }
   }

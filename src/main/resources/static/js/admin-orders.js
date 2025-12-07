@@ -365,7 +365,7 @@ function formatOrderDate(dateString) {
             day: 'numeric'
         });
     } catch (error) {
-        console.warn('Invalid date format:', dateString);
+        
         return 'Invalid Date';
     }
 }
@@ -553,7 +553,7 @@ function getBookImageUrl(book) {
 
 function getBookFallbackElement(firstLetter) {
     return `
-        <div class="w-10 h-12 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+        <div class="w-10 h-12 rounded bg-secondary flex items-center justify-center text-primary font-bold text-sm">
             ${firstLetter}
         </div>
     `;

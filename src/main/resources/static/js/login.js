@@ -11,12 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const submitButton = loginForm.querySelector('button[type="submit"]');
 
         if (!username || !password) {
-            showNotification('Please fill in all fields', 'error');
+            showNotification('Заполните все поля', 'error');
             return;
         }
 
         try {
-            submitButton.textContent = 'Signing In...';
+            submitButton.textContent = 'Вход...';
             submitButton.disabled = true;
 
             const response = await fetch('/api/users/login', {
@@ -25,24 +25,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ username, password })
             });
 
-            if (!response.ok) throw new Error('Invalid credentials');
+            if (!response.ok) throw new Error('Неверные учетные данные');
 
             const data = await response.json();
-            if (!data.token) throw new Error('No token received from server');
+            if (!data.token) throw new Error('Токен не получен от сервера');
 
             apiService.setToken(data.token);
 
-            showNotification('Login successful! Redirecting...', 'success');
+            showNotification('Вход выполнен! Перенаправление...', 'success');
 
             setTimeout(() => {
                 window.location.href = '/';
             }, 800);
 
         } catch (error) {
-            console.error('Login error:', error);
-            showNotification('Login failed: ' + error.message, 'error');
+            console.error('Ошибка входа:', error);
+            showNotification('Ошибка входа: ' + error.message, 'error');
         } finally {
-            submitButton.textContent = 'Login';
+            submitButton.textContent = 'Войти';
             submitButton.disabled = false;
         }
     });
@@ -56,6 +56,6 @@ function setupPasswordToggle() {
     toggle.addEventListener('click', () => {
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
-        toggle.textContent = type === 'password' ? 'Show' : 'Hide';
+        toggle.textContent = type === 'password' ? 'Показать' : 'Скрыть';
     });
 }

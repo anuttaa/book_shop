@@ -1,115 +1,139 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="ru">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Book Nook - Book Details</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <title>BookStore — Детали книги</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                "primary": "#135bec",
-                "background-light": "#f6f6f8",
-                "background-dark": "#101622",
-                "primary-alt": "#1A237E",
-                "secondary-alt": "#FFC107",
-                "neutral-bg": "#F8F9FA",
-                "neutral-border": "#E9ECEF",
-                "neutral-text": "#212529",
-                "neutral-text-dark": "#F8F9FA",
-              },
-              fontFamily: {
-                "display": ["Inter", "sans-serif"]
-              },
-              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-            },
-          },
-        }
-    </script>
+
+    <link rel="stylesheet" href="/css/main.css"/>
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+
+        /* Дополнительные стили для книжных обложек */
+        .book-cover-main {
+            width: 280px;
+            height: 420px;
+            min-width: 280px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .book-cover-main:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-cover-recommendation {
+            width: 120px;
+            height: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .book-cover-recommendation:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Адаптивность для главной обложки */
+        @media (max-width: 768px) {
+            .book-cover-main {
+                width: 200px;
+                height: 300px;
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .book-cover-main {
+                width: 150px;
+                height: 225px;
+                min-width: 150px;
+            }
+        }
+
+        /* Улучшенный контейнер для рекомендаций */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 24px;
+        }
+
+        .recommendation-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recommendation-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
     </style>
 </head>
-<body class="font-display bg-neutral-bg dark:bg-background-dark text-neutral-text dark:text-neutral-text-dark">
+<body class="bg-background-light text-text-light dark:bg-background-dark dark:text-text-dark">
 <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
 
-    <!-- TopNavBar -->
-    <header class="w-full bg-white dark:bg-background-dark dark:border-b dark:border-neutral-border/20 shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-6">
-            <div class="flex items-center justify-between whitespace-nowrap border-b border-solid border-neutral-border dark:border-transparent py-3">
-                <div class="flex items-center gap-8">
-                    <div class="flex items-center gap-2 text-neutral-text dark:text-neutral-text-dark">
-                        <span class="material-symbols-outlined text-primary-alt dark:text-primary text-3xl">import_contacts</span>
-                        <h2 class="text-xl font-bold leading-tight tracking-tighter">Book Nook</h2>
-                    </div>
-                    <nav class="hidden md:flex items-center gap-9">
-                        <a class="text-sm font-medium hover:text-primary-alt dark:hover:text-primary" href="/">Home</a>
-                        <a class="text-sm font-medium hover:text-primary-alt dark:hover:text-primary" href="/catalog">Catalog</a>
-                    </nav>
-                </div>
-                <div class="flex flex-1 justify-end gap-4 items-center">
-                    <!-- Кнопки для залогиненных пользователей -->
-                    <div class="hidden gap-2" id="user-actions">
-                        <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-                            <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
-                        </button>
-                        <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-                            <a href="/orders"><span class="material-symbols-outlined text-2xl">orders</span></a>
-                        </button>
-                        <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-                            <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
-                            <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold" id="cartCount">2</div>
-                        </button>
-                        <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-                            <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
-                        </button>
-                    </div>
-
-                    <!-- Кнопки для незалогиненных пользователей -->
-                    <div class="flex gap-2" id="auth-buttons">
-                        <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-neutral-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                            <span class="truncate">Login</span>
-                        </a>
-                        <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                            <span class="truncate">Registration</span>
-                        </a>
-                    </div>
-                </div>
+    <header class="header">
+        <div class="actions">
+            <a class="brand" href="/">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 21V3h14v18l-7-3-7 3zM7 5v12.2l5-2.15 5 2.15V5H7z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg>
+                <h1>BookStore</h1>
+            </a>
+            <nav class="nav">
+                <a href="/">Главная</a>
+                <a href="/catalog">Каталог</a>
+                <a id="admin-link" href="/admin" class="hidden">Админ-панель</a>
+            </nav>
+        </div>
+        <div class="actions">
+            <div id="auth-buttons" class="actions">
+                <a href="/login" class="btn btn-secondary">Войти</a>
+                <a href="/register" class="btn btn-primary">Регистрация</a>
+            </div>
+            <div id="user-actions" class="actions hidden">
+                <button class="icon-btn"><a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a></button>
+                <button class="icon-btn"><a href="/orders"><span class="material-symbols-outlined">receipt_long</span></a></button>
+                <button class="icon-btn cart"><a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a><div id="cart-counter" class="badge hidden">0</div></button>
+                <button class="icon-btn"><a href="/profile"><span class="material-symbols-outlined">account_circle</span></a></button>
+                <button class="btn btn-secondary" onclick="logout()"><span class="material-symbols-outlined">logout</span></button>
             </div>
         </div>
     </header>
 
     <main class="layout-container flex h-full grow flex-col">
         <div class="flex flex-1 justify-center py-5">
-            <div class="layout-content-container flex flex-col w-full max-w-6xl px-6">
+            <div class="layout-content-container flex flex-col w-full max-w-6xl px-4 md:px-6">
 
                 <!-- Breadcrumbs -->
-                <div class="flex flex-wrap gap-2 py-4" id="breadcrumbs">
+                <div class="flex flex-wrap gap-2 py-4 px-2 md:px-0" id="breadcrumbs">
                     <!-- Будет заполнено через JavaScript -->
                 </div>
 
                 <!-- Main Content: Book Details -->
-                <section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-2 gap-12 py-8">
+                <section class="flex flex-col lg:flex-row gap-8 md:gap-10 py-6 md:py-8 px-2 md:px-0">
                     <!-- Left Column: Book Cover -->
-                    <div class="md:col-span-1 lg:col-span-1 flex justify-center md:justify-start">
-                        <div id="bookCover" class="w-full max-w-sm bg-gradient-to-br from-primary to-blue-600 aspect-[2/3] rounded-xl shadow-2xl flex items-center justify-center text-white text-8xl font-bold">
-                            <!-- Буква будет добавлена через JavaScript -->
+                    <div class="flex justify-center lg:justify-start lg:sticky lg:top-24 lg:self-start">
+                        <div id="bookCover" class="book-cover-main rounded-xl flex items-center justify-center text-white text-6xl font-bold overflow-hidden bg-gradient-to-br from-primary to-blue-600">
+                            <!-- Буква или изображение будет добавлено через JavaScript -->
                         </div>
                     </div>
 
                     <!-- Right Column: Info and Actions -->
-                    <div class="md:col-span-2 lg:col-span-1 flex flex-col gap-6">
+                    <div class="flex flex-col gap-6 flex-1 lg:pl-8">
                         <!-- PageHeading -->
-                        <div class="flex flex-col gap-2">
-                            <h1 id="bookTitle" class="text-neutral-text dark:text-neutral-text-dark text-4xl lg:text-5xl font-black leading-tight tracking-tighter">Loading...</h1>
-                            <a id="bookAuthor" class="text-gray-600 dark:text-gray-300 text-lg font-medium leading-normal hover:text-primary-alt dark:hover:text-primary" href="#">by Author</a>
+                        <div class="flex flex-col gap-3">
+                            <h1 id="bookTitle" class="text-neutral-text dark:text-neutral-text-dark text-2xl md:text-3xl lg:text-4xl font-black leading-tight tracking-tight">Загрузка...</h1>
+                            <a id="bookAuthor" class="text-gray-600 dark:text-gray-300 text-lg md:text-xl font-medium leading-normal hover:text-primary-alt dark:hover:text-primary transition-colors" href="#">Автор: Unknown</a>
                         </div>
 
                         <!-- Chips/Genres -->
@@ -117,45 +141,52 @@
                             <!-- Жанры будут добавлены через JavaScript -->
                         </div>
 
-                        <!-- Rating -->
-                        <div class="flex items-center gap-2" id="ratingSection">
-                            <!-- Рейтинг будет добавлен через JavaScript -->
+                        <!-- Rating and Price Section -->
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-t border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3" id="ratingSection">
+                                <!-- Рейтинг будет добавлен через JavaScript -->
+                            </div>
+                            <div>
+                                <p id="bookPrice" class="text-3xl md:text-4xl font-bold text-neutral-text dark:text-neutral-text-dark">$0.00</p>
+                            </div>
                         </div>
 
-                        <!-- Price -->
-                        <p id="bookPrice" class="text-3xl font-bold text-neutral-text dark:text-neutral-text-dark">$0.00</p>
-
                         <!-- Description -->
-                        <p id="bookDescription" class="text-gray-700 dark:text-gray-300 text-base font-normal leading-relaxed">
-                            Loading description...
-                        </p>
+                        <div class="py-4">
+                            <h3 class="text-xl font-bold mb-3 text-neutral-text dark:text-neutral-text-dark">Описание</h3>
+                            <p id="bookDescription" class="text-gray-700 dark:text-gray-300 text-base md:text-lg font-normal leading-relaxed">
+                                Описание загружается...
+                            </p>
+                        </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button onclick="addToCart()" class="flex w-full sm:w-auto flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary-alt text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors shadow-lg">
-                                <span class="material-symbols-outlined mr-2">add_shopping_cart</span>
-                                <span class="truncate">Add to Cart</span>
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                            <button onclick="addToCart()" class="flex flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl">
+                                <span class="material-symbols-outlined mr-3 text-xl">add_shopping_cart</span>
+                                <span class="truncate">Добавить в корзину</span>
                             </button>
-                            <button onclick="toggleWishlist()" id="wishlistBtn" class="flex w-full sm:w-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-neutral-border dark:bg-white/10 text-neutral-text dark:text-neutral-text-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-300 dark:hover:bg-white/20 transition-colors">
-                                <span class="material-symbols-outlined mr-2">favorite_border</span>
-                                <span class="truncate">Add to Wishlist</span>
+                            <button onclick="toggleWishlist()" id="wishlistBtn" class="flex flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-secondary text-secondary-content text-lg font-bold leading-normal tracking-[0.015em] hover:bg-secondary/90 transition-all duration-300">
+                                <span class="material-symbols-outlined mr-3 text-xl">favorite_border</span>
+                                <span class="truncate">В избранное</span>
                             </button>
                         </div>
                     </div>
                 </section>
 
                 <!-- User Reviews Section -->
-                <section class="py-12">
-                    <h2 class="text-3xl font-bold mb-6 text-neutral-text dark:text-neutral-text-dark">What Readers Are Saying</h2>
+                <section class="py-12 px-2 md:px-0">
+                    <h2 class="text-3xl font-bold mb-8 text-neutral-text dark:text-neutral-text-dark">Отзывы читателей</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsContainer">
                         <!-- Отзывы будут загружены через JavaScript -->
                     </div>
                 </section>
 
                 <!-- Recommendations Section -->
-                <section class="py-12">
-                    <h2 class="text-3xl font-bold mb-6 text-neutral-text dark:text-neutral-text-dark">You Might Also Like</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="recommendationsContainer">
+                <section class="py-12 px-2 md:px-0">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-bold text-neutral-text dark:text-neutral-text-dark">Вам также может понравиться</h2>
+                    </div>
+                    <div class="recommendations-grid" id="recommendationsContainer">
                         <!-- Рекомендации будут загружены через JavaScript -->
                     </div>
                 </section>
@@ -164,8 +195,9 @@
     </main>
 </div>
 
-<script src="../js/api.js"></script>
-<script src="../js/utils.js"></script>
-<script src="../js/book.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/book.js"></script>
 </body>
 </html>

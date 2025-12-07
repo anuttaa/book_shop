@@ -1,28 +1,13 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="ru">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>The Book Nook - Order History</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <title>BookStore — История заказов</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#135bec",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#101622",
-                    },
-                    fontFamily: { "display": ["Inter", "sans-serif"] },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
+    
+    <link rel="stylesheet" href="/css/main.css"/>
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -32,34 +17,30 @@
 <body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
 
 <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-    <!-- HEADER -->
-    <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-10 py-3 bg-white dark:bg-background-dark sticky top-0 z-10">
-        <div class="flex items-center gap-8">
-            <div class="flex items-center gap-4 text-gray-900 dark:text-white">
-                <div class="size-6 text-primary">
-                    <span class="material-symbols-outlined text-3xl">import_contacts</span>
-                </div>
-                <h2 class="text-lg font-bold tracking-[-0.015em]">The Book Nook</h2>
-            </div>
+    <header class="header">
+        <div class="actions">
+            <a class="brand" href="/">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 21V3h14v18l-7-3-7 3zM7 5v12.2l5-2.15 5 2.15V5H7z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg>
+                <h1>BookStore</h1>
+            </a>
+            <nav class="nav">
+                <a href="/">Главная</a>
+                <a href="/catalog">Каталог</a>
+                <a id="admin-link" href="/admin" class="hidden">Админ-панель</a>
+            </nav>
         </div>
-        <div class="flex flex-1 justify-center gap-8 px-8">
-            <div class="flex items-center gap-9">
-                <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="/">Home</a>
-                <a class="text-sm font-medium leading-normal text-primary dark:text-primary" href="/catalog">Books</a>
-                <a class="text-sm font-medium leading-normal text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary" href="/profile">My Account</a>
+        <div class="actions">
+            <div id="auth-buttons" class="actions">
+                <a href="/login" class="btn btn-secondary">Войти</a>
+                <a href="/register" class="btn btn-primary">Регистрация</a>
             </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-                <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
-            </button>
-            <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-                <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
-                <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</div>
-            </button>
-            <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-                <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
-            </button>
+            <div id="user-actions" class="actions hidden">
+                <button class="icon-btn"><a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a></button>
+                <button class="icon-btn"><a href="/orders"><span class="material-symbols-outlined">receipt_long</span></a></button>
+                <button class="icon-btn cart"><a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a><div id="cart-counter" class="badge hidden">0</div></button>
+                <button class="icon-btn"><a href="/profile"><span class="material-symbols-outlined">account_circle</span></a></button>
+                <button class="btn btn-secondary" onclick="logout()"><span class="material-symbols-outlined">logout</span></button>
+            </div>
         </div>
     </header>
 
@@ -67,8 +48,8 @@
     <main class="flex-1 px-4 sm:px-6 lg:px-8 py-10">
         <div class="max-w-4xl mx-auto">
             <div class="mb-8">
-                <h1 class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">My Order History</h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">View your past orders and their status.</p>
+                <h1 class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">История заказов</h1>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Просматривайте ваши прошлые заказы и их статус.</p>
             </div>
 
             <!-- ORDERS CONTAINER -->
@@ -77,24 +58,16 @@
             </div>
 
             <!-- PAGINATION -->
-            <div class="mt-10 flex justify-center">
-                <nav aria-label="Pagination" class="flex items-center gap-2">
-                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">
-                        <span class="material-symbols-outlined text-lg">chevron_left</span>
-                    </a>
-                    <a aria-current="page" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-primary bg-primary text-sm font-medium text-white" href="#">1</a>
-                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">2</a>
-                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">3</a>
-                    <a class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700" href="#">
-                        <span class="material-symbols-outlined text-lg">chevron_right</span>
-                    </a>
-                </nav>
+            <div class="mt-10 flex justify-center" id="ordersPagination">
+                <!-- JS renders numeric pagination here -->
             </div>
         </div>
     </main>
 </div>
 
 <script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/main.js"></script>
 <script src="/js/orders.js" defer></script>
 </body>
 </html>

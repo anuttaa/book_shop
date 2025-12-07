@@ -11,15 +11,22 @@ function loadBookDetails() {
     const urlParams = new URLSearchParams(window.location.search);
     currentBookId = urlParams.get('id');
 
+    
+
     if (!currentBookId) {
-        showError('Book ID not specified');
+        showError('Идентификатор книги не указан');
+        return;
+    }
+
+    if (!currentBookId) {
+        showError('Идентификатор книги не указан');
         return;
     }
 
     showLoadingState();
 
     const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
+        setTimeout(() => reject(new Error('Таймаут запроса')), 10000)
     );
 
     Promise.race([
@@ -36,19 +43,19 @@ function loadBookDetails() {
     })
     .catch(error => {
         console.error('Error loading book:', error);
-        if (error.message === 'Request timeout') {
-            showError('The request took too long. Please try again.');
+        if (error.message === 'Таймаут запроса') {
+            showError('Запрос занял слишком много времени. Попробуйте снова.');
         } else {
-            showError('Book not found or error loading book details');
+            showError('Книга не найдена или произошла ошибка при загрузке');
         }
     });
 }
 
 function displayBookDetails(book) {
-    document.title = `${book.title} - Book Nook`;
+    document.title = `${book.title} - BookStore`;
 
     document.getElementById('bookTitle').textContent = book.title;
-    document.getElementById('bookAuthor').textContent = `by ${book.author}`;
+    document.getElementById('bookAuthor').textContent = `Автор: ${book.author}`;
 
     loadBookCover(book);
 
@@ -69,94 +76,109 @@ function displayBookDetails(book) {
             <div class="flex text-yellow-500">
                 ${stars}
             </div>
-            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">${book.rating.toFixed(2)} ${book.reviewCount ? `(${book.reviewCount} ratings)` : ''}</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">${book.rating.toFixed(2)} ${book.reviewCount ? `(${book.reviewCount} оценок)` : ''}</p>
         `;
     } else {
-        ratingSection.innerHTML = '<p class="text-gray-600 dark:text-gray-400 text-sm font-medium">No ratings yet</p>';
+        ratingSection.innerHTML = '<p class="text-gray-600 dark:text-gray-400 text-sm font-medium">Пока нет оценок</p>';
     }
 
     document.getElementById('bookPrice').textContent = `$${book.price}`;
 
-    document.getElementById('bookDescription').textContent = book.description || 'No description available.';
+    document.getElementById('bookDescription').textContent = book.description || 'Описание отсутствует.';
 }
 
 async function loadBookCover(book) {
     const bookCover = document.getElementById('bookCover');
 
-    if (book.imageUrl) {
-        console.log('Using book.imageUrl:', book.imageUrl);
-        setBookCoverImage(bookCover, book.imageUrl);
-        return;
-    }
+    bookCover.innerHTML = '';
+    bookCover.classList.add('bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');
 
-    if (book.media && book.media.length > 0) {
-        console.log('Book has embedded media:', book.media);
-        const coverMedia = findCoverMedia(book.media);
-        if (coverMedia && coverMedia.fileUrl) {
-            console.log('Found cover in embedded media:', coverMedia.fileUrl);
-            setBookCoverImage(bookCover, coverMedia.fileUrl);
-            return;
-        }
-    }
-
-    console.log('Fetching media from API for book:', book.id);
     try {
-        const mediaList = await apiService.getBookMedia(book.id);
-        console.log('Media from API:', mediaList);
+        let imageUrl = null;
 
-        if (mediaList && mediaList.length > 0) {
-            const coverMedia = findCoverMedia(mediaList);
-            if (coverMedia && coverMedia.fileUrl) {
-                console.log('Found cover in API media:', coverMedia.fileUrl);
-                setBookCoverImage(bookCover, coverMedia.fileUrl);
-                return;
+        if (book.imageUrl) {
+            imageUrl = book.imageUrl;
+        }
+
+        else if (book.media && book.media.length > 0) {
+            const coverMedia = findCoverMedia(book.media);
+            if (coverMedia && (coverMedia.fileUrl || coverMedia.url)) {
+                imageUrl = coverMedia.fileUrl || coverMedia.url;
             }
         }
-    } catch (error) {
-        console.error('Error loading media:', error);
-    }
 
-    console.log('Using fallback (first letter)');
-    setBookCoverFallback(bookCover, book.title);
+        if (!imageUrl) {
+            const mediaList = await apiService.getBookMedia(book.id);
+
+            if (mediaList && mediaList.length > 0) {
+                const coverMedia = findCoverMedia(mediaList);
+                if (coverMedia && (coverMedia.fileUrl || coverMedia.url)) {
+                    imageUrl = coverMedia.fileUrl || coverMedia.url;
+                }
+            }
+        }
+
+        if (imageUrl) {
+            setBookCoverImage(bookCover, imageUrl);
+        } else {
+            setBookCoverFallback(bookCover, book.title);
+        }
+
+    } catch (error) {
+        console.error('Error loading book cover:', error);
+        setBookCoverFallback(bookCover, book.title);
+    }
 }
 
 function setBookCoverImage(bookCover, imageUrl) {
     bookCover.style.backgroundImage = `url('${imageUrl}')`;
+    bookCover.style.backgroundSize = 'cover';
+    bookCover.style.backgroundPosition = 'center';
+    bookCover.style.backgroundRepeat = 'no-repeat';
     bookCover.innerHTML = '';
-    bookCover.classList.add('bg-cover', 'bg-center');
     bookCover.classList.remove('bg-gradient-to-br', 'from-primary', 'to-blue-600', 'bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');
 
-    const img = new Image();
-    img.onerror = function() {
-        console.warn('Failed to load cover image, using fallback');
-        setBookCoverFallback(bookCover, document.getElementById('bookTitle').textContent);
-    };
-    img.src = imageUrl;
+    if (!bookCover.classList.contains('book-cover-main')) {
+        bookCover.classList.add('book-cover-main');
+    }
 }
 
 function setBookCoverFallback(bookCover, title) {
-    bookCover.style.backgroundImage = '';
+    bookCover.style.removeProperty('background-image');
+    bookCover.style.removeProperty('background-size');
+    bookCover.style.removeProperty('background-position');
+    bookCover.style.removeProperty('background-repeat');
     bookCover.innerHTML = title.charAt(0).toUpperCase();
     bookCover.classList.remove('bg-cover', 'bg-center', 'bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');
     bookCover.classList.add('bg-gradient-to-br', 'from-primary', 'to-blue-600');
+
+    if (!bookCover.classList.contains('book-cover-main')) {
+        bookCover.classList.add('book-cover-main');
+    }
 }
 
 function findCoverMedia(mediaList) {
-    console.log('Searching for cover in media list...');
+    
 
     if (!mediaList || mediaList.length === 0) {
-        console.log('Media list is empty');
+        
         return null;
     }
 
     let coverMedia = mediaList.find(media => {
-        const fileType = media.fileType || media.type;
-        console.log(`Checking media - fileType: ${fileType}, url: ${media.fileUrl}`);
-        return fileType && (fileType.toLowerCase() === 'image' || fileType.toLowerCase().includes('image'));
+        const fileType = (media.fileType || media.type || '').toLowerCase();
+        const fileName = (media.fileName || '').toLowerCase();
+        const fileUrl = (media.fileUrl || media.url || '').toLowerCase();
+
+        
+
+        return fileType.includes('image') ||
+            fileType.includes('cover') ||
+            fileName.includes('cover') ||
+            fileName.includes('front');
     });
 
     if (coverMedia) {
-        console.log('Found cover by fileType:', coverMedia);
         return coverMedia;
     }
 
@@ -164,63 +186,55 @@ function findCoverMedia(mediaList) {
         const url = media.fileUrl || media.url;
         if (!url) return false;
 
-        const hasImageExtension = url.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i);
-        console.log(`Checking extension for ${url}: ${hasImageExtension}`);
+        const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url);
         return hasImageExtension;
     });
 
     if (coverMedia) {
-        console.log('Found cover by extension:', coverMedia);
         return coverMedia;
     }
 
     if (mediaList.length > 0) {
-        console.log('Using first available media:', mediaList[0]);
         return mediaList[0];
     }
 
-    console.log('No suitable media found');
+    
     return null;
 }
 
 async function getRecommendationCover(book) {
-    console.log(`Getting cover for recommendation: "${book.title}" (ID: ${book.id})`);
+    
 
     if (book.imageUrl) {
-        console.log('Using book.imageUrl for recommendation:', book.imageUrl);
         return book.imageUrl;
     }
 
     if (book.media && book.media.length > 0) {
-        console.log('Recommendation has embedded media:', book.media);
         const coverMedia = findCoverMedia(book.media);
         if (coverMedia && coverMedia.fileUrl) {
-            console.log('Found cover in embedded media for recommendation:', coverMedia.fileUrl);
             return coverMedia.fileUrl;
         }
     }
 
-    console.log(`Fetching media from API for recommendation ${book.id}`);
+    
     try {
         const mediaList = await apiService.getBookMedia(book.id);
 
         if (mediaList && mediaList.length > 0) {
-            console.log(`Received ${mediaList.length} media items for recommendation`);
             const coverMedia = findCoverMedia(mediaList);
             if (coverMedia && coverMedia.fileUrl) {
-                console.log('Found cover in API media for recommendation:', coverMedia.fileUrl);
                 return coverMedia.fileUrl;
             } else {
-                console.log('No suitable cover found for recommendation');
+                
             }
         } else {
-            console.log('No media returned for recommendation');
+            
         }
     } catch (error) {
-        console.warn(`Failed to load media for recommendation ${book.id}:`, error);
+        
     }
 
-    console.log('Using fallback for recommendation');
+    
     return null;
 }
 
@@ -230,11 +244,11 @@ function generateStarRating(rating) {
 
     for (let i = 1; i <= maxStars; i++) {
         if (i <= Math.floor(rating)) {
-            stars.push('<span class="material-symbols-outlined text-xl text-yellow-500">star</span>');
-        } else if (i === Math.ceil(rating) && rating % 1 >= 0.3) {
-            stars.push('<span class="material-symbols-outlined text-xl text-yellow-500">star_half</span>');
+            stars.push('<span class="material-symbols-outlined text-xl text-primary" style="font-variation-settings:\'FILL\' 1;">star</span>');
+        } else if (i === Math.ceil(rating) && rating % 1 >= 0.5) {
+            stars.push('<span class="material-symbols-outlined text-xl text-primary" style="font-variation-settings:\'FILL\' 0;">star</span>');
         } else {
-            stars.push('<span class="material-symbols-outlined text-xl text-gray-300 dark:text-gray-600">star</span>');
+            stars.push('<span class="material-symbols-outlined text-xl text-gray-300" style="font-variation-settings:\'FILL\' 0;">star</span>');
         }
     }
 
@@ -254,17 +268,13 @@ function updateBreadcrumbs(book) {
 
 async function checkUserReview(bookId) {
     if (!apiService.token) {
-        console.log('No token, user not logged in');
         return null;
     }
 
     try {
-        console.log('Checking user reviews for book:', bookId);
         const userReviews = await apiService.getUserReviews();
-        console.log('User reviews:', userReviews);
 
         const userReview = userReviews.find(review => review.bookId === bookId);
-        console.log('Found user review for this book:', userReview);
 
         return userReview;
     } catch (error) {
@@ -280,9 +290,6 @@ async function loadReviews(bookId) {
     try {
         const reviews = await apiService.getBookReviews(bookId);
         const userReview = await checkUserReview(bookId);
-
-        console.log('All reviews from API:', reviews);
-        console.log('Current user review:', userReview);
 
         const reviewButton = document.createElement("div");
         reviewButton.className = "mb-6 text-center";
@@ -308,9 +315,7 @@ async function loadReviews(bookId) {
         reviews.forEach(review => {
             const stars = generateStarIcons(review.rating);
 
-            const isUserReview = userReview && userReview.id === review.id;
-
-            console.log(`Review ${review.id}: isUserReview = ${isUserReview}, username = ${review.username}`);
+            const isUserReview = !!userReview && ((userReview.id === review.id) || (userReview.bookId === review.bookId && userReview.username === review.username));
 
             const reviewEl = document.createElement("div");
             reviewEl.className = `p-4 border border-neutral-border dark:border-neutral-text-dark rounded-lg shadow-sm mb-4 bg-white dark:bg-background-dark/30 ${
@@ -407,10 +412,16 @@ function createEditReviewModal(review) {
         reviewModal.remove();
     }
 
-    reviewModal = document.createElement('dialog');
-    reviewModal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm';
+    reviewModal = document.createElement('div');
+    reviewModal.className = 'fixed inset-0 z-50 overflow-y-auto';
+    reviewModal.style.position = 'fixed';
+    reviewModal.style.top = '0';
+    reviewModal.style.left = '0';
+    reviewModal.style.right = '0';
+    reviewModal.style.bottom = '0';
     reviewModal.innerHTML = `
-        <div class="bg-white dark:bg-background-dark rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 animate-scale-in">
+        <div class="min-h-full flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+            <div class="bg-white dark:bg-background-dark rounded-xl w-full max-w-md p-6 animate-scale-in" style="border: none; box-shadow: none;">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold text-neutral-text dark:text-neutral-text-dark">Edit Review</h3>
                 <button onclick="closeReviewModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
@@ -460,11 +471,19 @@ function createEditReviewModal(review) {
                     </button>
                 </div>
             </form>
+            </div>
         </div>
     `;
 
     document.body.appendChild(reviewModal);
-    reviewModal.showModal();
+    
+    // Позволяем скроллить страницу сзади и закрывать модальное окно при клике на backdrop
+    reviewModal.addEventListener('click', function(e) {
+        // Закрываем модальное окно, если клик был на backdrop (внешний div или div с bg-black)
+        if (e.target === reviewModal || (e.target.classList.contains('bg-black') && e.target.classList.contains('backdrop-blur-sm'))) {
+            closeReviewModal();
+        }
+    });
 
     document.getElementById('editReviewComment').addEventListener('input', updateEditCharCount);
     document.getElementById('editReviewForm').addEventListener('submit', updateReview);
@@ -522,8 +541,7 @@ async function updateReview(event) {
         };
 
         const response = await apiService.updateReview(reviewId, reviewData);
-
-        console.log('Review updated successfully:', response);
+        
         showNotification('Review updated successfully!', 'success');
         closeReviewModal();
 
@@ -573,11 +591,15 @@ async function deleteReview(reviewId) {
 
 function generateStarIcons(rating) {
     let stars = '';
+    const full = Math.floor(rating);
+    const hasHalf = (rating % 1) >= 0.5;
     for (let i = 1; i <= 5; i++) {
-        if (i <= rating) {
-            stars += '<span class="material-symbols-outlined text-base">star</span>';
+        if (i <= full) {
+            stars += '<span class="material-symbols-outlined text-base text-primary" style="font-variation-settings:\'FILL\' 1;">star</span>';
+        } else if (i === full + 1 && hasHalf) {
+            stars += '<span class="material-symbols-outlined text-base text-primary" style="font-variation-settings:\'FILL\' 0;">star</span>';
         } else {
-            stars += '<span class="material-symbols-outlined text-base text-gray-300 dark:text-gray-600">star</span>';
+            stars += '<span class="material-symbols-outlined text-base text-gray-300" style="font-variation-settings:\'FILL\' 0;">star</span>';
         }
     }
     return stars;
@@ -585,52 +607,48 @@ function generateStarIcons(rating) {
 
 async function loadRecommendations(bookId) {
     try {
-        console.log('Loading recommendations...');
         const recommendations = await apiService.getRecommendedBooks();
         const recommendationsContainer = document.getElementById('recommendationsContainer');
 
         if (recommendations && recommendations.length > 0) {
-            const filteredRecs = recommendations.filter(book => book.id != bookId).slice(0, 5);
-            console.log(`Filtered recommendations: ${filteredRecs.length} books`);
+            const filteredRecs = recommendations.filter(book => book.id != bookId).slice(0, 6);
 
             recommendationsContainer.innerHTML = `
                 <div class="col-span-full text-center py-8">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p class="mt-2 text-secondary-text dark:text-gray-400">Loading recommendations...</p>
+                    <p class="mt-2 text-secondary-text dark:text-gray-400">Загружаем рекомендации...</p>
                 </div>
             `;
 
             const recommendationPromises = filteredRecs.map(async (book) => {
                 const coverUrl = await getRecommendationCover(book);
-                console.log(`Final cover for "${book.title}": ${coverUrl || 'Using fallback'}`);
 
                 return `
-                    <div class="flex flex-col gap-2 group cursor-pointer" onclick="openBookPage(${book.id})">
-                        <div class="w-full aspect-[2/3] rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105 flex items-center justify-center text-white text-4xl font-bold overflow-hidden ${
-                            coverUrl ? 'bg-cover bg-center' : 'bg-gradient-to-br from-primary to-blue-600'
-                        }"
-                             style="${coverUrl ? `background-image: url('${coverUrl}')` : ''}"
-                             onerror="this.style.backgroundImage=''; this.classList.remove('bg-cover', 'bg-center'); this.classList.add('bg-gradient-to-br', 'from-primary', 'to-blue-600'); this.innerHTML='${book.title.charAt(0).toUpperCase()}'">
-                            ${coverUrl ? '' : book.title.charAt(0).toUpperCase()}
+                    <div class="recommendation-card" onclick="openBookPage(${book.id})">
+                        <div class="book-cover-recommendation rounded-lg flex items-center justify-center text-white text-2xl font-bold overflow-hidden ${
+                    coverUrl ? '' : 'bg-gradient-to-br from-primary to-blue-600'
+                }"
+                             style="${coverUrl ? `background-image: url('${coverUrl}'); background-size: cover; background-position: center;` : ''}">
+                             ${coverUrl ? '' : book.title.charAt(0).toUpperCase()}
                         </div>
-                        <h3 class="font-bold text-sm truncate text-neutral-text dark:text-neutral-text-dark mt-2">${book.title}</h3>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 truncate">${book.author}</p>
-                        <p class="text-sm font-bold text-primary-alt dark:text-primary">$${book.price || '0.00'}</p>
+                        <div class="flex flex-col gap-1 w-full">
+                            <h3 class="font-bold text-sm truncate text-text-light mt-2">${book.title}</h3>
+                            <p class="text-xs text-gray-500 truncate">${book.author}</p>
+                            <p class="text-sm font-bold text-primary mt-2">$${book.price || '0.00'}</p>
+                        </div>
                     </div>
                 `;
             });
 
             const recommendationElements = await Promise.all(recommendationPromises);
             recommendationsContainer.innerHTML = recommendationElements.join('');
-
-            console.log('Recommendations loaded successfully');
         } else {
-            recommendationsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">No recommendations available</p>';
+            recommendationsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">Рекомендации пока недоступны</p>';
         }
     } catch (error) {
         console.error('Error loading recommendations:', error);
         document.getElementById('recommendationsContainer').innerHTML =
-            '<p class="text-gray-500 col-span-full text-center py-8">Error loading recommendations</p>';
+            '<p class="text-gray-500 col-span-full text-center py-8">Ошибка при загрузке рекомендаций</p>';
     }
 }
 
@@ -725,7 +743,6 @@ function openReviewModal() {
     }
 
     createReviewModal();
-    reviewModal.showModal();
 }
 
 function createReviewModal() {
@@ -733,27 +750,33 @@ function createReviewModal() {
         reviewModal.remove();
     }
 
-    reviewModal = document.createElement('dialog');
-    reviewModal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm';
+    reviewModal = document.createElement('div');
+    reviewModal.className = 'fixed inset-0 z-50 overflow-y-auto';
+    reviewModal.style.position = 'fixed';
+    reviewModal.style.top = '0';
+    reviewModal.style.left = '0';
+    reviewModal.style.right = '0';
+    reviewModal.style.bottom = '0';
     reviewModal.innerHTML = `
-        <div class="bg-white dark:bg-background-dark rounded-xl shadow-2xl w-full max-w-md mx-4 p-6 animate-scale-in">
+        <div class="min-h-full flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+            <div class="bg-white dark:bg-background-dark rounded-xl w-full max-w-md p-6" style="border: none; box-shadow: none;">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-neutral-text dark:text-neutral-text-dark">Write a Review</h3>
-                <button onclick="closeReviewModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+                <h3 class="text-xl font-bold text-text-light dark:text-text-dark">Написать отзыв</h3>
+                <button onclick="closeReviewModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
 
             <form id="reviewForm" class="space-y-4">
                 <div class="space-y-2">
-                    <label class="block text-sm font-medium text-neutral-text dark:text-neutral-text-dark">Rating</label>
-                    <div class="flex space-x-1" id="ratingStars">
+                    <label class="block text-sm font-medium text-text-light dark:text-text-dark">Оценка</label>
+                    <div class="flex gap-1" id="ratingStars">
                         ${[1,2,3,4,5].map(i => `
                             <button type="button"
                                     class="text-2xl transition-colors duration-200"
                                     data-rating="${i}"
                                     onclick="setRating(${i})">
-                                <span class="material-symbols-outlined text-gray-300 dark:text-gray-600 hover:text-yellow-400">star</span>
+                                <span class="material-symbols-outlined text-gray-300 dark:text-gray-600 hover:text-primary">star</span>
                             </button>
                         `).join('')}
                     </div>
@@ -761,33 +784,36 @@ function createReviewModal() {
                 </div>
 
                 <div class="space-y-2">
-                    <label for="reviewComment" class="block text-sm font-medium text-neutral-text dark:text-neutral-text-dark">Your Review</label>
+                    <label for="reviewComment" class="block text-sm font-medium text-text-light dark:text-text-dark">Ваш отзыв</label>
                     <textarea
                         id="reviewComment"
                         name="comment"
                         rows="4"
-                        class="w-full px-3 py-2 border border-neutral-border dark:border-white/20 rounded-lg bg-white dark:bg-background-dark/50 text-neutral-text dark:text-neutral-text-dark placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-alt dark:focus:ring-primary focus:border-transparent resize-none"
-                        placeholder="Share your thoughts about this book..."
+                        class="w-full px-3 py-2 border border-border-light dark:border-white/20 rounded-lg bg-white dark:bg-background-dark/50 text-text-light dark:text-text-dark placeholder:text-subtle-light dark:placeholder:text-subtle-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                        placeholder="Поделитесь впечатлениями о книге..."
                         maxlength="500"
                         required></textarea>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 text-right">
-                        <span id="charCount">0</span>/500 characters
+                    <div class="text-xs text-subtle-light dark:text-subtle-dark text-right">
+                        <span id="charCount">0</span>/500
                     </div>
                 </div>
 
-                <div class="flex space-x-3 pt-4">
-                    <button type="button" onclick="closeReviewModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit" id="submitReviewBtn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-alt dark:bg-primary rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        Submit Review
-                    </button>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeReviewModal()" class="btn btn-secondary flex-1">Отмена</button>
+                    <button type="submit" id="submitReviewBtn" class="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed">Отправить</button>
                 </div>
             </form>
+            </div>
         </div>
     `;
 
     document.body.appendChild(reviewModal);
+
+    reviewModal.addEventListener('click', function(e) {
+        if (e.target === reviewModal || (e.target.classList.contains('bg-black') && e.target.classList.contains('backdrop-blur-sm'))) {
+            closeReviewModal();
+        }
+    });
 
     document.getElementById('reviewComment').addEventListener('input', updateCharCount);
     document.getElementById('reviewForm').addEventListener('submit', submitReview);
@@ -802,10 +828,10 @@ function setRating(rating) {
         if (index < rating) {
             icon.textContent = 'star';
             icon.classList.remove('text-gray-300', 'dark:text-gray-600');
-            icon.classList.add('text-yellow-500');
+            icon.classList.add('text-primary');
         } else {
             icon.textContent = 'star';
-            icon.classList.remove('text-yellow-500');
+            icon.classList.remove('text-primary');
             icon.classList.add('text-gray-300', 'dark:text-gray-600');
         }
     });
@@ -861,8 +887,7 @@ async function submitReview(event) {
         };
 
         const response = await apiService.addReview(currentBookId, reviewData);
-
-        console.log('Review submitted successfully:', response);
+        
         showNotification('Review submitted successfully!', 'success');
         closeReviewModal();
 
@@ -920,14 +945,18 @@ document.addEventListener('keydown', function(event) {
 });
 
 function showLoadingState() {
-    document.getElementById('bookTitle').textContent = 'Loading...';
-    document.getElementById('bookAuthor').textContent = 'by Loading...';
+    document.getElementById('bookTitle').textContent = 'Загрузка...';
+    document.getElementById('bookAuthor').textContent = 'Автор: Загрузка...';
     document.getElementById('bookPrice').textContent = '$...';
-    document.getElementById('bookDescription').textContent = 'Loading book details...';
+    document.getElementById('bookDescription').textContent = 'Загружаем описание книги...';
 
     const bookCover = document.getElementById('bookCover');
     bookCover.innerHTML = '';
     bookCover.classList.add('bg-gray-300', 'dark:bg-gray-600', 'animate-pulse');
+
+    if (!bookCover.classList.contains('book-cover-main')) {
+        bookCover.classList.add('book-cover-main');
+    }
 }
 
 function showError(message) {

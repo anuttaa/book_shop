@@ -14,12 +14,12 @@ function loadCustomersPage(container) {
             <!-- PageHeading -->
             <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
                 <div class="flex flex-col">
-                    <h1 class="text-3xl font-bold tracking-tight text-text-light-primary dark:text-dark-primary">User Management</h1>
-                    <p class="text-text-light-secondary dark:text-dark-secondary text-base">View, edit, and manage user accounts.</p>
+                    <h1 class="text-3xl font-bold tracking-tight text-text-light-primary">Управление пользователями</h1>
+                    <p class="text-text-light-secondary text-base">Просмотр, редактирование и управление аккаунтами пользователей.</p>
                 </div>
                 <button class="flex items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:opacity-90" onclick="openAddUserModal()">
                     <span class="material-symbols-outlined mr-2">add</span>
-                    <span class="truncate">Add New User</span>
+                    <span class="truncate">Добавить пользователя</span>
                 </button>
             </header>
 
@@ -32,7 +32,7 @@ function loadCustomersPage(container) {
                             <div class="text-text-light-secondary dark:text-dark-secondary flex border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark items-center justify-center pl-4 rounded-l-lg border-r-0">
                                 <span class="material-symbols-outlined">search</span>
                             </div>
-                            <input id="usersSearchInput" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light-primary dark:text-dark-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark h-full placeholder:text-text-light-secondary dark:placeholder:text-dark-secondary pl-2 text-base font-normal" placeholder="Search by name, email, or ID..." value=""/>
+                            <input id="usersSearchInput" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light bg-background-light h-full placeholder:text-text-light-secondary pl-2 text-base font-normal" placeholder="Поиск по имени, email или ID..." value=""/>
                         </div>
                     </label>
                 </div>
@@ -42,22 +42,22 @@ function loadCustomersPage(container) {
                     <div class="relative">
                         <button class="user-filter-toggle flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-4 hover:bg-surface-light/80 dark:hover:bg-surface-dark/80 transition-colors"
                                 data-target="roleFilter">
-                            <p class="text-sm font-medium text-text-light-primary dark:text-dark-primary">Filter by Role</p>
+                            <p class="text-sm font-medium text-text-light-primary">Фильтр по роли</p>
                             <span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">expand_more</span>
                         </button>
                         <div id="roleFilter" class="user-filter-dropdown hidden absolute mt-2 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-3 shadow-lg w-48 z-10">
                             <div class="space-y-2">
                                 <label class="flex items-center">
                                     <input type="checkbox" class="role-checkbox h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-transparent" value="admin">
-                                    <span class="ml-2 text-sm text-text-light-primary dark:text-dark-primary">Admin</span>
+                                    <span class="ml-2 text-sm text-text-light-primary">Администратор</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" class="role-checkbox h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-transparent" value="user">
-                                    <span class="ml-2 text-sm text-text-light-primary dark:text-dark-primary">User</span>
+                                    <span class="ml-2 text-sm text-text-light-primary">Пользователь</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" class="role-checkbox h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-transparent" value="guest">
-                                    <span class="ml-2 text-sm text-text-light-primary dark:text-dark-primary">Guest</span>
+                                    <span class="ml-2 text-sm text-text-light-primary">Гость</span>
                                 </label>
                             </div>
                         </div>
@@ -66,18 +66,18 @@ function loadCustomersPage(container) {
                     <div class="relative">
                         <button class="user-filter-toggle flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-4 hover:bg-surface-light/80 dark:hover:bg-surface-dark/80 transition-colors"
                                 data-target="statusFilter">
-                            <p class="text-sm font-medium text-text-light-primary dark:text-dark-primary">Filter by Status</p>
+                            <p class="text-sm font-medium text-text-light-primary">Фильтр по статусу</p>
                             <span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">expand_more</span>
                         </button>
                         <div id="statusFilter" class="user-filter-dropdown hidden absolute mt-2 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-3 shadow-lg w-48 z-10">
                             <div class="space-y-2">
                                 <label class="flex items-center">
                                     <input type="checkbox" class="status-checkbox h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-transparent" value="active">
-                                    <span class="ml-2 text-sm text-text-light-primary dark:text-dark-primary">Active</span>
+                                    <span class="ml-2 text-sm text-text-light-primary">Активен</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" class="status-checkbox h-4 w-4 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary bg-transparent" value="blocked">
-                                    <span class="ml-2 text-sm text-text-light-primary dark:text-dark-primary">Blocked</span>
+                                    <span class="ml-2 text-sm text-text-light-primary">Заблокирован</span>
                                 </label>
                             </div>
                         </div>
@@ -85,8 +85,8 @@ function loadCustomersPage(container) {
 
                     <button class="flex h-12 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-4 hover:bg-surface-light/80 dark:hover:bg-surface-dark/80 transition-colors"
                             onclick="resetUserFilters()">
-                        <span class="material-symbols-outlined text-text-light-secondary dark:text-dark-secondary">restart_alt</span>
-                        <p class="text-sm font-medium text-text-light-primary dark:text-dark-primary">Reset Filters</p>
+                        <span class="material-symbols-outlined text-text-light-secondary">restart_alt</span>
+                        <p class="text-sm font-medium text-text-light-primary">Сбросить фильтры</p>
                     </button>
                 </div>
             </div>
@@ -97,13 +97,13 @@ function loadCustomersPage(container) {
                     <table class="w-full min-w-[1000px]">
                         <thead>
                             <tr class="border-b border-border-light dark:border-border-dark">
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">User ID</th>
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">Name</th>
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">Email</th>
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">Role</th>
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">Date Registered</th>
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">Status</th>
-                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary dark:text-dark-secondary tracking-wider">Actions</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">ID</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">Имя</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">Email</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">Роль</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">Дата регистрации</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">Статус</th>
+                                <th class="p-4 text-left text-sm font-semibold text-text-light-secondary tracking-wider">Действия</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody" class="divide-y divide-border-light dark:divide-border-dark">
@@ -115,23 +115,23 @@ function loadCustomersPage(container) {
                 <!-- Loading State -->
                 <div id="usersLoadingState" class="p-8 text-center">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p class="mt-2 text-text-light-secondary dark:text-dark-secondary">Loading users...</p>
+                    <p class="mt-2 text-text-light-secondary">Загрузка пользователей...</p>
                 </div>
 
                 <!-- Empty State -->
                 <div id="usersEmptyState" class="hidden p-8 text-center">
                     <span class="material-symbols-outlined text-6xl text-text-light-secondary dark:text-dark-secondary mb-4">group</span>
-                    <h3 class="text-lg font-medium text-text-light-primary dark:text-dark-primary mb-2">No users found</h3>
-                    <p class="text-text-light-secondary dark:text-dark-secondary mb-4">No users match your current filters.</p>
+                    <h3 class="text-lg font-medium text-text-light mb-2">Пользователи не найдены</h3>
+                    <p class="text-text-light-secondary mb-4">Нет пользователей по текущим фильтрам.</p>
                     <button class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold hover:opacity-90" onclick="resetUserFilters()">
                         <span class="material-symbols-outlined">refresh</span>
-                        <span>Reset Filters</span>
+                        <span>Сбросить фильтры</span>
                     </button>
                 </div>
 
                 <!-- Pagination -->
                 <div id="usersPagination" class="hidden flex items-center justify-between p-4 border-t border-border-light dark:border-border-dark">
-                    <p class="text-sm text-text-light-secondary dark:text-dark-secondary">Showing <span id="usersShowingRange">1-5</span> of <span id="usersTotalCount">0</span> users</p>
+                    <p class="text-sm text-text-light-secondary">Показано <span id="usersShowingRange">1-5</span> из <span id="usersTotalCount">0</span></p>
                     <div class="flex items-center gap-2">
                         <button class="flex h-9 w-9 items-center justify-center rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-light-secondary dark:text-dark-secondary hover:bg-primary/10 transition-colors" onclick="previousUsersPage()">
                             <span class="material-symbols-outlined text-xl">chevron_left</span>
@@ -150,7 +150,7 @@ function loadCustomersPage(container) {
         <div id="addUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-content-light dark:bg-content-dark rounded-lg w-full max-w-md">
                 <div class="flex justify-between items-center p-6 border-b border-border-light dark:border-border-dark">
-                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Add New User</h3>
+                    <h3 class="text-lg font-bold text-text-light">Добавить пользователя</h3>
                     <button onclick="closeAddUserModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                         <span class="material-symbols-outlined">close</span>
                     </button>
@@ -179,9 +179,9 @@ function loadCustomersPage(container) {
                         <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Role *</label>
                         <select name="role" required
                                 class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                            <option value="guest">Guest(blocked)</option>
+                            <option value="user">Пользователь</option>
+                            <option value="admin">Администратор</option>
+                            <option value="guest">Гость (заблокирован)</option>
                         </select>
                     </div>
 
@@ -189,8 +189,8 @@ function loadCustomersPage(container) {
                         <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Status *</label>
                         <select name="status" required
                                 class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
-                            <option value="active">Active</option>
-                            <option value="blocked">Blocked</option>
+                            <option value="active">Активен</option>
+                            <option value="blocked">Заблокирован</option>
                         </select>
                     </div>
                 </form>
@@ -198,11 +198,11 @@ function loadCustomersPage(container) {
                 <div class="flex justify-end gap-3 p-6 border-t border-border-light dark:border-border-dark">
                     <button type="button" onclick="closeAddUserModal()"
                             class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">
-                        Cancel
+                        Отмена
                     </button>
                     <button type="button" onclick="submitAddUserForm()"
                             class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
-                        Add User
+                        Добавить
                     </button>
                 </div>
             </div>
@@ -212,7 +212,7 @@ function loadCustomersPage(container) {
         <div id="editUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-content-light dark:bg-content-dark rounded-lg w-full max-w-md">
                 <div class="flex justify-between items-center p-6 border-b border-border-light dark:border-border-dark">
-                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Edit User</h3>
+                    <h3 class="text-lg font-bold text-text-light">Редактировать пользователя</h3>
                     <button onclick="closeEditUserModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                         <span class="material-symbols-outlined">close</span>
                     </button>
@@ -256,16 +256,16 @@ function loadCustomersPage(container) {
                 <div class="flex justify-between items-center p-6 border-t border-border-light dark:border-border-dark">
                     <button type="button" onclick="deleteUser()"
                             class="px-4 py-2 bg-destructive text-destructive-content rounded-lg hover:opacity-90 transition-opacity">
-                        Delete User
+                        Удалить пользователя
                     </button>
                     <div class="flex gap-3">
                         <button type="button" onclick="closeEditUserModal()"
                                 class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">
-                            Cancel
+                            Отмена
                         </button>
                         <button type="button" onclick="submitEditUserForm()"
                                 class="px-4 py-2 bg-primary text-primary-content rounded-lg hover:opacity-90 transition-opacity">
-                            Save Changes
+                            Сохранить
                         </button>
                     </div>
                 </div>
@@ -367,7 +367,6 @@ async function loadUsers() {
         showUsersLoadingState();
 
         const users = await apiService.getUsers();
-        console.log('Loaded users:', users);
         allUsers = users;
 
         filterAndDisplayUsers();
@@ -456,14 +455,15 @@ function displayUsers() {
         const registeredDate = user.createdAt ? formatUserDate(user.createdAt) : 'N/A';
 
         const avatarColor = getAvatarColor(userName);
+        const avatarUrl = (user.avatarUrl || (user.avatar && user.avatar.fileUrl)) || '';
 
         return `
             <tr class="hover:bg-surface-light/50 dark:hover:bg-surface-dark/50 transition-colors">
                 <td class="p-4 text-sm text-text-light-secondary dark:text-dark-secondary">${userId}</td>
                 <td class="p-4">
                     <div class="flex items-center">
-                        <div class="w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold mr-3">
-                            ${userName.charAt(0).toUpperCase()}
+                        <div class="w-8 h-8 rounded-full ${avatarUrl ? 'bg-cover bg-center' : avatarColor} flex items-center justify-center text-white font-bold mr-3" ${avatarUrl ? `style="background-image:url('${avatarUrl}')"` : ''}>
+                            ${avatarUrl ? '' : userName.charAt(0).toUpperCase()}
                         </div>
                         <span class="text-sm font-medium text-text-light-primary dark:text-dark-primary">${userName}</span>
                     </div>
@@ -518,23 +518,7 @@ function displayUsers() {
 }
 
 function getAvatarColor(username) {
-    const colors = [
-        'bg-gradient-to-br from-blue-500 to-blue-600',
-        'bg-gradient-to-br from-green-500 to-green-600',
-        'bg-gradient-to-br from-purple-500 to-purple-600',
-        'bg-gradient-to-br from-pink-500 to-pink-600',
-        'bg-gradient-to-br from-orange-500 to-orange-600',
-        'bg-gradient-to-br from-teal-500 to-teal-600',
-        'bg-gradient-to-br from-red-500 to-red-600',
-        'bg-gradient-to-br from-indigo-500 to-indigo-600'
-    ];
-
-    let hash = 0;
-    for (let i = 0; i < username.length; i++) {
-        hash = username.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    return colors[Math.abs(hash) % colors.length];
+    return 'bg-primary';
 }
 
 function updateRoleFilters() {

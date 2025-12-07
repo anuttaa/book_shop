@@ -1,123 +1,358 @@
-let allBooks = [];
-let filteredBooks = [];
-const booksPerPage = 10;
-let currentBookPage = 1;
-
-let currentFilters = { genres: [], authors: [], formats: [] };
-let currentSearch = '';
-let currentSort = '';
-let priceFilter = { min: 0, max: 100 };
-
-const searchInput = document.getElementById('searchInput');
-const genresContainer = document.getElementById('genres');
-const authorsContainer = document.getElementById('authors');
-const formatsContainer = document.getElementById('formats');
-const priceSlider = document.getElementById('price-slider');
-const priceValue = document.getElementById('price-value');
-
-let allOrders = [];
-let filteredOrders = [];
-let currentOrdersPage = 1;
-const ordersPerPage = 10;
-let currentOrderFilters = {
-    search: '',
-    status: [],
-    dateFrom: '',
-    dateTo: ''
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Admin panel initializing...');
-    checkAdminAuth();
-    initializeNavigation();
-    setupGlobalEventListeners();
-
-    setTimeout(() => {
-        if (currentAppPage === 'book-management') {
-            loadBookManagementPage();
-        }
-    }, 100);
-});
-
-function checkAdminAuth() {
-    if (!apiService.token) {
-        window.location.href = '/login';
-        return;
-    }
-}
-
-function setupGlobalEventListeners() {
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.filter-toggle') && !e.target.closest('.filter-dropdown')) {
-            closeAllFilters();
-            closeAllOrdersFilters();
-        }
-    });
-}
-
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-lg z-50 ${
-        type === 'success' ? 'bg-green-500 text-white' :
-        type === 'error' ? 'bg-red-500 text-white' :
-        type === 'warning' ? 'bg-yellow-500 text-black' :
-        'bg-blue-500 text-white'
-    }`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-function debounce(func, wait) {
+function debounce(func, wait, immediate) {
     let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
+    return function executedFunction() {
+        const context = this;
+        const args = arguments;
+        const later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
         };
+        const callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
     };
 }
 
+document.addEventListener('DOMContentLoaded', async function() {
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        sessionStorage.setItem('adminRedirect', window.location.pathname);
+        window.location.href = '/login?message=admin_login_required';
+        return;
+    }
+
+    apiService.setToken(token);
+
+
+    try {
+        const payload = parseJwt(token);
+    } catch (e) {
+        
+    }
+
+    try {
+        const profile = await apiService.getProfile();
+
+        const payload = parseJwt(token);
+        let roles = payload.roles || payload.authorities || [];
+
+        if (typeof roles === 'string') {
+            roles = roles.split(/[\s,]+/);
+        }
+
+        const isAdmin = Array.isArray(roles)
+            ? roles.some(r => {
+                const role = String(r).toLowerCase();
+                return role.includes('admin') || role.includes('role_admin') || role === 'admin';
+            })
+            : String(roles).toLowerCase().includes('admin');
+
+
+        if (!isAdmin) {
+            adminNotify('Доступ к админ-панели запрещен. Требуются права администратора.', 'error');
+
+            localStorage.removeItem('token');
+            apiService.removeToken();
+
+            setTimeout(() => {
+                window.location.href = '/login?message=admin_access_denied';
+            }, 2000);
+            return;
+        }
+
+        
+        initializeAdminPanel();
+
+    } catch (error) {
+        console.error('Authentication failed:', error);
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
+
+        if (error.message.includes('401') || error.message.includes('403') ||
+            error.message.includes('Unauthorized') || error.message.includes('Forbidden')) {
+
+            adminNotify('Сессия истекла или доступ запрещен', 'error');
+            localStorage.removeItem('token');
+            apiService.removeToken();
+
+            setTimeout(() => {
+                window.location.href = '/login?message=session_expired';
+            }, 1500);
+        } else {
+            adminNotify('Ошибка подключения к серверу', 'error');
+        }
+    }
+});
+
+const externalNotify = typeof window.showNotification === 'function' ? window.showNotification : null;
+
+function initializeAdminPanel() {
+    try {
+        updateAdminInfo();
+
+        if (typeof initializeNavigation === 'function') {
+            initializeNavigation();
+        }
+
+        setupGlobalListeners();
+
+        setTimeout(() => {
+            if (currentAppPage === 'book-management') {
+                if (typeof loadBookManagementPage === 'function') {
+                    loadBookManagementPage();
+                }
+            }
+        }, 100);
+
+    
+    } catch (error) {
+        console.error('Failed to initialize admin panel:', error);
+        adminNotify('Ошибка инициализации панели', 'error');
+    }
+}
+
+async function updateAdminInfo() {
+    try {
+        const profile = await apiService.getProfile();
+        const nameEl = document.getElementById('adminName');
+        const emailEl = document.getElementById('adminEmail');
+        const avatarLetterEl = document.getElementById('adminAvatarLetter');
+
+        if (nameEl) {
+            nameEl.textContent = profile.username || 'Администратор';
+        }
+
+        if (emailEl) {
+            emailEl.textContent = profile.email || '';
+        }
+
+        if (avatarLetterEl) {
+            const name = profile.username || 'A';
+            avatarLetterEl.textContent = name.charAt(0).toUpperCase();
+        }
+
+        try {
+            const avatar = await apiService.getMyAvatar();
+            const url = avatar && (avatar.fileUrl || avatar.avatarUrl);
+            const avatarContainer = document.querySelector('.avatar');
+
+            if (url && avatarContainer) {
+                avatarContainer.style.backgroundImage = `url('${url}')`;
+                avatarContainer.style.backgroundSize = 'cover';
+                avatarContainer.style.backgroundPosition = 'center';
+                if (avatarLetterEl) {
+                    avatarLetterEl.textContent = '';
+                }
+            }
+        } catch (avatarError) {
+            
+        }
+
+    } catch (error) {
+        console.error('Failed to load admin info:', error);
+    }
+}
+
+function setupGlobalListeners() {
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-toggle') && !e.target.closest('.filter-dropdown')) {
+            closeAllFilters();
+            if (typeof closeAllOrdersFilters === 'function') {
+                closeAllOrdersFilters();
+            }
+        }
+    });
+
+    const logoutLinks = document.querySelectorAll('[onclick*="logout"], a[href*="logout"]');
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    });
+}
+
 function logout() {
-    if (apiService.removeToken) {
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('adminRedirect');
+    if (apiService && apiService.removeToken) {
         apiService.removeToken();
     }
     window.location.href = '/login';
 }
 
+function adminNotify(message, type = 'info') {
+    if (externalNotify && externalNotify !== adminNotify) {
+        externalNotify(message, type);
+        return;
+    }
+
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: white;
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8'};
+        z-index: 9999;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        animation: slideIn 0.3s ease;
+    `;
+
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('Failed to parse JWT:', e);
+        return {};
+    }
+}
+
+async function testApiConnection() {
+    
+
+    const token = localStorage.getItem('token');
+
+    try {
+        
+        const profile = await apiService.getProfile();
+        
+
+        
+        const books = await apiService.getBooks();
+        
+
+        
+        const users = await apiService.getUsers();
+        
+
+        
+        const orders = await apiService.getOrders();
+        
+
+        return {
+            profile: true,
+            books: books.length,
+            users: users.length,
+            orders: orders.length
+        };
+
+    } catch (error) {
+        console.error('API test failed:', error);
+        console.error('Error status:', error.message);
+
+        if (error.message.includes('401')) {
+            console.error('Unauthorized - Token invalid or expired');
+        } else if (error.message.includes('403')) {
+            console.error('Forbidden - Insufficient permissions');
+        } else if (error.message.includes('Network')) {
+            console.error('Network error - Check CORS or server connection');
+        } else if (error.message.includes('Failed to fetch')) {
+            console.error('Fetch failed - Check if server is running at', apiService.baseUrl);
+        }
+
+        throw error;
+    }
+}
+
+function addTestButton() {
+    const testBtn = document.createElement('button');
+    testBtn.textContent = 'Test API Connection';
+    testBtn.className = 'fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded';
+    testBtn.onclick = async () => {
+        try {
+            const result = await testApiConnection();
+            alert(`API tests passed!\n- Profile: ${result.profile}\n- Books: ${result.books}\n- Users: ${result.users}\n- Orders: ${result.orders}`);
+        } catch (error) {
+            alert(`API test failed: ${error.message}\nCheck console for details.`);
+        }
+    };
+    document.body.appendChild(testBtn);
+}
+
+function initializeAdminPanel() {
+    try {
+        updateAdminInfo();
+
+        if (typeof initializeNavigation === 'function') {
+            initializeNavigation();
+        }
+
+        setupGlobalListeners();
+
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            addTestButton();
+        }
+
+        setTimeout(() => {
+            if (currentAppPage === 'book-management') {
+                if (typeof loadBookManagementPage === 'function') {
+                    loadBookManagementPage();
+                }
+            }
+        }, 100);
+
+        
+
+    } catch (error) {
+        console.error('Failed to initialize admin panel:', error);
+        adminNotify('Ошибка инициализации панели', 'error');
+    }
+}
+
+window.parseJwt = parseJwt;
+
 window.allBooks = [];
 window.filteredBooks = [];
-window.allOrders = [];
-window.filteredOrders = [];
-window.allUsers = [];
-window.filteredUsers = [];
 window.currentAppPage = 'book-management';
 window.booksPerPage = 10;
 window.currentBookPage = 1;
-window.ordersPerPage = 10;
-window.currentOrdersPage = 1;
-window.usersPerPage = 10;
-window.currentUsersPage = 1;
-
 window.currentFilters = { genres: [], authors: [], formats: [] };
 window.currentSearch = '';
-window.currentSort = '';
 window.priceFilter = { min: 0, max: 100 };
-
+window.debounce = debounce;
+window.currentSort = '';
+window.allOrders = [];
+window.filteredOrders = [];
+window.currentOrdersPage = 1;
+window.ordersPerPage = 10;
 window.currentOrderFilters = {
     search: '',
     status: [],
     dateFrom: '',
     dateTo: ''
-};
-
-window.currentUserFilters = {
-    search: '',
-    role: [],
-    status: []
 };

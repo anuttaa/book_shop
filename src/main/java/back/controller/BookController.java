@@ -60,18 +60,11 @@ public class BookController {
       try {
         user = userService.getUserEntityByUsername(authentication.getName());
       } catch (RuntimeException e) {
-        System.out.println("User not found, using default recommendations: " + e.getMessage());
+        
       }
     }
 
     List<BookDTO> recommendations = bookService.getRecommendedBooks(user);
-
-    if (user != null) {
-      System.out.println("Personalized recommendations for user: " + user.getUsername());
-    } else {
-      System.out.println("Default recommendations for guest user");
-    }
-
     return ResponseEntity.ok(recommendations);
   }
 
@@ -82,7 +75,7 @@ public class BookController {
       try {
         user = userService.getUserEntityByUsername(authentication.getName());
       } catch (RuntimeException e) {
-        System.out.println("User not found, using default popular books: " + e.getMessage());
+        
       }
     }
     return ResponseEntity.ok(bookService.getPopularBooks(user));

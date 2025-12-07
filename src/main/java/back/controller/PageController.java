@@ -2,6 +2,7 @@ package back.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @Controller
 public class PageController {
@@ -38,6 +39,11 @@ public class PageController {
   @GetMapping("/orders")
   public String ordersPage() {
     return "forward:/pages/orders.html";
+  }
+
+  @GetMapping("/payment")
+  public String paymentPage() {
+    return "forward:/pages/payment.html";
   }
 
   @GetMapping("/profile")

@@ -12,46 +12,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('error', function(e) {
     if (e.target.tagName === 'DIV' && e.target.style.backgroundImage) {
-        console.warn('Failed to load background image:', e.target.style.backgroundImage);
-        e.target.style.backgroundImage = "url('redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=📚')";
+        e.target.style.backgroundImage = "url('https://via.placeholder.com/120x160/522B47/F1F0EA?text=%F0%9F%93%9A')";
     }
 }, true);
 
 async function updateUserAvatarUI() {
-    const userAvatarButton = document.querySelector('button a[href="/profile"]');
-    if (!userAvatarButton) return;
+    const profileLink = document.querySelector('header a[href="/profile"]');
+    if (!profileLink) return;
+    const container = profileLink.closest('.icon-btn') || profileLink.parentElement;
+    if (!container) return;
 
     try {
         const avatarData = await apiService.getMyAvatar();
-
-        const avatarContainer = userAvatarButton.parentElement;
-
         if (avatarData && avatarData.avatarUrl) {
-            avatarContainer.innerHTML = `
+            container.innerHTML = `
                 <a href="/profile" class="flex items-center justify-center w-10 h-10 rounded-lg overflow-hidden">
-                    <img src="${avatarData.avatarUrl}"
-                         alt="User Avatar"
-                         class="w-full h-full object-cover"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <img src="${avatarData.avatarUrl}" alt="User Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <span class="material-symbols-outlined hidden">account_circle</span>
                 </a>
             `;
         } else {
-            avatarContainer.innerHTML = `
+            container.innerHTML = `
                 <a href="/profile" class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
                     <span class="material-symbols-outlined">account_circle</span>
                 </a>
             `;
         }
     } catch (error) {
-        console.error('Failed to load user avatar:', error);
-        userAvatarButton.innerHTML = '<span class="material-symbols-outlined">account_circle</span>';
+        const target = container.querySelector('a[href="/profile"]') || container;
+        if (target) {
+            target.innerHTML = '<span class="material-symbols-outlined">account_circle</span>';
+        }
     }
 }
 
 function updateAuthUI() {
     const authButtons = document.getElementById('auth-buttons');
     const userActions = document.getElementById('user-actions');
+    const adminLink = document.getElementById('admin-link');
 
     if (!authButtons) return;
 
@@ -61,13 +59,34 @@ function updateAuthUI() {
             userActions.style.display = 'flex';
         }
         updateUserAvatarUI();
+        updateAdminLinkVisibility(adminLink);
     } else {
         authButtons.style.display = 'flex';
         if (userActions) {
             userActions.style.display = 'none';
         }
+        if (adminLink) {
+            adminLink.classList.add('hidden');
+        }
 
         showGuestMessage();
+    }
+}
+
+function updateAdminLinkVisibility(adminLink) {
+    if (!adminLink || !apiService.token) return;
+    try {
+        const payload = parseJwt(apiService.token) || {};
+        let roles = payload.roles || payload.authorities || payload.scope || payload.role || [];
+        if (typeof roles === 'string') {
+            roles = roles.split(/[\s,]+/);
+        }
+        const isAdmin = Array.isArray(roles)
+            ? roles.some(r => String(r).toLowerCase().includes('admin'))
+            : String(roles).toLowerCase().includes('admin');
+        adminLink.classList.toggle('hidden', !isAdmin);
+    } catch (e) {
+        adminLink.classList.add('hidden');
     }
 }
 
@@ -97,23 +116,7 @@ function showGuestMessage() {
         const guestMessage = document.createElement('div');
         guestMessage.id = 'guest-message';
         guestMessage.className = 'text-center py-12';
-        guestMessage.innerHTML = `
-            <h2 class="text-2xl font-bold text-primary-text dark:text-white mb-4">
-                Welcome to BookStore
-            </h2>
-            <p class="text-secondary-text dark:text-gray-400 mb-6">
-                Please login or register to browse our book collection
-            </p>
-            <div class="flex justify-center gap-4">
-                <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                    <span class="truncate">Login</span>
-                </a>
-                <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-100 dark:bg-gray-800 text-primary-text dark:text-white text-sm font-bold leading-normal tracking-[0.015em]">
-                    <span class="truncate">Register</span>
-                </a>
-            </div>
-        `;
-        mainContent.insertBefore(guestMessage, mainContent.firstChild);
+        // гостевой блок убран по требованиям дизайна
     }
 }
 
@@ -144,9 +147,7 @@ async function loadBooksFromDB() {
             apiService.getTopRatedBooks()
         ]);
 
-        console.log('Recommended books:', recommended);
-        console.log('Popular books:', popular);
-        console.log('Top rated books:', topRated);
+        
 
         await displayBooks('recommended-books', recommended || []);
         await displayBooks('popular-books', popular || []);
@@ -171,22 +172,22 @@ function updateSectionTitles() {
 
      if (recommendedTitle) {
          recommendedTitle.textContent = isLoggedIn ?
-             'Recommended For You' : 'New Arrivals';
+            'Рекомендации для вас' : 'Новинки';
      }
 
      if (popularTitle) {
          popularTitle.textContent = isLoggedIn ?
-             'Popular in Your Network' : 'Most Popular Books';
+            'Популярно среди ваших друзей' : 'Самые популярные книги';
      }
 
      if (topRatedTitle) {
-         topRatedTitle.textContent = 'Top Rated Books';
+         topRatedTitle.textContent = 'Книги с высоким рейтингом';
      }
  }
 
 async function loadAllBooksFallback() {
     try {
-        console.log('Using fallback book loading method...');
+        
         const allBooks = await apiService.getBooks();
 
         if (allBooks && allBooks.length > 0) {
@@ -230,7 +231,7 @@ async function displayBooks(containerId, books) {
     }
 
     if (!books || books.length === 0) {
-        container.innerHTML = '<p class="col-span-full text-center py-8 text-secondary-text dark:text-gray-400">No books found</p>';
+        container.innerHTML = '<p class="text-center muted" style="grid-column:1/-1;padding:16px 0">Книги не найдены</p>';
         return;
     }
 
@@ -240,43 +241,27 @@ async function displayBooks(containerId, books) {
         const bookType = book.type ? book.type.toLowerCase() : 'physical';
 
         return `
-            <div class="group relative flex h-full flex-col rounded-lg bg-white dark:bg-gray-800 shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:shadow-none overflow-hidden transition-shadow hover:shadow-lg cursor-pointer" onclick="openBookPage(${book.id})">
-                <div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover bg-gray-200"
-                     style="background-image: url('${coverUrl}')"
-                     data-alt="Book cover for ${book.title}">
-                    <div class="absolute top-2 right-2">
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            bookType === 'electronic'
-                                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        }">
-                            ${bookType === 'electronic' ? 'E-book' : 'Physical'}
-                        </span>
-                    </div>
+            <div class="book-card" onclick="openBookPage(${book.id})">
+                <div class="book-card__cover" style="background-image:url('${coverUrl}')">
+                <div class="book-card__badge">${bookType === 'electronic' ? 'Электронная' : 'Печатная'}</div>
                 </div>
-                <div class="absolute inset-0 bg-black/50 group-hover:flex hidden flex-col justify-end p-4">
-                    <button onclick="event.stopPropagation(); addToCart(${book.id})" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] mb-2 hover:bg-primary/90 transition-colors">
-                        <span class="truncate">Add to Cart</span>
-                    </button>
-                    <button onclick="event.stopPropagation(); toggleWishlist(${book.id})" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/20 backdrop-blur-sm text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-white/30 transition-colors">
-                        <span class="truncate" id="wishlist-text-${book.id}">Add to Wishlist</span>
-                    </button>
+                <div class="book-card__overlay">
+                    <button onclick="event.stopPropagation(); addToCart(${book.id})" class="btn btn-primary">В корзину</button>
+                    <button onclick="event.stopPropagation(); toggleWishlist(${book.id})" class="btn btn-clear"><span id="wishlist-text-${book.id}">В избранное</span></button>
                 </div>
-                <div class="flex flex-col flex-1 justify-between p-4">
+                <div class="book-card__info">
                     <div>
-                        <p class="text-primary-text dark:text-white text-base font-medium leading-normal truncate">${book.title}</p>
-                        <p class="text-secondary-text dark:text-gray-400 text-sm font-normal leading-normal truncate">${book.author}</p>
+                        <p class="book-title">${book.title}</p>
+                        <p class="book-author">${book.author}</p>
                     </div>
-                    <div class="flex items-center mt-2 text-sm text-secondary-text dark:text-gray-400">
-                        <span class="material-symbols-outlined text-yellow-500 !text-base">star</span>
-                        <span class="ml-1">${rating}</span>
-                        ${book.reviewCount ? `<span class="ml-1 text-xs">(${book.reviewCount})</span>` : ''}
+                    <div class="book-meta">
+                        <span class="material-symbols-outlined" style="color:#f59e0b;font-size:16px">star</span>
+                        <span>${rating}</span>
+                        ${book.reviewCount ? `<span class="muted">(${book.reviewCount})</span>` : ''}
                     </div>
-                    <div class="flex items-center justify-between mt-2">
-                        <p class="text-primary-text dark:text-white text-lg font-bold">$${book.price || '0.00'}</p>
-                        <span class="text-xs text-secondary-text dark:text-gray-400">
-                            ${book.timesAddedToCart || 0} in cart
-                        </span>
+                    <div class="price-row">
+                        <p class="price">$${book.price || '0.00'}</p>
+                        <span class="muted">${book.timesAddedToCart || 0} в корзине</span>
                     </div>
                 </div>
             </div>
@@ -311,10 +296,10 @@ async function getBookCover(book) {
             }
         }
     } catch (error) {
-        console.warn(`Failed to load media for book ${book.id}:`, error);
+        
     }
 
-    return 'redirect:https://via.placeholder.com/120x160/4F46E5/FFFFFF?text=📚';
+    return 'https://via.placeholder.com/120x160/522B47/FFFFFF?text=%F0%9F%93%9A';
 }
 
 function findCoverMedia(mediaList) {
@@ -355,7 +340,7 @@ async function calculateBookRating(book) {
             return Math.round(average * 10) / 10;
         }
     } catch (error) {
-        console.warn(`Failed to load reviews for book ${book.id}:`, error);
+        
     }
 
     return 0.0;
@@ -367,16 +352,16 @@ function openBookPage(bookId) {
 
 async function addToCart(bookId) {
     if (!apiService.token) {
-        showNotification('Please login to add items to cart', 'error');
+        showNotification('Войдите, чтобы добавлять товары в корзину', 'error');
         return;
     }
 
     try {
         await apiService.addToCart(bookId);
-        showNotification('Book added to cart!', 'success');
+        showNotification('Книга добавлена в корзину!', 'success');
         updateCartCounter();
     } catch (error) {
-        showNotification('Failed to add book to cart: ' + error.message, 'error');
+        showNotification('Не удалось добавить книгу в корзину: ' + error.message, 'error');
     }
 }
 
@@ -396,7 +381,7 @@ async function updateCartCounter() {
 
 async function toggleWishlist(bookId) {
     if (!apiService.token) {
-        showNotification('Please login to manage wishlist', 'error');
+        showNotification('Войдите, чтобы управлять избранным', 'error');
         return;
     }
 
@@ -406,14 +391,14 @@ async function toggleWishlist(bookId) {
         if (isInWishlist) {
             await apiService.removeFromWishlist(bookId);
             updateWishlistButton(bookId, false);
-            showNotification('Book removed from wishlist', 'success');
+            showNotification('Книга удалена из избранного', 'success');
         } else {
             await apiService.addToWishlist(bookId);
             updateWishlistButton(bookId, true);
-            showNotification('Book added to wishlist!', 'success');
+            showNotification('Книга добавлена в избранное!', 'success');
         }
     } catch (error) {
-        showNotification('Failed to update wishlist: ' + error.message, 'error');
+        showNotification('Не удалось обновить избранное: ' + error.message, 'error');
     }
 }
 
@@ -431,16 +416,15 @@ async function checkWishlistStatus(bookId) {
 function updateWishlistButton(bookId, isInWishlist) {
     const button = document.querySelector(`button[onclick="toggleWishlist(${bookId})"]`);
     const text = document.getElementById(`wishlist-text-${bookId}`);
-
     if (button && text) {
         if (isInWishlist) {
-            text.textContent = 'Remove from Wishlist';
-            button.classList.remove('bg-white/20');
-            button.classList.add('bg-red-500/80');
+            text.textContent = 'Убрать из избранного';
+            button.classList.remove('btn-clear');
+            button.classList.add('btn-danger');
         } else {
-            text.textContent = 'Add to Wishlist';
-            button.classList.remove('bg-red-500/80');
-            button.classList.add('bg-white/20');
+            text.textContent = 'В избранное';
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-clear');
         }
     }
 }

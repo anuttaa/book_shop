@@ -25,7 +25,7 @@ function loadBookManagementPage(container) {
                                     <div class="text-subtle-light dark:text-subtle-dark flex border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark items-center justify-center pl-3 rounded-l-DEFAULT border-r-0">
                                         <span class="material-symbols-outlined">search</span>
                                     </div>
-                                    <input id="searchInput" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-DEFAULT text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-full placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search by title, author, or genre..." value=""/>
+                                    <input id="searchInput" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-DEFAULT text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-full placeholder:text-subtle-light dark:placeholder:text-subtle-dark px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Поиск по названию, автору или жанру..." value=""/>
                                 </div>
                             </label>
                         </div>
@@ -38,10 +38,10 @@ function loadBookManagementPage(container) {
                                     <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                             data-target="genres">
                                         <span class="material-symbols-outlined text-base">filter_list</span>
-                                        <p class="text-sm font-medium">Genre</p>
+                                        <p class="text-sm font-medium">Жанр</p>
                                         <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
                                     </button>
-                                    <div id="genres" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg w-48">
+                                    <div id="genres" class="filter-dropdown hidden absolute mt-2 bg-content-light border border-border-light rounded-lg p-3 shadow-lg w-48">
                                         <!-- Genres will be loaded dynamically -->
                                     </div>
                                 </div>
@@ -51,10 +51,10 @@ function loadBookManagementPage(container) {
                                     <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                             data-target="authors">
                                         <span class="material-symbols-outlined text-base">filter_list</span>
-                                        <p class="text-sm font-medium">Author</p>
+                                        <p class="text-sm font-medium">Автор</p>
                                         <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
                                     </button>
-                                    <div id="authors" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg w-48">
+                                    <div id="authors" class="filter-dropdown hidden absolute mt-2 bg-content-light border border-border-light rounded-lg p-3 shadow-lg w-48">
                                         <!-- Authors will be loaded dynamically -->
                                     </div>
                                 </div>
@@ -64,10 +64,10 @@ function loadBookManagementPage(container) {
                                     <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                             data-target="formats">
                                         <span class="material-symbols-outlined text-base">filter_list</span>
-                                        <p class="text-sm font-medium">Format</p>
+                                        <p class="text-sm font-medium">Формат</p>
                                         <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
                                     </button>
-                                    <div id="formats" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg w-48">
+                                    <div id="formats" class="filter-dropdown hidden absolute mt-2 bg-content-light border border-border-light rounded-lg p-3 shadow-lg w-48">
                                         <!-- Formats will be loaded dynamically -->
                                     </div>
                                 </div>
@@ -77,10 +77,10 @@ function loadBookManagementPage(container) {
                                     <button class="filter-toggle flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark pl-3 pr-3 text-subtle-light dark:text-subtle-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                             data-target="price">
                                         <span class="material-symbols-outlined text-base">filter_list</span>
-                                        <p class="text-sm font-medium">Price</p>
+                                        <p class="text-sm font-medium">Цена</p>
                                         <span class="material-symbols-outlined text-base expand-icon">expand_more</span>
                                     </button>
-                                    <div id="price" class="filter-dropdown hidden absolute mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-lg w-64">
+                                    <div id="price" class="filter-dropdown hidden absolute mt-2 bg-content-light border border-border-light rounded-lg p-4 shadow-lg w-64">
                                         <div class="mb-2">
                                             <span id="price-value" class="text-sm font-medium text-text-light dark:text-text-dark">$0 - $100</span>
                                         </div>
@@ -93,7 +93,7 @@ function loadBookManagementPage(container) {
                                 <button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark px-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                         onclick="resetFilters()">
                                     <span class="material-symbols-outlined text-subtle-light dark:text-subtle-dark text-xl">restart_alt</span>
-                                    <p class="text-subtle-light dark:text-subtle-dark text-sm font-medium">Reset Filters</p>
+                                    <p class="text-subtle-light dark:text-subtle-dark text-sm font-medium">Сбросить фильтры</p>
                                 </button>
                             </div>
                         </div>
@@ -108,15 +108,14 @@ function loadBookManagementPage(container) {
                             <th class="p-4" scope="col">
                                 <input id="selectAll" class="h-4 w-4 rounded border-border-light dark:border-border-dark bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-2 focus:ring-offset-0 focus:ring-primary/50" type="checkbox"/>
                             </th>
-                            <th class="px-4 py-3" scope="col">Cover</th>
-                            <th class="px-4 py-3 min-w-64" scope="col">Title</th>
-                            <th class="px-4 py-3 min-w-40" scope="col">Author</th>
-                            <th class="px-4 py-3" scope="col">Genre</th>
-                            <th class="px-4 py-3" scope="col">Type</th>
-                            <th class="px-4 py-3" scope="col">Price</th>
-                            <th class="px-4 py-3" scope="col">In Cart</th>
-                            <th class="px-4 py-3" scope="col">Status</th>
-                            <th class="px-4 py-3 text-right" scope="col">Actions</th>
+                            <th class="px-4 py-3" scope="col">Обложка</th>
+                            <th class="px-4 py-3 min-w-64" scope="col">Название</th>
+                            <th class="px-4 py-3 min-w-40" scope="col">Автор</th>
+                            <th class="px-4 py-3" scope="col">Жанр</th>
+                            <th class="px-4 py-3" scope="col">Тип</th>
+                            <th class="px-4 py-3" scope="col">Цена</th>
+                            
+                            <th class="px-4 py-3 text-right" scope="col">Действия</th>
                         </tr>
                         </thead>
                         <tbody id="booksTableBody">
@@ -128,26 +127,26 @@ function loadBookManagementPage(container) {
                 <!-- Loading State -->
                 <div id="loadingState" class="p-8 text-center">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p class="mt-2 text-subtle-light dark:text-subtle-dark">Loading books...</p>
+                    <p class="mt-2 text-subtle-light dark:text-subtle-dark">Загрузка книг...</p>
                 </div>
 
                 <!-- Empty State -->
                 <div id="emptyState" class="hidden p-8 text-center">
                     <span class="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark mb-4">menu_book</span>
-                    <h3 class="text-lg font-medium text-text-light dark:text-text-dark mb-2">No books found</h3>
-                    <p class="text-subtle-light dark:text-subtle-dark mb-4">Get started by adding your first book to the catalog.</p>
+                    <h3 class="text-lg font-medium text-text-light dark:text-text-dark mb-2">Книги не найдены</h3>
+                    <p class="text-subtle-light dark:text-subtle-dark mb-4">Добавьте первую книгу в каталог.</p>
                     <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-DEFAULT h-10 px-4 bg-secondary text-secondary-content text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90" onclick="openAddBookModal()">
                         <span class="material-symbols-outlined">add</span>
-                        <span class="truncate">Add New Book</span>
+                        <span class="truncate">Добавить книгу</span>
                     </button>
                 </div>
 
                 <!-- Pagination -->
                 <div class="hidden flex items-center justify-between p-4 border-t border-border-light dark:border-border-dark" id="paginationContainer">
-                    <span class="text-sm text-subtle-light dark:text-subtle-dark">Showing <span class="font-semibold text-text-light dark:text-text-dark" id="showingRange">1-0</span> of <span class="font-semibold text-text-light dark:text-text-dark" id="totalBooks">0</span></span>
+                    <span class="text-sm text-subtle-light dark:text-subtle-dark">Показано <span class="font-semibold text-text-light dark:text-text-dark" id="showingRange">1-0</span> из <span class="font-semibold text-text-light dark:text-text-dark" id="totalBooks">0</span></span>
                     <div class="flex items-center gap-2">
-                        <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="previousPage()">Previous</button>
-                        <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="nextPage()">Next</button>
+                        <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="previousPage()">Предыдущая</button>
+                        <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="nextPage()">Следующая</button>
                     </div>
                 </div>
             </div>
@@ -157,7 +156,7 @@ function loadBookManagementPage(container) {
         <div id="addBookModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Add New Book</h3>
+                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Добавить книгу</h3>
                     <button onclick="closeAddBookModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                         <span class="material-symbols-outlined">close</span>
                     </button>
@@ -165,59 +164,59 @@ function loadBookManagementPage(container) {
                 <form id="addBookForm" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Cover Image URL</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">URL изображения обложки</label>
                             <input type="url" name="imageUrl"
                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
                                    placeholder="https://example.com/book-cover.jpg">
-                            <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Optional: Provide a URL for the book cover image</p>
+                            <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Необязательно: Укажите URL изображения обложки книги</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Title *</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Название *</label>
                             <input type="text" name="title" required
                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Author *</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Автор *</label>
                             <input type="text" name="author" required
                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Genre *</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Жанр *</label>
                             <input type="text" name="genre" required
                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Price *</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Цена *</label>
                             <input type="number" step="0.01" min="0" name="price" required
                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Type *</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Тип *</label>
                             <select name="type" required
                                     class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
-                                <option value="PHYSICAL">Physical</option>
-                                <option value="ELECTRONIC">Electronic</option>
+                                <option value="PHYSICAL">Печатная</option>
+                                <option value="ELECTRONIC">Электронная</option>
                             </select>
                         </div>
 
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Description</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Описание</label>
                             <textarea name="description" rows="3"
                                       class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
-                                      placeholder="Enter book description..."></textarea>
+                                      placeholder="Введите описание книги..."></textarea>
                         </div>
                     </div>
 
                     <div class="flex justify-end gap-3 pt-4 border-t border-border-light dark:border-border-dark">
                         <button type="button" onclick="closeAddBookModal()"
-                                class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Cancel</button>
+                                class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Отмена</button>
                         <button type="submit"
-                                class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Add Book</button>
+                                class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Добавить книгу</button>
                     </div>
                 </form>
             </div>
@@ -258,7 +257,7 @@ function setupBooksEventListeners() {
         priceSlider.addEventListener('input', () => {
             priceFilter.max = parseFloat(priceSlider.value);
             if (priceValue) {
-                priceValue.textContent = `$0 - $${priceSlider.value}`;
+                priceValue.textContent = `0–${priceSlider.value} $`;
             }
             currentBookPage = 1;
             filterAndDisplayBooks();
@@ -340,7 +339,7 @@ async function loadBooks() {
 
     } catch (error) {
         console.error('Error loading books:', error);
-        showError('Failed to load books');
+        showError('Не удалось загрузить книги');
     }
 }
 
@@ -369,19 +368,19 @@ function createFilter(container, key, options, toLower = false) {
     container.innerHTML = '';
 
     if (options.length === 0) {
-        container.innerHTML = '<p class="text-sm text-subtle-light dark:text-subtle-dark">No options available</p>';
+        container.innerHTML = '<p class="text-sm text-subtle-light">Нет доступных вариантов</p>';
         return;
     }
 
-    const visibleOptions = options.slice(0, 5);
-    const hiddenOptions = options.slice(5);
+    const visibleOptions = options;
+    const hiddenOptions = [];
 
     const allWrapper = document.createElement('div');
     allWrapper.className = 'flex items-center mb-2';
     allWrapper.innerHTML = `
-        <input class="filter-checkbox h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-transparent"
-               type="checkbox" id="${key}-all" checked data-value="all" />
-        <label class="ml-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer" for="${key}-all">All</label>
+        <input class="filter-checkbox h-4 w-4 rounded border-border-light text-primary bg-transparent"
+               type="checkbox" id="${key}-all" data-value="all" />
+        <label class="ml-2 text-sm text-text-light cursor-pointer" for="${key}-all">Все</label>
     `;
     container.appendChild(allWrapper);
 
@@ -393,7 +392,7 @@ function createFilter(container, key, options, toLower = false) {
     if (hiddenOptions.length) {
         const hiddenContainer = document.createElement('div');
         hiddenContainer.id = `${key}-hidden`;
-        hiddenContainer.className = 'hidden';
+        hiddenContainer.className = '';
         hiddenOptions.forEach((item, i) => {
             const checkbox = createCheckbox(item, key, i + 5, toLower);
             if (checkbox) hiddenContainer.appendChild(checkbox);
@@ -402,13 +401,13 @@ function createFilter(container, key, options, toLower = false) {
 
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.textContent = 'Show More';
+        btn.textContent = 'Показать меньше';
         btn.className = 'text-sm text-primary underline mt-2 hover:no-underline';
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const isHidden = hiddenContainer.classList.contains('hidden');
             hiddenContainer.classList.toggle('hidden');
-            btn.textContent = isHidden ? 'Show Less' : 'Show More';
+            btn.textContent = isHidden ? 'Показать меньше' : 'Показать больше';
         });
         container.appendChild(btn);
     }
@@ -420,15 +419,14 @@ function createCheckbox(label, key, index, toLower = false) {
     const id = `${key}-${index}`;
     const value = toLower ? label.toLowerCase() : label;
     const displayLabel = key === 'formats' ?
-        (label === 'ELECTRONIC' ? 'E-book' : 'Physical') :
+        (label === 'ELECTRONIC' ? 'Электронная' : 'Печатная') :
         label;
 
     const wrapper = document.createElement('div');
     wrapper.className = 'flex items-center mb-2';
     wrapper.innerHTML = `
-        <input class="filter-checkbox h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary bg-transparent"
-               type="checkbox" id="${id}" data-value="${value}" />
-        <label class="ml-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer truncate" for="${id}" title="${displayLabel}">${displayLabel}</label>
+        <input class="filter-checkbox h-4 w-4 rounded border-border-light text-primary bg-transparent" type="checkbox" id="${id}" data-value="${value}" />
+        <label class="ml-2 text-sm text-text-light cursor-pointer truncate" for="${id}" title="${displayLabel}">${displayLabel}</label>
     `;
     return wrapper;
 }
@@ -577,37 +575,25 @@ async function displayBooks() {
                        type="checkbox" value="${book.id}"/>
             </td>
             <td class="px-4 py-2">
-                <div class="w-10 h-10 rounded-full bg-cover bg-center flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br from-primary to-blue-600"
+                <div class="w-10 h-10 rounded-full bg-cover bg-center flex items-center justify-center text-white text-sm font-bold bg-primary"
                      style="${book.coverStyle}">
                     ${book.coverStyle ? '' : book.title.charAt(0).toUpperCase()}
                 </div>
             </td>
             <td class="px-4 py-2 font-medium text-text-light dark:text-text-dark">
-                <div class="max-w-64">
-                    <p class="truncate" title="${book.title}">${book.title}</p>
-                    ${book.description ? `<p class="text-xs text-subtle-light dark:text-subtle-dark truncate mt-1" title="${book.description}">${book.description}</p>` : ''}
+                <div class="max-w-48">
+                    <p class="line-clamp-2" title="${book.title}">${book.title}</p>
+                    ${book.description ? `<p class="text-xs text-subtle-light dark:text-subtle-dark line-clamp-2 mt-1" title="${book.description}">${book.description}</p>` : ''}
                 </div>
             </td>
-            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.author || 'Unknown'}</td>
-            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.genre || 'N/A'}</td>
+            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.author || 'Неизвестен'}</td>
+            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.genre || 'Не указан'}</td>
             <td class="px-4 py-2">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                    book.type === 'electronic'
-                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                }">
-                    ${book.type === 'electronic' ? 'E-book' : 'Physical'}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-text-light">
+                    ${book.type === 'electronic' ? 'Электронная' : 'Печатная'}
                 </span>
             </td>
             <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">$${(parseFloat(book.price) || 0).toFixed(2)}</td>
-            <td class="px-4 py-2 text-subtle-light dark:text-subtle-dark">${book.timesAddedToCart || 0}</td>
-            <td class="px-4 py-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    getStatusClass(book)
-                }">
-                    ${getStatusText(book)}
-                </span>
-            </td>
             <td class="px-4 py-2 text-right">
                 <div class="flex justify-end gap-2">
                     <button class="flex items-center justify-center size-8 rounded-full bg-primary/20 text-primary hover:bg-primary/30" onclick="editBook(${book.id})">
@@ -643,7 +629,7 @@ async function getBookCoverStyle(book) {
             }
         }
     } catch (error) {
-        console.warn(`Failed to load media for book ${book.id}:`, error);
+        
     }
 
     return '';
@@ -667,16 +653,16 @@ function findCoverMedia(mediaList) {
 
 function getStatusClass(book) {
     const inCart = book.timesAddedToCart || 0;
-    if (inCart > 10) return 'bg-secondary/20 text-secondary';
-    if (inCart > 0) return 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400';
-    return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    if (inCart > 10) return 'bg-secondary text-text-light';
+    if (inCart > 0) return 'bg-secondary/20 text-text-light';
+    return 'bg-background-light text-text-light';
 }
 
 function getStatusText(book) {
     const inCart = book.timesAddedToCart || 0;
-    if (inCart > 10) return 'Popular';
-    if (inCart > 0) return 'Active';
-    return 'New';
+    if (inCart > 10) return 'Популярно';
+    if (inCart > 0) return 'Активно';
+    return 'Новинка';
 }
 
 function updatePagination() {
@@ -699,18 +685,45 @@ function updatePagination() {
 
     paginationButtons.innerHTML = '';
 
-    if (currentBookPage > 1) {
+    if (totalPages > 1) {
         paginationButtons.innerHTML += `
-            <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="previousPage()">
-                Previous
+            <button class="flex items-center justify-center h-8 w-8 rounded-md border border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="previousPage()">
+                <span class="material-symbols-outlined text-lg">chevron_left</span>
             </button>
         `;
-    }
 
-    if (currentBookPage < totalPages) {
         paginationButtons.innerHTML += `
-            <button class="flex items-center justify-center px-3 h-8 text-sm font-medium border rounded-DEFAULT bg-content-light dark:bg-content-dark border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="nextPage()">
-                Next
+            <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentBookPage === 1 ? 'border-primary bg-primary/10 text-primary' : 'border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark'}"
+                    onclick="goToBookPage(1)">1</button>
+        `;
+
+        if (currentBookPage > 3) {
+            paginationButtons.innerHTML += `<span class="px-2 text-subtle-light dark:text-subtle-dark">...</span>`;
+        }
+
+        for (let i = Math.max(2, currentBookPage - 1); i <= Math.min(totalPages - 1, currentBookPage + 1); i++) {
+            if (i !== 1 && i !== totalPages) {
+                paginationButtons.innerHTML += `
+                    <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentBookPage === i ? 'border-primary bg-primary/10 text-primary' : 'border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark'}"
+                            onclick="goToBookPage(${i})">${i}</button>
+                `;
+            }
+        }
+
+        if (currentBookPage < totalPages - 2) {
+            paginationButtons.innerHTML += `<span class="px-2 text-subtle-light dark:text-subtle-dark">...</span>`;
+        }
+
+        if (totalPages > 1) {
+            paginationButtons.innerHTML += `
+                <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentBookPage === totalPages ? 'border-primary bg-primary/10 text-primary' : 'border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark'}"
+                        onclick="goToBookPage(${totalPages})">${totalPages}</button>
+            `;
+        }
+
+        paginationButtons.innerHTML += `
+            <button class="flex items-center justify-center h-8 w-8 rounded-md border border-border-light dark:border-border-dark text-subtle-light dark:text-subtle-dark hover:bg-background-light dark:hover:bg-background-dark" onclick="nextPage()">
+                <span class="material-symbols-outlined text-lg">chevron_right</span>
             </button>
         `;
     }
@@ -727,6 +740,14 @@ function nextPage() {
     const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
     if (currentBookPage < totalPages) {
         currentBookPage++;
+        filterAndDisplayBooks();
+    }
+}
+
+function goToBookPage(page) {
+    const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+    if (page >= 1 && page <= totalPages) {
+        currentBookPage = page;
         filterAndDisplayBooks();
     }
 }
@@ -887,9 +908,9 @@ async function openEditBookModal(book) {
     modal.id = 'editBookModal';
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
     modal.innerHTML = `
-        <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4">
+        <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4 border border-border-light dark:border-border-dark shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Edit Book</h3>
+                <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Редактировать книгу</h3>
                 <button onclick="closeEditBookModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                     <span class="material-symbols-outlined">close</span>
                 </button>
@@ -898,11 +919,11 @@ async function openEditBookModal(book) {
                 <input type="hidden" name="id" value="${book.id}">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Cover Image URL</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">URL изображения обложки</label>
                         <input type="url" name="imageUrl" value="${currentCover}"
                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
                                placeholder="https://example.com/book-cover.jpg">
-                        <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Optional: Provide a URL for the book cover image</p>
+                        <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Необязательно: Укажите URL изображения обложки книги</p>
                         ${currentCover ? `
                             <div class="mt-2">
                                 <p class="text-xs text-subtle-light dark:text-subtle-dark mb-1">Current cover:</p>
@@ -912,57 +933,58 @@ async function openEditBookModal(book) {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Title *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Название *</label>
                         <input type="text" name="title" value="${book.title || ''}" required
                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Author *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Автор *</label>
                         <input type="text" name="author" value="${book.author || ''}" required
                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Genre *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Жанр *</label>
                         <input type="text" name="genre" value="${book.genre || ''}" required
                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Price *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Цена *</label>
                         <input type="number" step="0.01" min="0" name="price" value="${book.price || ''}" required
                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Type *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Тип *</label>
                         <select name="type" required
                                 class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark">
-                            <option value="PHYSICAL" ${book.type === 'PHYSICAL' ? 'selected' : ''}>Physical</option>
-                            <option value="ELECTRONIC" ${book.type === 'ELECTRONIC' ? 'selected' : ''}>Electronic</option>
+                            <option value="PHYSICAL" ${book.type === 'PHYSICAL' ? 'selected' : ''}>Печатная</option>
+                            <option value="ELECTRONIC" ${book.type === 'ELECTRONIC' ? 'selected' : ''}>Электронная</option>
                         </select>
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Description</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Описание</label>
                         <textarea name="description" rows="3"
                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
-                                  placeholder="Enter book description...">${book.description || ''}</textarea>
+                                  placeholder="Введите описание книги...">${book.description || ''}</textarea>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-border-light dark:border-border-dark">
                     <button type="button" onclick="closeEditBookModal()"
-                            class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Cancel</button>
+                            class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Отмена</button>
                     <button type="submit"
-                            class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Update Book</button>
+                            class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Сохранить</button>
                 </div>
             </form>
         </div>
     `;
 
     document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
     document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
 }
 
@@ -970,6 +992,7 @@ function closeEditBookModal() {
     const modal = document.getElementById('editBookModal');
     if (modal) {
         modal.remove();
+        document.body.style.overflow = '';
     }
 }
 

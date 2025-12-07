@@ -4,9 +4,9 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Вход - BookStore</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/main.css"/>
     <style>
         .material-symbols-outlined {
           font-variation-settings:
@@ -16,58 +16,35 @@
           'opsz' 24
         }
     </style>
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                "primary": "#135bec",
-                "background-light": "#f6f6f8",
-                "background-dark": "#101622",
-                "card-light": "#ffffff",
-                "card-dark": "#1a2231",
-                "text-light-primary": "#111318",
-                "text-dark-primary": "#f6f6f8",
-                "text-light-secondary": "#616f89",
-                "text-dark-secondary": "#a0aec0",
-                "border-light": "#dbdfe6",
-                "border-dark": "#2d3748"
-              },
-              fontFamily: {
-                "display": ["Inter", "sans-serif"]
-              },
-              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-            },
-          },
-        }
-    </script>
+    
 </head>
 <body class="font-display bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary">
 <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
     <div class="layout-container flex h-full grow flex-col">
-        <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-6 sm:px-10 py-3 bg-card-light dark:bg-card-dark">
-            <div class="flex items-center gap-4">
-                <a href="../mainPage.html" class="flex items-center gap-4">
-                    <div class="size-6 text-primary">
-                        <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-text-light-primary dark:text-text-dark-primary text-lg font-bold leading-tight tracking-[-0.015em]">BookStore</h2>
+        <header class="header">
+            <div class="actions">
+                <a class="brand" href="/">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 21V3h14v18l-7-3-7 3zM7 5v12.2l5-2.15 5 2.15V5H7z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg>
+                    <h1>BookStore</h1>
                 </a>
+                <nav class="nav">
+                    <a href="/">Главная</a>
+                    <a href="/catalog">Каталог</a>
+                    <a id="admin-link" href="/admin" class="hidden">Админ-панель</a>
+                </nav>
             </div>
-            <nav class="hidden md:flex items-center gap-9">
-                <a class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors" href="/">Главная</a>
-                <a class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary transition-colors" href="/catalog">Каталог</a>
-            </nav>
-            <div class="flex items-center gap-2">
-                <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
-                    <span class="truncate">Регистрация</span>
-                </a>
-                <a href="/login" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                    <span class="truncate">Вход</span>
-                </a>
+            <div class="actions">
+                <div id="auth-buttons" class="actions">
+                    <a href="/login" class="btn btn-secondary">Войти</a>
+                    <a href="/register" class="btn btn-primary">Регистрация</a>
+                </div>
+                <div id="user-actions" class="actions hidden">
+                    <button class="icon-btn"><a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a></button>
+                    <button class="icon-btn"><a href="/orders"><span class="material-symbols-outlined">receipt_long</span></a></button>
+                    <button class="icon-btn cart"><a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a><div id="cart-counter" class="badge hidden">0</div></button>
+                    <button class="icon-btn"><a href="/profile"><span class="material-symbols-outlined">account_circle</span></a></button>
+                    <button class="btn btn-secondary" onclick="logout()"><span class="material-symbols-outlined">logout</span></button>
+                </div>
             </div>
         </header>
         <main class="flex flex-1 items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -82,16 +59,16 @@
                             <div>
                                 <label class="flex flex-col" for="username">
                                     <span class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">Имя пользователя</span>
-                                    <input autofocus="" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light-secondary dark:placeholder:text-text-dark-secondary p-[15px] text-base font-normal leading-normal" id="username" name="username" placeholder="Введите имя пользователя" required="" type="text" value=""/>
+                                    <input autofocus="" class="form-input w-full rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light-secondary dark:placeholder:text-text-dark-secondary px-[15px] py-[15px] text-base font-normal leading-normal" id="username" name="username" placeholder="Введите имя пользователя" required="" type="text" value=""/>
                                 </label>
                             </div>
                             <div>
                                 <label class="flex flex-col" for="password">
                                     <span class="text-text-light-primary dark:text-text-dark-primary text-base font-medium leading-normal pb-2">Пароль</span>
-                                    <div class="relative flex w-full flex-1 items-stretch">
-                                        <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light-secondary dark:placeholder:text-text-dark-secondary p-[15px] text-base font-normal leading-normal pr-12" id="password" name="password" placeholder="Введите ваш пароль" required="" type="password" value=""/>
-                                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-4 text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary" id="togglePassword">
-                                            <span class="material-symbols-outlined">visibility</span>
+                                    <div class="relative w-full">
+                                        <input class="form-input w-full rounded-lg text-text-light-primary dark:text-text-dark-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light-secondary dark:placeholder:text-text-dark-secondary px-[15px] pr-10 py-[15px] text-base font-normal leading-normal" id="password" name="password" placeholder="Введите ваш пароль" required="" type="password" value=""/>
+                                        <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary bg-transparent" id="togglePassword">
+                                            <span class="material-symbols-outlined text-lg">visibility</span>
                                         </button>
                                     </div>
                                 </label>
@@ -118,8 +95,9 @@
     </div>
 </div>
 
-<script src="../js/api.js"></script>
-<script src="../js/utils.js"></script>
-<script src="../js/login.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/login.js"></script>
 </body>
 </html>

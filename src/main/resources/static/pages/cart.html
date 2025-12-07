@@ -1,32 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Shopping Cart - The Bookstore</title>
+    <title>Корзина — BookStore</title>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
 
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                "primary": "#135bec",
-                "background-light": "#f6f6f8",
-                "background-dark": "#101622",
-              },
-              fontFamily: {
-                "display": ["Inter"]
-              },
-              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-            },
-          },
-        }
-    </script>
+    <link rel="stylesheet" href="/css/main.css"/>
     <style>
         .material-symbols-outlined {
             font-variation-settings:
@@ -40,42 +22,36 @@
 
 <body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
 
-<!-- Header -->
-<header class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-3 bg-white dark:bg-background-dark/50 sticky top-0 z-20">
-    <a href="/" class="flex items-center gap-4 text-gray-900 dark:text-white">
-        <div class="w-8 h-8 text-primary">
-            <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z" fill="currentColor"/>
-            </svg>
+<header class="header">
+    <div class="actions">
+        <a class="brand" href="/">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 21V3h14v18l-7-3-7 3zM7 5v12.2l5-2.15 5 2.15V5H7z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg>
+            <h1>BookStore</h1>
+        </a>
+        <nav class="nav">
+            <a href="/">Главная</a>
+            <a href="/catalog">Каталог</a>
+            <a id="admin-link" href="/admin" class="hidden">Админ-панель</a>
+        </nav>
+    </div>
+    <div class="actions">
+        <div id="auth-buttons" class="actions">
+            <a href="/login" class="btn btn-secondary">Войти</a>
+            <a href="/register" class="btn btn-primary">Регистрация</a>
         </div>
-        <h1 class="text-lg font-bold leading-tight tracking-tight">The Bookstore</h1>
-    </a>
-
-    <nav class="hidden md:flex items-center gap-6 text-gray-800 dark:text-gray-200">
-        <a href="/" class="text-sm font-medium hover:text-primary">Home</a>
-        <a href="/catalog" class="text-sm font-medium hover:text-primary">Catalog</a>
-    </nav>
-
-    <div class="flex items-center gap-4">
-        <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-            <a href="/wishlist"><span class="material-symbols-outlined text-2xl">favorite</span></a>
-        </button>
-        <button class="flex items-center justify-center rounded-full h-10 w-10 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
-            <a href="/orders"><span class="material-symbols-outlined text-2xl">orders</span></a>
-        </button>
-        <button class="relative flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-            <a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a>
-            <div class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</div>
-        </button>
-        <button class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-background-dark/80 w-10 h-10">
-            <a href="/profile"><span class="material-symbols-outlined">account_circle</span></a>
-        </button>
+        <div id="user-actions" class="actions hidden">
+            <button class="icon-btn"><a href="/wishlist"><span class="material-symbols-outlined">favorite</span></a></button>
+            <button class="icon-btn"><a href="/orders"><span class="material-symbols-outlined">receipt_long</span></a></button>
+            <button class="icon-btn cart"><a href="/cart"><span class="material-symbols-outlined">shopping_cart</span></a><div id="cart-counter" class="badge hidden">0</div></button>
+            <button class="icon-btn"><a href="/profile"><span class="material-symbols-outlined">account_circle</span></a></button>
+            <button class="btn btn-secondary" onclick="logout()"><span class="material-symbols-outlined">logout</span></button>
+        </div>
     </div>
 </header>
 
 <!-- Main content -->
 <div class="container mx-auto px-6 py-10">
-    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Your Cart</h1>
+<h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Ваша корзина</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Cart Items -->
@@ -83,10 +59,10 @@
             <table class="w-full">
                 <thead>
                 <tr class="border-b border-gray-300 dark:border-gray-700">
-                    <th class="text-left pb-3 text-gray-600 dark:text-gray-400">Item</th>
-                    <th class="text-left pb-3 text-gray-600 dark:text-gray-400">Price</th>
-                    <th class="text-left pb-3 text-gray-600 dark:text-gray-400">Quantity</th>
-                    <th class="text-right pb-3 text-gray-600 dark:text-gray-400">Total</th>
+                    <th class="text-left pb-3 text-gray-600 dark:text-gray-400">Товар</th>
+                    <th class="text-left pb-3 text-gray-600 dark:text-gray-400">Цена</th>
+                    <th class="text-left pb-3 text-gray-600 dark:text-gray-400">Количество</th>
+                    <th class="text-right pb-3 text-gray-600 dark:text-gray-400">Итого</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -99,15 +75,15 @@
 
         <!-- Summary -->
         <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Summary</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Итого</h2>
 
             <div class="flex justify-between mb-4">
-                <span class="text-gray-700 dark:text-gray-300">Subtotal</span>
+                <span class="text-gray-700 dark:text-gray-300">Сумма</span>
                 <span id="subtotal" class="font-bold text-gray-900 dark:text-white">$0.00</span>
             </div>
 
             <button class="w-full bg-primary text-white py-3 rounded-xl text-lg font-semibold hover:bg-primary/90">
-                Checkout
+                Оформить заказ
             </button>
         </div>
     </div>
@@ -115,6 +91,7 @@
 
 <script src="/js/api.js"></script>
 <script src="/js/utils.js"></script>
+<script src="/js/main.js"></script>
 <script src="/js/cart.js" type="module" defer></script>
 </body>
 </html>

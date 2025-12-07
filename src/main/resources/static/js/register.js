@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupUsernameValidation();
 
     if (apiService.token) {
-        showNotification('You are already logged in. Redirecting...', 'info');
+        showNotification('Вы уже вошли. Перенаправление...', 'info');
         setTimeout(() => {
             window.location.href = '/';
         }, 2000);
@@ -21,42 +21,42 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmPassword = document.getElementById('confirmPassword').value;
             const submitButton = this.querySelector('button[type="submit"]');
 
-            console.log('Form data:', { username, email, password, confirmPassword });
+            
 
             if (!username || !email || !password || !confirmPassword) {
-                showNotification('Please fill in all fields', 'error');
+                showNotification('Заполните все поля', 'error');
                 return;
             }
 
             if (!isValidEmail(email)) {
-                showNotification('Please enter a valid email address', 'error');
+                showNotification('Введите корректный email', 'error');
                 return;
             }
 
             if (!isValidPassword(password)) {
-                showNotification('Password must be at least 6 characters long', 'error');
+                showNotification('Пароль должен быть не менее 6 символов', 'error');
                 return;
             }
 
             if (password !== confirmPassword) {
-                showNotification('Passwords do not match', 'error');
+                showNotification('Пароли не совпадают', 'error');
                 return;
             }
 
             const isUsernameAvailable = await checkUsernameAvailability(username);
             if (!isUsernameAvailable) {
-                showNotification('This username is already taken. Please choose a different one.', 'error');
+                showNotification('Имя пользователя уже занято. Выберите другое.', 'error');
                 return;
             }
 
             const isEmailAvailable = await checkEmailAvailability(email);
             if (!isEmailAvailable) {
-                showNotification('This email is already registered. Please use a different email or login.', 'error');
+                showNotification('Этот email уже зарегистрирован. Используйте другой или войдите.', 'error');
                 return;
             }
 
             try {
-                submitButton.textContent = 'Creating Account...';
+                submitButton.textContent = 'Создание аккаунта...';
                 submitButton.disabled = true;
 
                 const userData = {
@@ -65,12 +65,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     password: password
                 };
 
-                console.log('Sending registration data:', userData);
+                
 
                 const result = await apiService.register(userData);
-                console.log('Registration response:', result);
-
-                showNotification('Registration successful! Redirecting to login...', 'success');
+                
+                showNotification('Регистрация успешна! Перенаправление к входу...', 'success');
 
                 setTimeout(() => {
                     window.location.href = '/login';
@@ -184,17 +183,18 @@ function updateUsernameValidationUI(isAvailable, fieldType) {
     }
 
     const feedback = document.createElement('div');
-    feedback.className = `username-feedback text-sm mt-1 ${isAvailable ? 'text-green-600' : 'text-red-600'}`;
-    feedback.textContent = isAvailable ? 'Username is available' : 'Username is already taken';
+    feedback.className = `username-feedback text-sm mt-1`;
+    feedback.style.color = isAvailable ? '#522B47' : '#522B47';
+    feedback.textContent = isAvailable ? 'Имя пользователя доступно' : 'Имя пользователя занято';
 
     usernameInput.parentNode.appendChild(feedback);
 
     if (isAvailable) {
-        usernameInput.classList.remove('border-red-500');
-        usernameInput.classList.add('border-green-500');
+        usernameInput.classList.remove('border-red-500','border-green-500');
+        usernameInput.style.borderColor = '#E0DDCF';
     } else {
-        usernameInput.classList.remove('border-green-500');
-        usernameInput.classList.add('border-red-500');
+        usernameInput.classList.remove('border-red-500','border-green-500');
+        usernameInput.style.borderColor = '#E0DDCF';
     }
 }
 

@@ -1,28 +1,74 @@
 function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white max-w-sm transform transition-all duration-300 ${
-        type === 'success' ? 'bg-green-500' :
-        type === 'error' ? 'bg-red-500' :
-        type === 'warning' ? 'bg-yellow-500' :
-        'bg-blue-500'
-    }`;
+    const containerId = 'toast-container';
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.style.position = 'fixed';
+        container.style.top = '16px';
+        container.style.right = '16px';
+        container.style.zIndex = '9999';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '8px';
+        document.body.appendChild(container);
+    }
 
-    notification.innerHTML = `
-        <div class="flex items-center justify-between">
-            <span>${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
-                <span class="material-symbols-outlined text-sm">close</span>
-            </button>
-        </div>
-    `;
+    const colors = {
+        success: '#522B47',
+        error: '#522B47',
+        warning: '#E0DDCF',
+        info: '#522B47'
+    };
 
-    document.body.appendChild(notification);
+    const toast = document.createElement('div');
+    toast.style.background = colors[type] || colors.info;
+    toast.style.color = type === 'warning' ? '#522B47' : '#F1F0EA';
+    toast.style.padding = '12px 16px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    toast.style.maxWidth = '360px';
+    toast.style.display = 'flex';
+    toast.style.alignItems = 'center';
+    toast.style.justifyContent = 'space-between';
+    toast.style.gap = '12px';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-8px)';
+    toast.style.transition = 'opacity 200ms ease, transform 200ms ease';
+
+    const text = document.createElement('span');
+    text.textContent = message;
+    text.style.fontSize = '14px';
+    text.style.fontWeight = '600';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">close</span>';
+    closeBtn.style.background = 'transparent';
+    closeBtn.style.border = 'none';
+    closeBtn.style.color = type === 'warning' ? '#522B47' : '#F1F0EA';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.onclick = () => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-8px)';
+        setTimeout(() => toast.remove(), 200);
+    };
+
+    toast.appendChild(text);
+    toast.appendChild(closeBtn);
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+    });
 
     setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
+        if (toast.parentElement) {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-8px)';
+            setTimeout(() => toast.remove(), 200);
         }
-    }, 5000);
+    }, 4000);
 }
 
 function checkAuth() {
@@ -40,15 +86,15 @@ function handleApiError(error) {
     console.error('API Error:', error);
 
     if (error.message.includes('Authentication required') || error.message.includes('401')) {
-        showNotification('Please login to continue', 'error');
+        showNotification('Пожалуйста, войдите, чтобы продолжить', 'error');
         window.location.href = '/pages/login.html';
     } else {
-        showNotification(error.message || 'An error occurred', 'error');
+        showNotification(error.message || 'Произошла ошибка', 'error');
     }
 }
 
 function updateAuthUI() {
-    const isLoggedIn = checkAuthStatus();
+    const isLoggedIn = checkAuth();
 
     const userActions = document.getElementById('userActions');
     const authButtons = document.getElementById('authButtons');
@@ -69,9 +115,7 @@ function updateAuthUI() {
 }
 
 function checkAuthStatus() {
-    return localStorage.getItem('isLoggedIn') === 'true' ||
-           document.cookie.includes('auth_token') ||
-           false;
+    return !!apiService.token;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

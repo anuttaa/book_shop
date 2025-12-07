@@ -33,8 +33,6 @@ async function loadCart() {
         return;
     }
 
-    console.log("CART:", cart);
-
     const tbody = document.getElementById("cart-items");
     const subtotalEl = document.getElementById("subtotal");
 

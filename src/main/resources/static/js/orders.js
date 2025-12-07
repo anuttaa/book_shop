@@ -1,3 +1,8 @@
+let orders;
+let ordersData = [];
+let currentOrdersPage = 1;
+const ordersPerPage = 5;
+
 document.addEventListener("DOMContentLoaded", async () => {  // Добавьте async здесь
     if (!apiService.token) {
         showAuthRequiredMessage();
@@ -5,7 +10,6 @@ document.addEventListener("DOMContentLoaded", async () => {  // Добавьте
     }
     try {
         const profile = await apiService.getProfile();
-        console.log("User profile:", profile);
         await loadOrders();
     } catch (error) {
         console.error("Ошибка проверки прав:", error);
@@ -58,9 +62,8 @@ async function loadOrders() {
 
     container.innerHTML = '<div class="text-center py-8"><p class="text-gray-600 dark:text-gray-400">Загрузка заказов...</p></div>';
 
-    let orders;
     try {
-        orders = await apiService.getUserOrders();
+    orders = await apiService.getUserOrders();
     } catch (e) {
         console.error("Ошибка загрузки заказов:", e);
         container.innerHTML = `
@@ -92,14 +95,9 @@ async function loadOrders() {
     }
 
     orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    container.innerHTML = '';
-
-    orders.forEach(order => {
-        const orderElement = createOrderElement(order);
-        container.appendChild(orderElement);
-    });
-
+    ordersData = orders;
+    renderOrdersPage();
+    renderOrdersPagination();
     enableButtons();
 }
 
@@ -179,24 +177,20 @@ function createOrderItemHtml(item) {
     const bookTitle = item.bookTitle || item.book.title || 'Неизвестная книга';
     const bookAuthor = item.bookAuthor || item.book.author || 'Автор не указан';
     const firstLetter = bookTitle.charAt(0).toUpperCase();
+    const bookId = item.book.id;
 
     return `
         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
             <td class="px-6 py-4">
                 <div class="flex items-center gap-4">
-                    ${imageUrl ? `
-                        <img class="h-16 w-12 rounded-md object-cover bg-gray-200 dark:bg-gray-700"
-                             src="${imageUrl}"
-                             alt="${bookTitle}"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        <div class="h-16 w-12 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg hidden">
-                            ${firstLetter}
-                        </div>
-                    ` : `
-                        <div class="h-16 w-12 rounded-md bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                            ${firstLetter}
-                        </div>
-                    `}
+                    <img class="h-12 w-9 rounded-md object-cover bg-gray-200 dark:bg-gray-700 ${imageUrl ? '' : 'hidden'}"
+                         src="${imageUrl || ''}"
+                         alt="${bookTitle}"
+                         data-book-id="${bookId}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="h-12 w-9 rounded-md bg-[#522B47] flex items-center justify-center text-white font-bold text-lg ${imageUrl ? 'hidden' : ''}">
+                        ${firstLetter}
+                    </div>
                     <div>
                         <div class="font-medium text-gray-900 dark:text-white">${bookTitle}</div>
                         <div class="text-gray-500 dark:text-gray-400 text-sm">${bookAuthor}</div>
@@ -267,23 +261,9 @@ function formatDate(dateString) {
 
 function enableButtons() {
     document.querySelectorAll(".pay-btn").forEach(btn => {
-        btn.addEventListener("click", async () => {
+        btn.addEventListener("click", () => {
             const orderId = btn.dataset.id;
-            if (!confirm("Вы уверены, что хотите оплатить этот заказ?")) return;
-
-            btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Обработка...';
-
-            try {
-                await apiService.payOrder(orderId);
-                showNotification("Заказ успешно оплачен!", "success");
-                loadOrders();
-            } catch (e) {
-                console.error("Ошибка при оплате:", e);
-                showNotification("Не удалось оплатить заказ", "error");
-                btn.disabled = false;
-                btn.innerHTML = '<span class="material-symbols-outlined">payments</span> Оплатить';
-            }
+            window.location.href = `/payment?orderId=${orderId}`;
         });
     });
 
@@ -355,3 +335,79 @@ function showNotification(message, type = 'info') {
         notification.remove();
     }, 3000);
 }
+function renderOrdersPage() {
+    const container = document.getElementById("orders-container");
+    if (!container) return;
+    container.innerHTML = '';
+    const start = (currentOrdersPage - 1) * ordersPerPage;
+    const pageOrders = ordersData.slice(start, start + ordersPerPage);
+    pageOrders.forEach(order => container.appendChild(createOrderElement(order)));
+    enhanceOrderImages();
+}
+
+function renderOrdersPagination() {
+    const pagination = document.getElementById('ordersPagination');
+    if (!pagination) return;
+    const total = ordersData.length;
+    const totalPages = Math.ceil(total / ordersPerPage);
+    if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+
+    let html = '<nav aria-label="Pagination" class="flex items-center gap-2">';
+    html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-light bg-white text-sm font-medium text-subtle-light hover:bg-background-light" ${currentOrdersPage>1?'onclick="prevOrdersPage()"':''}><span class="material-symbols-outlined text-lg">chevron_left</span></button>`;
+
+    html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border ${currentOrdersPage===1?'border-primary bg-primary text-white':'border-border-light bg-white text-subtle-light hover:bg-background-light'}" onclick="goToOrdersPage(1)">1</button>`;
+    if (currentOrdersPage > 3) html += `<span class="px-2 text-subtle-light">...</span>`;
+    for (let i = Math.max(2, currentOrdersPage - 1); i <= Math.min(totalPages - 1, currentOrdersPage + 1); i++) {
+        if (i !== 1 && i !== totalPages) {
+            html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border ${currentOrdersPage===i?'border-primary bg-primary text-white':'border-border-light bg-white text-subtle-light hover:bg-background-light'}" onclick="goToOrdersPage(${i})">${i}</button>`;
+        }
+    }
+    if (currentOrdersPage < totalPages - 2) html += `<span class="px-2 text-subtle-light">...</span>`;
+    if (totalPages > 1) {
+        html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border ${currentOrdersPage===totalPages?'border-primary bg-primary text-white':'border-border-light bg-white text-subtle-light hover:bg-background-light'}" onclick="goToOrdersPage(${totalPages})">${totalPages}</button>`;
+    }
+    html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-light bg-white text-sm font-medium text-subtle-light hover:bg-background-light" ${currentOrdersPage<totalPages?'onclick="nextOrdersPage()"':''}><span class="material-symbols-outlined text-lg">chevron_right</span></button>`;
+    html += '</nav>';
+    pagination.innerHTML = html;
+}
+
+function findCoverMedia(mediaList) {
+    if (!mediaList || mediaList.length === 0) return null;
+    let coverMedia = mediaList.find(media => media.fileType === 'image' || (media.fileType && media.fileType.toLowerCase() === 'image'));
+    if (!coverMedia) {
+        coverMedia = mediaList.find(media => media.fileUrl && media.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+    }
+    return coverMedia || mediaList[0];
+}
+
+async function enhanceOrderImages() {
+    const imgs = document.querySelectorAll('img[data-book-id]');
+    const tasks = Array.from(imgs).map(async img => {
+        if (img.src) return;
+        const bookId = img.getAttribute('data-book-id');
+        try {
+            const mediaList = await apiService.getBookMedia(bookId);
+            const coverMedia = findCoverMedia(mediaList);
+            if (coverMedia && coverMedia.fileUrl) {
+                img.src = coverMedia.fileUrl;
+                img.style.display = 'block';
+                const fallback = img.nextElementSibling;
+                if (fallback) fallback.style.display = 'none';
+            }
+        } catch (e) {
+        }
+    });
+    await Promise.allSettled(tasks);
+}
+
+function goToOrdersPage(page) {
+    const totalPages = Math.ceil(ordersData.length / ordersPerPage);
+    if (page>=1 && page<=totalPages) {
+        currentOrdersPage = page;
+        renderOrdersPage();
+        renderOrdersPagination();
+    }
+}
+
+function prevOrdersPage() { goToOrdersPage(currentOrdersPage-1); }
+function nextOrdersPage() { goToOrdersPage(currentOrdersPage+1); }
