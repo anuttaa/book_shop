@@ -15,6 +15,8 @@ public interface UserDao extends JpaRepository<User, Long> {
 
   Optional<User> findByEmail(String email);
 
+  java.util.List<User> findBySubscribedTrue();
+
   @Query(value = "SELECT avatar_media_id FROM users WHERE id = :userId", nativeQuery = true)
   Long findAvatarMediaIdByUserId(@Param("userId") Long userId);
 

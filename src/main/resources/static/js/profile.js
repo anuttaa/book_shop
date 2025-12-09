@@ -54,15 +54,7 @@ function attachAvatarHandlers() {
         });
     }
 
-    document.querySelectorAll('.avatar-option').forEach(option => {
-        option.addEventListener('click', () => {
-            const url = option.dataset.url;
-            document.getElementById('avatarUrl').value = url;
-            document.getElementById('avatarFileName').value = 'avatar.jpg';
-
-            document.getElementById('avatarForm').dispatchEvent(new Event('submit'));
-        });
-    });
+    
 }
 
 // parseJwt helper
@@ -362,20 +354,7 @@ async function loadAvatarSection() {
           <p id="avatarMessage" class="text-sm mt-2"></p>
         </form>
 
-        <!-- Avatar Examples -->
-        <div class="mt-6">
-          <h3 class="text-lg font-medium mb-3">Примеры аватаров</h3>
-          <div class="grid grid-cols-4 gap-3">
-            <div class="avatar-option size-16 rounded-full bg-cover bg-center cursor-pointer hover:scale-110 transition-transform"
-                 data-url="https://i.pravatar.cc/150?img=1"></div>
-            <div class="avatar-option size-16 rounded-full bg-cover bg-center cursor-pointer hover:scale-110 transition-transform"
-                 data-url="https://i.pravatar.cc/150?img=5"></div>
-            <div class="avatar-option size-16 rounded-full bg-cover bg-center cursor-pointer hover:scale-110 transition-transform"
-                 data-url="https://i.pravatar.cc/150?img=10"></div>
-            <div class="avatar-option size-16 rounded-full bg-cover bg-center cursor-pointer hover:scale-110 transition-transform"
-                 data-url="https://i.pravatar.cc/150?img=15"></div>
-          </div>
-        </div>
+        
       </div>`;
 
     document.getElementById("contentArea").innerHTML = content;

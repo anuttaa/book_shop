@@ -55,10 +55,11 @@ public class SecurityConfig {
           "/login.html", "/register.html", "/book.html", "/catalog.html",
           "/pages/**", "/sitemap/sitemap.html").permitAll()
 
-        // Admin endpoints - использовать hasRole вместо hasAuthority
-        .requestMatchers("/api/users/admin/**").hasRole("admin")
-        .requestMatchers("/api/orders/admin/**").hasRole("admin")
-        .requestMatchers("/api/admin/**").hasRole("admin")
+        .requestMatchers("/api/users/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
+        .requestMatchers("/api/orders/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
+        .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
+        // Allow self-promotion endpoint for authenticated user (checked by email property)
+        .requestMatchers(HttpMethod.POST, "/api/users/promote-self").authenticated()
         // Admin page is served to everyone; client enforces access via token
         .requestMatchers(HttpMethod.GET, "/admin").permitAll()
 
@@ -68,13 +69,13 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
 
         // Book management (admin only)
-        .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("admin")
-        .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("admin")
-        .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("admin")
+        .requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
+        .requestMatchers(HttpMethod.PUT, "/api/books/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
+        .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
 
         // Media management (admin only)
-        .requestMatchers(HttpMethod.POST, "/api/media/**").hasRole("admin")
-        .requestMatchers(HttpMethod.DELETE, "/api/media/**").hasRole("admin")
+        .requestMatchers(HttpMethod.POST, "/api/media/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
+        .requestMatchers(HttpMethod.DELETE, "/api/media/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_admin")
 
         // Reviews management
         .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
@@ -89,6 +90,9 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET, "/api/users/{userId}/avatar").permitAll()
 
         // User profile
+        .requestMatchers(HttpMethod.POST, "/api/users/me/test-email").authenticated()
+        .requestMatchers(HttpMethod.GET, "/api/users/me/test-email").authenticated()
+        .requestMatchers(HttpMethod.GET, "/api/users/me/mail-config").authenticated()
         .requestMatchers("/api/users/me").authenticated()
         .requestMatchers("/api/users/me/**").authenticated()
 

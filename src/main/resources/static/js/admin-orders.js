@@ -404,7 +404,7 @@ async function viewOrder(orderId) {
 
         const modal = document.createElement('div');
         modal.id = 'viewOrderModal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+        modal.className = 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4';
         modal.innerHTML = `
             <div class="bg-content-light dark:bg-content-dark rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
                 <div class="flex justify-between items-center p-6 border-b border-border-light dark:border-border-dark">
@@ -594,9 +594,9 @@ async function editOrder(orderId) {
 
         const modal = document.createElement('div');
         modal.id = 'editOrderModal';
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+        modal.className = 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4';
         modal.innerHTML = `
-            <div class="bg-content-light dark:bg-content-dark rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div class="bg-content-light dark:bg-content-dark rounded-lg w-[90vw] max-w-2xl shadow-lg border border-border-light dark:border-border-dark">
                 <div class="flex justify-between items-center p-6 border-b border-border-light dark:border-border-dark">
                     <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Edit Order - #${order.id}</h3>
                     <button onclick="closeEditOrderModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
@@ -604,7 +604,7 @@ async function editOrder(orderId) {
                     </button>
                 </div>
 
-                <div class="p-6 overflow-y-auto max-h-[70vh]">
+                <div class="p-6">
                     <form id="editOrderForm" class="space-y-4">
                         <input type="hidden" name="orderId" value="${order.id}">
 
@@ -691,7 +691,6 @@ async function saveOrderChanges(orderId) {
 
         showNotification('Order updated successfully!', 'success');
         closeEditOrderModal();
-
         await loadOrders();
 
     } catch (error) {

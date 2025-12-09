@@ -107,7 +107,7 @@ public class UserService implements UserDetailsService {
     User user = userDao.findByUsername(username)
       .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-    String roleName = user.getRole().name();
+    String roleName = user.getRole().name().toUpperCase();
 
     return org.springframework.security.core.userdetails.User.builder()
       .username(user.getUsername())

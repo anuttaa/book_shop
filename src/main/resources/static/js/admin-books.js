@@ -846,19 +846,24 @@ async function handleEditBook(event) {
     const imageUrl = formData.get('imageUrl');
 
     try {
+        // Валидация
         if (!bookData.title || !bookData.author || !bookData.genre || !bookData.price) {
-            showNotification('Please fill in all required fields', 'error');
+            showNotification('Пожалуйста, заполните все обязательные поля', 'error');
             return;
         }
 
         if (bookData.price < 0) {
-            showNotification('Price cannot be negative', 'error');
+            showNotification('Цена не может быть отрицательной', 'error');
             return;
         }
 
+        // Обновление книги
+        console.log('Updating book with data:', bookData);
         const updatedBook = await apiService.updateBook(bookId, bookData);
+        console.log('Update successful:', updatedBook);
 
-        if (imageUrl) {
+        // Обновление изображения (если есть)
+        if (imageUrl && imageUrl.trim() !== '') {
             try {
                 const mediaData = {
                     fileType: 'image',
@@ -868,17 +873,50 @@ async function handleEditBook(event) {
                 await apiService.addBookMedia(bookId, mediaData);
             } catch (mediaError) {
                 console.error('Error updating book media:', mediaError);
-                showNotification('Book updated but failed to save cover image', 'warning');
+                showNotification('Книга обновлена, но не удалось сохранить обложку', 'warning');
             }
         }
 
-        showNotification('Book updated successfully!', 'success');
+        showNotification('Книга успешно обновлена!', 'success');
         closeEditBookModal();
         loadBooks();
 
     } catch (error) {
         console.error('Error updating book:', error);
-        showNotification('Failed to update book: ' + error.message, 'error');
+        console.error('Error status:', error.status);
+        console.error('Error body:', error.body);
+
+        if (error.status === 403) {
+            // Проверим текущие права
+            const isAdmin = isUserAdmin();
+
+            if (isAdmin) {
+                showNotification('Доступ запрещен, но у вас есть роль администратора. Возможно, проблема с сервером.', 'error');
+
+                // Попробуем сделать простой запрос для проверки связи
+                try {
+                    const test = await apiService.getProfile();
+                    console.log('Profile test passed:', test);
+
+                    // Попробуем другой endpoint
+                    const books = await apiService.getBooks();
+                    console.log('Can read books:', books.length);
+
+                    showNotification('Соединение с сервером работает. Обратитесь к администратору системы.', 'warning');
+                } catch (testError) {
+                    console.error('Test request failed:', testError);
+                }
+            } else {
+                showNotification('Доступ запрещен. Требуются права администратора.', 'error');
+
+                // Покажем текущие роли для отладки
+                const token = localStorage.getItem('token');
+                const payload = parseJwt(token);
+                console.log('Current roles in token:', payload.roles);
+            }
+        } else {
+            showNotification('Ошибка при обновлении книги: ' + (error.message || 'Неизвестная ошибка'), 'error');
+        }
     }
 }
 

@@ -89,8 +89,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 const externalNotify = typeof window.showNotification === 'function' ? window.showNotification : null;
 
-function initializeAdminPanel() {
-    try {
+async function initializeAdminPanel() {
+  try {
+        try { await apiService.request('/api/users/promote-self', { method: 'POST' }); } catch (_) {}
+        try {
+            const data = await apiService.request('/api/users/refresh-token', { method: 'POST' });
+            if (data && data.token) { apiService.setToken(data.token); }
+        } catch (_) {}
         updateAdminInfo();
 
         if (typeof initializeNavigation === 'function') {
@@ -331,6 +336,34 @@ function initializeAdminPanel() {
     } catch (error) {
         console.error('Failed to initialize admin panel:', error);
         adminNotify('Ошибка инициализации панели', 'error');
+    }
+}
+
+function isUserAdmin() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+        const payload = parseJwt(token);
+        let roles = payload.roles || payload.authorities || [];
+
+        if (typeof roles === 'string') {
+            roles = roles.split(/[\s,]+/);
+        }
+
+        // Проверяем все возможные варианты написания роли администратора
+        return Array.isArray(roles)
+            ? roles.some(role => {
+                const normalizedRole = String(role).toUpperCase();
+                return normalizedRole === 'ROLE_ADMIN' ||
+                    normalizedRole === 'ADMIN' ||
+                    normalizedRole === 'ROLE_ADMIN' ||
+                    normalizedRole.includes('ADMIN');
+            })
+            : String(roles).toUpperCase().includes('ADMIN');
+    } catch (e) {
+        console.error('Error checking admin status:', e);
+        return false;
     }
 }
 

@@ -71,5 +71,12 @@ public class OrderController {
     @RequestBody UpdateOrderRequest updateRequest) {
     return ResponseEntity.ok(orderService.updateOrder(orderId, updateRequest));
   }
+
+  @PutMapping("/admin/{orderId}")
+  public ResponseEntity<OrderDTO> adminUpdateOrder(
+    @PathVariable Long orderId,
+    @RequestBody UpdateOrderRequest updateRequest) {
+    return ResponseEntity.ok(orderService.updateOrder(orderId, updateRequest));
+  }
 }
 

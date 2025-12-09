@@ -353,20 +353,20 @@ function renderOrdersPagination() {
     if (totalPages <= 1) { pagination.innerHTML = ''; return; }
 
     let html = '<nav aria-label="Pagination" class="flex items-center gap-2">';
-    html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-light bg-white text-sm font-medium text-subtle-light hover:bg-background-light" ${currentOrdersPage>1?'onclick="prevOrdersPage()"':''}><span class="material-symbols-outlined text-lg">chevron_left</span></button>`;
+    html += `<button class="flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" ${currentOrdersPage>1?'onclick="prevOrdersPage()"':''}><span class="material-symbols-outlined text-lg">chevron_left</span></button>`;
 
-    html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border ${currentOrdersPage===1?'border-primary bg-primary text-white':'border-border-light bg-white text-subtle-light hover:bg-background-light'}" onclick="goToOrdersPage(1)">1</button>`;
-    if (currentOrdersPage > 3) html += `<span class="px-2 text-subtle-light">...</span>`;
+    html += `<button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentOrdersPage===1?'border-primary bg-primary/10 text-primary':'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToOrdersPage(1)">1</button>`;
+    if (currentOrdersPage > 3) html += `<span class="px-2 text-slate-600 dark:text-slate-400">...</span>`;
     for (let i = Math.max(2, currentOrdersPage - 1); i <= Math.min(totalPages - 1, currentOrdersPage + 1); i++) {
         if (i !== 1 && i !== totalPages) {
-            html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border ${currentOrdersPage===i?'border-primary bg-primary text-white':'border-border-light bg-white text-subtle-light hover:bg-background-light'}" onclick="goToOrdersPage(${i})">${i}</button>`;
+        html += `<button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentOrdersPage===i?'border-primary bg-primary/10 text-primary':'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToOrdersPage(${i})">${i}</button>`;
         }
     }
-    if (currentOrdersPage < totalPages - 2) html += `<span class="px-2 text-subtle-light">...</span>`;
+    if (currentOrdersPage < totalPages - 2) html += `<span class="px-2 text-slate-600 dark:text-slate-400">...</span>`;
     if (totalPages > 1) {
-        html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border ${currentOrdersPage===totalPages?'border-primary bg-primary text-white':'border-border-light bg-white text-subtle-light hover:bg-background-light'}" onclick="goToOrdersPage(${totalPages})">${totalPages}</button>`;
+        html += `<button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentOrdersPage===totalPages?'border-primary bg-primary/10 text-primary':'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToOrdersPage(${totalPages})">${totalPages}</button>`;
     }
-    html += `<button class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-light bg-white text-sm font-medium text-subtle-light hover:bg-background-light" ${currentOrdersPage<totalPages?'onclick="nextOrdersPage()"':''}><span class="material-symbols-outlined text-lg">chevron_right</span></button>`;
+    html += `<button class="flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" ${currentOrdersPage<totalPages?'onclick="nextOrdersPage()"':''}><span class="material-symbols-outlined text-lg">chevron_right</span></button>`;
     html += '</nav>';
     pagination.innerHTML = html;
 }

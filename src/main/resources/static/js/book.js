@@ -463,11 +463,11 @@ function createEditReviewModal(review) {
                 </div>
 
                 <div class="flex space-x-3 pt-4">
-                    <button type="button" onclick="closeReviewModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                        Cancel
+                    <button type="button" onclick="closeReviewModal()" class="btn btn-secondary flex-1">
+                        Отмена
                     </button>
-                    <button type="submit" id="updateReviewBtn" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
-                        Update Review
+                    <button type="submit" id="updateReviewBtn" class="btn btn-primary flex-1">
+                        Сохранить
                     </button>
                 </div>
             </form>
@@ -759,7 +759,7 @@ function createReviewModal() {
     reviewModal.style.bottom = '0';
     reviewModal.innerHTML = `
         <div class="min-h-full flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-            <div class="bg-white dark:bg-background-dark rounded-xl w-full max-w-md p-6" style="border: none; box-shadow: none;">
+            <div class="bg-white dark:bg-background-dark rounded-xl w-full max-w-md p-6 animate-scale-in" style="border: none; box-shadow: none;">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-bold text-text-light dark:text-text-dark">Написать отзыв</h3>
                 <button onclick="closeReviewModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">

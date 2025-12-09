@@ -53,9 +53,26 @@ function setupPasswordToggle() {
     const password = document.querySelector('#password');
     if (!toggle || !password) return;
 
+    const updateVisibility = () => {
+        if (password.value && password.value.length > 0) {
+            toggle.classList.remove('hidden');
+        } else {
+            toggle.classList.add('hidden');
+        }
+    };
+
+    toggle.classList.add('hidden');
+    password.addEventListener('input', updateVisibility);
+    password.addEventListener('blur', updateVisibility);
+
     toggle.addEventListener('click', () => {
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
-        toggle.textContent = type === 'password' ? 'Показать' : 'Скрыть';
+        const icon = toggle.querySelector('.material-symbols-outlined');
+        if (icon) {
+            icon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        }
     });
+
+    updateVisibility();
 }

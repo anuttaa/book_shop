@@ -251,18 +251,64 @@ function renderStars(rating=0) {
 }
 
 function renderPagination() {
-    if(!paginationContainer) return;
-    paginationContainer.innerHTML='';
-    const createBtn = (num, active=false)=>`<a class="inline-flex items-center justify-center h-9 w-9 text-sm font-medium ${active?'bg-primary text-white':'text-gray-500 hover:bg-gray-200 rounded-lg'}" href="#" data-page="${num}">${num}</a>`;
-    for(let i=1;i<=totalPages;i++) paginationContainer.insertAdjacentHTML('beforeend', createBtn(i,i===currentPage));
-    paginationContainer.querySelectorAll('a[data-page]').forEach(btn=>{
-        btn.addEventListener('click', e=>{
-            e.preventDefault();
-            currentPage = parseInt(btn.dataset.page);
-            loadBooks();
-        });
-    });
+    if (!paginationContainer) return;
+    const wrapper = paginationContainer.closest('.flex.items-center.justify-center');
+    const pageSize = 8;
+    if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        if (wrapper) wrapper.classList.add('hidden');
+        return;
+    }
+
+    if (wrapper) wrapper.classList.remove('hidden');
+    paginationContainer.innerHTML = '';
+
+    const addHtml = (html) => paginationContainer.insertAdjacentHTML('beforeend', html);
+
+    addHtml(`
+      <button class="flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" ${currentPage>1?'onclick="prevCatalogPage()"':''}>
+        <span class="material-symbols-outlined text-lg">chevron_left</span>
+      </button>
+    `);
+
+    addHtml(`
+      <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentPage===1 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToCatalogPage(1)">1</button>
+    `);
+
+    if (currentPage > 3) addHtml(`<span class="px-2 text-slate-600 dark:text-slate-400">...</span>`);
+
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+        if (i !== 1 && i !== totalPages) {
+            addHtml(`
+              <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentPage===i ? 'border-primary bg-primary/10 text-primary' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToCatalogPage(${i})">${i}</button>
+            `);
+        }
+    }
+
+    if (currentPage < totalPages - 2) addHtml(`<span class="px-2 text-slate-600 dark:text-slate-400">...</span>`);
+
+    if (totalPages > 1) {
+        addHtml(`
+          <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentPage===totalPages ? 'border-primary bg-primary/10 text-primary' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToCatalogPage(${totalPages})">${totalPages}</button>
+        `);
+    }
+
+    addHtml(`
+      <button class="flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" ${currentPage<totalPages?'onclick="nextCatalogPage()"':''}>
+        <span class="material-symbols-outlined text-lg">chevron_right</span>
+      </button>
+    `);
 }
+
+function goToCatalogPage(page) {
+    const pageSize = 8;
+    if (page>=1 && page<=totalPages) {
+        currentPage = page;
+        loadBooks();
+    }
+}
+function prevCatalogPage(){ goToCatalogPage(currentPage-1); }
+function nextCatalogPage(){ goToCatalogPage(currentPage+1); }
 
 async function getBookCover(book){
     if(book.media && book.media.length>0){

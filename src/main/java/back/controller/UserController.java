@@ -4,6 +4,7 @@ import back.dto.LoginRequest;
 import back.dto.UserDTO;
 import back.models.User;
 import back.service.AuthenticationService;
+import back.service.EmailService;
 import back.service.UserService;
 import back.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,14 @@ public class UserController {
 
   private final UserService userService;
   private final AuthenticationService authenticationService;
+  private final EmailService emailService;
   private final JwtUtil jwtUtil;
   private final AuthenticationManager authManager;
   private final BCryptPasswordEncoder passwordEncoder;
+  @org.springframework.beans.factory.annotation.Value("${bootstrap.admin.email:}")
+  private String bootstrapAdminEmail;
+  @org.springframework.beans.factory.annotation.Value("${bootstrap.admin.allow-any:false}")
+  private boolean bootstrapAdminAllowAny;
 
   @PostMapping("/register")
   public ResponseEntity<UserDTO> register(@RequestBody UserDTO dto) {
@@ -83,6 +89,60 @@ public class UserController {
     boolean subscribed = body.getOrDefault("subscribed", false);
     userService.updateSubscription(userId, subscribed);
     return ResponseEntity.ok("Subscription updated");
+  }
+
+  @PostMapping("/promote-self")
+  public ResponseEntity<String> promoteSelf() {
+    Long userId = authenticationService.getCurrentUserId();
+    back.models.User user = userService.getUserEntityById(userId);
+    boolean allowed = bootstrapAdminAllowAny || (bootstrapAdminEmail != null && !bootstrapAdminEmail.isBlank() &&
+        bootstrapAdminEmail.equalsIgnoreCase(user.getEmail()));
+    if (allowed) {
+      user.setRole(back.enums.Role.admin);
+      user.setSubscribed(Boolean.TRUE);
+      userService.saveUser(user);
+      return ResponseEntity.ok("User promoted to admin");
+    }
+    return ResponseEntity.status(403).body("Not allowed");
+  }
+
+  @PostMapping("/refresh-token")
+  public ResponseEntity<Map<String, String>> refreshToken() {
+    Long userId = authenticationService.getCurrentUserId();
+    User user = userService.getUserEntityById(userId);
+    UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+    String token = jwtUtil.generateToken(userDetails);
+    return ResponseEntity.ok(Map.of("token", token));
+  }
+  
+  @PostMapping("/me/test-email")
+  public ResponseEntity<Map<String, Object>> sendTestEmail() {
+    Long userId = authenticationService.getCurrentUserId();
+    User user = userService.getUserEntityById(userId);
+    boolean sent = emailService.sendTestMail(user);
+    return ResponseEntity.ok(Map.of(
+      "sent", sent,
+      "subscribed", Boolean.TRUE.equals(user.getSubscribed())
+    ));
+  }
+
+  @GetMapping("/me/test-email")
+  public ResponseEntity<Map<String, Object>> sendTestEmailGet() {
+    Long userId = authenticationService.getCurrentUserId();
+    User user = userService.getUserEntityById(userId);
+    boolean sent = emailService.sendTestMail(user);
+    return ResponseEntity.ok(Map.of(
+      "sent", sent,
+      "subscribed", Boolean.TRUE.equals(user.getSubscribed())
+    ));
+  }
+
+  @GetMapping("/me/mail-config")
+  public ResponseEntity<Map<String, Object>> getMailConfig() {
+    Long userId = authenticationService.getCurrentUserId();
+    User user = userService.getUserEntityById(userId);
+    Map<String, Object> diagnostics = emailService.getMailConfigDiagnostics(user);
+    return ResponseEntity.ok(diagnostics);
   }
 
   @DeleteMapping("/me")

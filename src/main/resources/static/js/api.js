@@ -29,22 +29,49 @@ class ApiService {
     } else {
       
     }
-    try {
+    const exec = async () => {
       const response = await fetch(this.baseUrl + path, {
         headers,
         ...options,
         credentials: 'include'
       });
-
       const text = await response.text();
-
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+        const err = new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+        err.status = response.status;
+        err.body = text;
+        throw err;
       }
-
       return expectJson && text ? JSON.parse(text) : text;
+    };
+
+    try {
+      return await exec();
     } catch (error) {
-      
+      if (error && error.status === 403) {
+        try {
+          await fetch(this.baseUrl + '/api/users/promote-self', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(this.token ? { 'Authorization': 'Bearer ' + this.token } : {}) },
+            credentials: 'include'
+          });
+        } catch (_) {}
+
+        try {
+          const rt = await fetch(this.baseUrl + '/api/users/refresh-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(this.token ? { 'Authorization': 'Bearer ' + this.token } : {}) },
+            credentials: 'include'
+          });
+          if (rt.ok) {
+            const data = await rt.json();
+            if (data && data.token) {
+              this.setToken(data.token);
+              return await exec();
+            }
+          }
+        } catch (_) {}
+      }
       throw error;
     }
   }
@@ -185,11 +212,11 @@ class ApiService {
         });
     }
 
-    async deleteUser(userId) {
-        return this.request(`/api/users/admin/${userId}`, {
-            method: 'DELETE'
-        }, false);
-    }
+  async deleteUser(userId) {
+    return this.request(`/api/users/admin/${userId}`, {
+      method: 'DELETE'
+    }, false);
+  }
 
     async resetUserPassword(userId, newPassword) {
         return this.request(`/api/users/admin/${userId}/reset-password`, {
@@ -269,9 +296,9 @@ class ApiService {
         return this.request('/api/books/popular');
     }
 
-    async getTopRatedBooks() {
-        return this.request('/api/books/top-rated');
-    }
+  async getTopRatedBooks() {
+    return this.request('/api/books/top-rated');
+  }
 
     async getBooksByGenre(genre) {
         return this.request(`/api/books/genre/${genre}`);
@@ -373,6 +400,13 @@ class ApiService {
         });
    }
 
+   async updateOrderAdmin(orderId, orderData) {
+        return this.request(`/api/orders/admin/${orderId}`, {
+            method: 'PUT',
+            body: JSON.stringify(orderData)
+        });
+   }
+
    async payOrder(orderId) {
        return this.request(`/api/orders/${orderId}/pay`, {
            method: 'POST'
@@ -400,11 +434,11 @@ class ApiService {
        });
    }
 
-   async deleteReview(reviewId) {
-       return this.request(`/api/reviews/${reviewId}`, {
-           method: 'DELETE'
-       }, false);
-   }
+  async deleteReview(reviewId) {
+    return this.request(`/api/reviews/${reviewId}`, {
+      method: 'DELETE'
+    }, false);
+  }
 
    async getUserReviews() {
        return this.request('/api/reviews/my');
@@ -435,11 +469,18 @@ class ApiService {
         });
     }
 
-    async deleteMyAvatar() {
-        return this.request('/api/users/me/avatar', {
-            method: 'DELETE'
-        }, false);
-    }
+  async deleteMyAvatar() {
+    return this.request('/api/users/me/avatar', {
+      method: 'DELETE'
+    }, false);
+  }
+
+  async sendNewsletter(subject, content) {
+    return this.request('/api/admin/newsletter', {
+      method: 'POST',
+      body: JSON.stringify({ subject, content })
+    });
+  }
 }
 
 function parseJwt(token) {

@@ -60,6 +60,9 @@ public class BookService {
     book.setGenre(dto.getGenre());
     book.setDescription(dto.getDescription());
     book.setPrice(dto.getPrice());
+    if (dto.getType() != null) {
+      book.setType(dto.getType());
+    }
 
     Book updatedBook = bookRepository.save(book);
     enrichBookWithRating(updatedBook);

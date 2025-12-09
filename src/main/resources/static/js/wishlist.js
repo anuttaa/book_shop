@@ -1,6 +1,9 @@
 const container = document.getElementById('wishlistContainer');
 const addAllBtn = document.getElementById('moveAllBtn');
 let allBooks = [];
+let filteredBooks = [];
+let currentWishlistPage = 1;
+let wishlistPerPage = 12;
 
 function createBookCard(book) {
   const div = document.createElement('div');
@@ -13,7 +16,7 @@ function createBookCard(book) {
          style="background-image: url('${coverUrl}');"></div>
     <div class="absolute inset-0 bg-black/50 group-hover-content flex flex-col items-center justify-center p-4 gap-3">
       <button class="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold" data-action="addToCart">В корзину</button>
-      <button class="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-white/20 text-white backdrop-blur-sm text-sm font-medium" data-action="viewDetails">Подробнее</button>
+      <button class="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold" data-action="viewDetails">Подробнее</button>
       <button class="absolute top-2 right-2 flex items-center justify-center size-8 rounded-full bg-black/30 text-white hover:bg-destructive/30" data-action="remove">
         <span class="material-symbols-outlined text-lg">delete</span>
       </button>
@@ -64,19 +67,28 @@ function renderBooks(books) {
   books.forEach(book => container.appendChild(createBookCard(book)));
 }
 
+function renderWishlistPage() {
+  const startIndex = (currentWishlistPage - 1) * wishlistPerPage;
+  const endIndex = startIndex + wishlistPerPage;
+  const pageBooks = filteredBooks.slice(startIndex, endIndex);
+  renderBooks(pageBooks);
+}
+
 function filterBooks() {
   const category = document.getElementById('filterCategory').value;
   const maxPrice = parseFloat(document.getElementById('filterPrice').value);
   const rating = parseInt(document.getElementById('filterRating').value);
 
-  const filtered = allBooks.filter(book => {
+  filteredBooks = allBooks.filter(book => {
     const matchesCategory = category === 'Все' || book.genre === category;
     const matchesPrice = book.price <= maxPrice;
     const matchesRating = book.rating >= rating;
     return matchesCategory && matchesPrice && matchesRating;
   });
 
-  renderBooks(filtered);
+  currentWishlistPage = 1;
+  renderWishlistPage();
+  updateWishlistPagination();
 }
 
 async function loadWishlist() {
@@ -87,7 +99,9 @@ async function loadWishlist() {
       price: parseFloat(b.price) || 0,
       quantity: 1
     })) || [];
-    renderBooks(allBooks);
+    filteredBooks = allBooks;
+    renderWishlistPage();
+    updateWishlistPagination();
     populateCategories(allBooks);
   } catch (error) {
     console.error('Не удалось загрузить список желаемого:', error);
@@ -126,6 +140,99 @@ document.getElementById('filterPrice').addEventListener('input', (e) => {
   filterBooks();
 });
 document.getElementById('filterRating').addEventListener('change', filterBooks);
+
+function updateWishlistPagination() {
+  const paginationContainer = document.getElementById('paginationContainer');
+  const showingRange = document.getElementById('showingRange');
+  const totalBooksEl = document.getElementById('totalBooks');
+  const buttonsWrap = document.getElementById('paginationButtons');
+
+  if (!paginationContainer || !showingRange || !totalBooksEl || !buttonsWrap) return;
+
+  const total = filteredBooks.length;
+  const totalPages = Math.ceil(total / wishlistPerPage);
+
+  if (total === 0) {
+    paginationContainer.classList.add('hidden');
+    return;
+  }
+
+  const startIndex = (currentWishlistPage - 1) * wishlistPerPage + 1;
+  const endIndex = Math.min(startIndex + wishlistPerPage - 1, total);
+
+  showingRange.textContent = `${startIndex}-${endIndex}`;
+  totalBooksEl.textContent = total;
+
+  buttonsWrap.innerHTML = '';
+
+  if (totalPages > 1) {
+    buttonsWrap.innerHTML += `
+      <button class="flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="previousWishlistPage()">
+        <span class="material-symbols-outlined text-lg">chevron_left</span>
+      </button>
+    `;
+
+    buttonsWrap.innerHTML += `
+      <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentWishlistPage === 1 ? 'border-primary bg-primary/10 text-primary' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToWishlistPage(1)">1</button>
+    `;
+
+    if (currentWishlistPage > 3) {
+      buttonsWrap.innerHTML += `<span class="px-2 text-slate-600 dark:text-slate-400">...</span>`;
+    }
+
+    for (let i = Math.max(2, currentWishlistPage - 1); i <= Math.min(totalPages - 1, currentWishlistPage + 1); i++) {
+      if (i !== 1 && i !== totalPages) {
+        buttonsWrap.innerHTML += `
+          <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentWishlistPage === i ? 'border-primary bg-primary/10 text-primary' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToWishlistPage(${i})">${i}</button>
+        `;
+      }
+    }
+
+    if (currentWishlistPage < totalPages - 2) {
+      buttonsWrap.innerHTML += `<span class="px-2 text-slate-600 dark:text-slate-400">...</span>`;
+    }
+
+    buttonsWrap.innerHTML += `
+      <button class="flex h-8 w-8 items-center justify-center rounded-md border ${currentWishlistPage === totalPages ? 'border-primary bg-primary/10 text-primary' : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}" onclick="goToWishlistPage(${totalPages})">${totalPages}</button>
+    `;
+
+    buttonsWrap.innerHTML += `
+      <button class="flex items-center justify-center h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="nextWishlistPage()">
+        <span class="material-symbols-outlined text-lg">chevron_right</span>
+      </button>
+    `;
+
+    paginationContainer.classList.remove('hidden');
+  } else {
+    paginationContainer.classList.add('hidden');
+  }
+}
+
+function previousWishlistPage() {
+  if (currentWishlistPage > 1) {
+    currentWishlistPage--;
+    renderWishlistPage();
+    updateWishlistPagination();
+  }
+}
+
+function nextWishlistPage() {
+  const totalPages = Math.ceil(filteredBooks.length / wishlistPerPage);
+  if (currentWishlistPage < totalPages) {
+    currentWishlistPage++;
+    renderWishlistPage();
+    updateWishlistPagination();
+  }
+}
+
+function goToWishlistPage(page) {
+  const totalPages = Math.ceil(filteredBooks.length / wishlistPerPage);
+  if (page >= 1 && page <= totalPages) {
+    currentWishlistPage = page;
+    renderWishlistPage();
+    updateWishlistPagination();
+  }
+}
 
 function createShareText(books) {
     const bookList = books.slice(0, 8).map(book => 

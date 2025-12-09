@@ -32,6 +32,7 @@ public class OrderService {
   private final CartService cartService;
   private final BookDao bookDao;
   private final OrderMapper orderMapper;
+  private final EmailService emailService;
 
   @Transactional
   public OrderDTO createOrderFromCart(Long userId) {
@@ -114,6 +115,7 @@ public class OrderService {
       try {
         OrderStatus newStatus = OrderStatus.valueOf(updateRequest.getStatus().toLowerCase());
         order.setStatus(newStatus);
+        emailService.sendOrderStatusUpdate(order.getUser(), order);
       } catch (IllegalArgumentException e) {
         throw new RuntimeException("Invalid order status: " + updateRequest.getStatus());
       }
