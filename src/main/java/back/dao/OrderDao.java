@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository;
 public interface OrderDao extends JpaRepository<Order, Long> {
   List<Order> findByUserId(Long userId);
 
+  @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.orderItems oi LEFT JOIN FETCH oi.book WHERE o.user.id = :userId")
+  List<Order> findByUserIdWithItems(@Param("userId") Long userId);
+
   @Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.book.id = :bookId")
   Long countByBookId(@Param("bookId") Long bookId);
 

@@ -3,10 +3,10 @@ function loadOrdersPage(container) {
         <div class="flex flex-col gap-6 p-8">
             <!-- PageHeading -->
             <header class="flex flex-wrap justify-between items-center gap-4">
-                <h1 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight">Order Management</h1>
+                <h1 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight">Управление заказами</h1>
                 <button class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]" onclick="createNewOrder()">
                     <span class="material-symbols-outlined">add</span>
-                    <span class="truncate">New Order</span>
+                    <span class="truncate">Новый заказ</span>
                 </button>
             </header>
 
@@ -264,13 +264,13 @@ function getOrderStatusDotClass(status) {
 
 function getOrderStatusText(status) {
     const statusTexts = {
-        'created': 'Created',
-        'paid': 'Paid',
-        'shipped': 'Shipped',
-        'completed': 'Completed',
-        'cancelled': 'Cancelled'
+        'created': 'Создан',
+        'paid': 'Оплачен',
+        'shipped': 'Отправлен',
+        'completed': 'Завершен',
+        'cancelled': 'Отменен'
     };
-    return statusTexts[status] || 'Unknown';
+    return statusTexts[status] || 'Неизвестно';
 }
 
 function toggleSelectAllOrders() {
@@ -398,88 +398,134 @@ async function viewOrder(orderId) {
     try {
         const order = allOrders.find(o => o.id === orderId || o.id == orderId);
         if (!order) {
-            showNotification('Order not found', 'error');
+            showNotification('Заказ не найден', 'error');
             return;
         }
 
+        let payment = null;
+        try {
+            payment = await apiService.getPaymentByOrder(order.id);
+        } catch (_) {}
+
         const modal = document.createElement('div');
         modal.id = 'viewOrderModal';
-        modal.className = 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4';
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+        modal.style.overflow = 'hidden';
         modal.innerHTML = `
-            <div class="bg-content-light dark:bg-content-dark rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
-                <div class="flex justify-between items-center p-6 border-b border-border-light dark:border-border-dark">
-                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Order Details - ${order.orderNumber || `#${order.id}`}</h3>
+            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeViewOrderModal()"></div>
+            <div class="relative bg-content-light dark:bg-content-dark rounded-lg w-full max-w-md flex flex-col shadow-xl border border-border-light dark:border-border-dark mx-4" style="height: 90vh; max-height: 90vh; display: flex; flex-direction: column;">
+                <div class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark flex-shrink-0">
+                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Детали заказа - ${order.orderNumber || `#${order.id}`}</h3>
                     <button onclick="closeViewOrderModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
 
-                <div class="p-6 overflow-y-auto max-h-[70vh]">
+                <div class="p-4 overflow-y-auto" style="flex: 1 1 0%; min-height: 0; overflow-y: auto;">
                     <!-- Order Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="space-y-4">
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                        <div class="space-y-2">
                             <div>
-                                <h4 class="font-medium text-text-light dark:text-text-dark mb-2">Order Information</h4>
-                                <div class="space-y-2 text-sm">
+                                <h4 class="font-medium text-text-light dark:text-text-dark mb-1.5 text-sm">Информация о заказе</h4>
+                                <div class="space-y-1 text-sm">
                                     <div class="flex justify-between">
-                                        <span class="text-subtle-light dark:text-subtle-dark">Order Number:</span>
+                                        <span class="text-subtle-light dark:text-subtle-dark">Номер заказа:</span>
                                         <span class="text-text-light dark:text-text-dark font-medium">${order.orderNumber || `#${order.id}`}</span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="text-subtle-light dark:text-subtle-dark">Status:</span>
+                                        <span class="text-subtle-light dark:text-subtle-dark">Статус:</span>
                                         <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${getOrderStatusClass(order.status)}">
                                             <span class="size-1.5 rounded-full ${getOrderStatusDotClass(order.status)}"></span>
                                             ${getOrderStatusText(order.status)}
                                         </span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="text-subtle-light dark:text-subtle-dark">Order Date:</span>
+                                        <span class="text-subtle-light dark:text-subtle-dark">Дата заказа:</span>
                                         <span class="text-text-light dark:text-text-dark">${formatOrderDate(order.createdAt)}</span>
                                     </div>
                                     <div class="flex justify-between">
-                                        <span class="text-subtle-light dark:text-subtle-dark">Total Amount:</span>
+                                        <span class="text-subtle-light dark:text-subtle-dark">Общая сумма:</span>
                                         <span class="text-text-light dark:text-text-dark font-bold">$${(order.totalPrice || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="space-y-4">
+                        <div class="space-y-2">
                             <div>
-                                <h4 class="font-medium text-text-light dark:text-text-dark mb-2">Customer Information</h4>
-                                <div class="space-y-2 text-sm">
+                                <h4 class="font-medium text-text-light dark:text-text-dark mb-1.5 text-sm">Информация о покупателе</h4>
+                                <div class="space-y-1 text-sm">
                                     <div class="flex justify-between">
-                                        <span class="text-subtle-light dark:text-subtle-dark">Customer:</span>
-                                        <span class="text-text-light dark:text-text-dark">${order.user?.username || 'Unknown Customer'}</span>
+                                        <span class="text-subtle-light dark:text-subtle-dark">Покупатель:</span>
+                                        <span class="text-text-light dark:text-text-dark">${order.user?.username || 'Неизвестный покупатель'}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-subtle-light dark:text-subtle-dark">Email:</span>
-                                        <span class="text-text-light dark:text-text-dark">${order.user?.email || 'N/A'}</span>
+                                        <span class="text-text-light dark:text-text-dark">${order.user?.email || 'Не указан'}</span>
                                     </div>
                                 </div>
                             </div>
+                            ${`
+                            <div>
+                              <h4 class="font-medium text-text-light dark:text-text-dark mb-1.5 text-sm">Информация об оплате</h4>
+                              <div class="space-y-1 text-sm">
+                                ${payment ? `
+                                  <div class="flex justify-between">
+                                    <span class="text-subtle-light dark:text-subtle-dark">Способ:</span>
+                                    <span class="text-text-light dark:text-text-dark">${payment.method || ''}</span>
+                                  </div>
+                                  <div class="flex justify-between">
+                                    <span class="text-subtle-light dark:text-subtle-dark">Статус:</span>
+                                    <span class="text-text-light dark:text-text-dark">${payment.status || ''}</span>
+                                  </div>
+                                  <div class="flex justify-between">
+                                    <span class="text-subtle-light dark:text-subtle-dark">Сумма:</span>
+                                    <span class="text-text-light dark:text-text-dark font-medium">$${(payment.amount || 0).toFixed(2)} ${payment.currency || ''}</span>
+                                  </div>
+                                  ${payment.cardBrand || payment.cardLast4 ? `
+                                  <div class="flex justify-between">
+                                    <span class="text-subtle-light dark:text-subtle-dark">Карта:</span>
+                                    <span class="text-text-light dark:text-text-dark">${payment.cardBrand || ''} ${payment.cardLast4 ? '•••• ' + payment.cardLast4 : ''}</span>
+                                  </div>
+                                  ` : ''}
+                                  ${payment.paidAt ? `
+                                  <div class="flex justify-between">
+                                    <span class="text-subtle-light dark:text-subtle-dark">Дата оплаты:</span>
+                                    <span class="text-text-light dark:text-text-dark">${formatOrderDate(payment.paidAt)}</span>
+                                  </div>
+                                  ` : ''}
+                                ` : `
+                                  <div class="flex justify-between">
+                                    <span class="text-subtle-light dark:text-subtle-dark">Статус:</span>
+                                    <span class="text-text-light dark:text-text-dark">${order.status || ''}</span>
+                                  </div>
+                                  <div class="text-subtle-light dark:text-subtle-dark">${order.status === 'paid' ? 'Нет данных о платеже (оплачен вручную)' : 'Заказ не оплачен'}</div>
+                                `}
+                              </div>
+                            </div>
+                            `}
                         </div>
                     </div>
 
                     <!-- Order Items -->
                     <div>
-                        <h4 class="font-medium text-text-light dark:text-text-dark mb-4">Order Items (${order.orderItems ? order.orderItems.length : 0})</h4>
+                        <h4 class="font-medium text-text-light dark:text-text-dark mb-2 text-sm">Товары в заказе (${order.orderItems ? order.orderItems.length : 0})</h4>
                         <div class="border border-border-light dark:border-border-dark rounded-lg overflow-hidden">
                             <table class="w-full text-sm">
                                 <thead class="bg-background-light dark:bg-background-dark">
                                     <tr>
-                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Book</th>
-                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Quantity</th>
-                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Price</th>
-                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Subtotal</th>
+                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Книга</th>
+                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Количество</th>
+                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Цена</th>
+                                        <th class="p-3 text-left font-medium text-text-light dark:text-text-dark">Итого</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-border-light dark:divide-border-dark">
                                     ${order.orderItems && order.orderItems.length > 0 ?
                                         order.orderItems.map(item => {
                                             const imageUrl = getBookImageUrl(item.book);
-                                            const bookTitle = item.book?.title || 'Unknown Book';
-                                            const bookAuthor = item.book?.author || 'Unknown Author';
+                                            const bookTitle = item.book?.title || 'Неизвестная книга';
+                                            const bookAuthor = item.book?.author || 'Неизвестный автор';
                                             const firstLetter = bookTitle.charAt(0).toUpperCase();
 
                                             return `
@@ -494,7 +540,7 @@ async function viewOrder(orderId) {
                                                             ` : getBookFallbackElement(firstLetter)}
                                                             <div>
                                                                 <div class="font-medium text-text-light dark:text-text-dark">${bookTitle}</div>
-                                                                <div class="text-xs text-subtle-light dark:text-subtle-dark">by ${bookAuthor}</div>
+                                                                <div class="text-xs text-subtle-light dark:text-subtle-dark">автор: ${bookAuthor}</div>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -504,12 +550,12 @@ async function viewOrder(orderId) {
                                                 </tr>
                                             `;
                                         }).join('') :
-                                        '<tr><td colspan="4" class="p-4 text-center text-subtle-light dark:text-subtle-dark">No items in this order</td></tr>'
+                                        '<tr><td colspan="4" class="p-4 text-center text-subtle-light dark:text-subtle-dark">В этом заказе нет товаров</td></tr>'
                                     }
                                 </tbody>
                                 <tfoot class="bg-background-light dark:bg-background-dark">
                                     <tr>
-                                        <td colspan="3" class="p-3 text-right font-medium text-text-light dark:text-text-dark">Total:</td>
+                                        <td colspan="3" class="p-3 text-right font-medium text-text-light dark:text-text-dark">Итого:</td>
                                         <td class="p-3 font-bold text-text-light dark:text-text-dark">$${(order.totalPrice || 0).toFixed(2)}</td>
                                     </tr>
                                 </tfoot>
@@ -518,24 +564,29 @@ async function viewOrder(orderId) {
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 p-6 border-t border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                <div class="flex justify-end gap-3 p-4 border-t border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark flex-shrink-0">
                     ${order.status === 'created' ? `
-                        <button onclick="payOrder('${order.id}')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                            Mark as Paid
+                        <button onclick="payOrder('${order.id}')" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                            Отметить как оплаченный
                         </button>
                     ` : ''}
                     <button onclick="closeViewOrderModal()" class="px-4 py-2 border border-border-light dark:border-border-dark text-text-light dark:text-text-dark rounded-lg hover:bg-background-light dark:hover:bg-background-dark transition-colors">
-                        Close
+                        Закрыть
                     </button>
                 </div>
             </div>
         `;
 
         document.body.appendChild(modal);
+        
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
 
     } catch (error) {
         console.error('Error viewing order:', error);
-        showNotification('Failed to load order details', 'error');
+        showNotification('Не удалось загрузить детали заказа', 'error');
     }
 }
 
@@ -580,6 +631,14 @@ async function payOrder(orderId) {
 function closeViewOrderModal() {
     const modal = document.getElementById('viewOrderModal');
     if (modal) {
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
         modal.remove();
     }
 }
@@ -588,61 +647,62 @@ async function editOrder(orderId) {
     try {
         const order = allOrders.find(o => o.id === orderId || o.id == orderId);
         if (!order) {
-            showNotification('Order not found', 'error');
+            showNotification('Заказ не найден', 'error');
             return;
         }
 
         const modal = document.createElement('div');
         modal.id = 'editOrderModal';
-        modal.className = 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4';
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
         modal.innerHTML = `
-            <div class="bg-content-light dark:bg-content-dark rounded-lg w-[90vw] max-w-2xl shadow-lg border border-border-light dark:border-border-dark">
-                <div class="flex justify-between items-center p-6 border-b border-border-light dark:border-border-dark">
-                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Edit Order - #${order.id}</h3>
+            <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeEditOrderModal()"></div>
+            <div class="relative bg-content-light dark:bg-content-dark rounded-lg w-full max-w-md shadow-xl border border-border-light dark:border-border-dark mx-4">
+                <div class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark">
+                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Редактировать заказ - #${order.id}</h3>
                     <button onclick="closeEditOrderModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
 
-                <div class="p-6">
-                    <form id="editOrderForm" class="space-y-4">
+                <div class="p-4">
+                    <form id="editOrderForm" class="space-y-3">
                         <input type="hidden" name="orderId" value="${order.id}">
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Order Status</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Статус заказа</label>
                            <select name="status" class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
-                               <option value="created" ${order.status === 'created' ? 'selected' : ''}>Created</option>
-                               <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>Paid</option>
-                               <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                               <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
-                               <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                               <option value="created" ${order.status === 'created' ? 'selected' : ''}>Создан</option>
+                               <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>Оплачен</option>
+                               <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
+                               <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Завершен</option>
+                               <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменен</option>
                            </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Total Price</label>
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Общая сумма</label>
                             <input type="number" step="0.01" min="0" name="totalPrice" value="${order.totalPrice || 0}"
                                    class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Customer Notes</label>
-                            <textarea name="notes" rows="3" placeholder="Add any notes about this order..."
+                            <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Заметки</label>
+                            <textarea name="notes" rows="3" placeholder="Добавьте заметки о заказе..."
                                       class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">${order.notes || ''}</textarea>
                         </div>
                     </form>
                 </div>
 
-                <div class="flex justify-between items-center p-6 border-t border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
-                    <button type="button" onclick="deleteOrder('${order.id}')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                        Delete Order
+                <div class="flex justify-between items-center p-4 border-t border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark">
+                    <button type="button" onclick="deleteOrder('${order.id}')" class="px-4 py-2 bg-secondary text-secondary-content rounded-lg hover:bg-secondary/90 transition-colors">
+                        Удалить заказ
                     </button>
                     <div class="flex gap-3">
                         <button type="button" onclick="closeEditOrderModal()" class="px-4 py-2 border border-border-light dark:border-border-dark text-text-light dark:text-text-dark rounded-lg hover:bg-background-light dark:hover:bg-background-dark transition-colors">
-                            Cancel
+                            Отмена
                         </button>
-                        <button type="button" onclick="saveOrderChanges('${order.id}')" class="px-4 py-2 bg-primary text-primary-content rounded-lg hover:opacity-90 transition-opacity">
-                            Save Changes
+                        <button type="button" onclick="saveOrderChanges('${order.id}')" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
+                            Сохранить изменения
                         </button>
                     </div>
                 </div>
@@ -653,7 +713,7 @@ async function editOrder(orderId) {
 
     } catch (error) {
         console.error('Error editing order:', error);
-        showNotification('Failed to load order for editing', 'error');
+        showNotification('Не удалось загрузить заказ для редактирования', 'error');
     }
 }
 

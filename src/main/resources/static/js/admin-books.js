@@ -7,10 +7,10 @@ function loadBookManagementPage(container) {
         <div class="p-8">
             <!-- PageHeading -->
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <h1 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight">Book Management</h1>
+                <h1 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tight">Управление книгами</h1>
                 <button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-DEFAULT h-10 px-4 bg-secondary text-secondary-content text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90" onclick="openAddBookModal()">
                     <span class="material-symbols-outlined">add</span>
-                    <span class="truncate">Add New Book</span>
+                    <span class="truncate">Добавить книгу</span>
                 </button>
             </div>
 
@@ -154,16 +154,16 @@ function loadBookManagementPage(container) {
 
         <!-- Add Book Modal -->
         <div id="addBookModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4">
-                <div class="flex justify-between items-center mb-4">
+            <div class="bg-content-light dark:bg-content-dark rounded-lg w-full max-w-md mx-4">
+                <div class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark">
                     <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Добавить книгу</h3>
                     <button onclick="closeAddBookModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <form id="addBookForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
+                <form id="addBookForm" class="p-4 space-y-3">
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>
                             <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">URL изображения обложки</label>
                             <input type="url" name="imageUrl"
                                    class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
@@ -204,7 +204,7 @@ function loadBookManagementPage(container) {
                             </select>
                         </div>
 
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Описание</label>
                             <textarea name="description" rows="3"
                                       class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
@@ -216,7 +216,7 @@ function loadBookManagementPage(container) {
                         <button type="button" onclick="closeAddBookModal()"
                                 class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Отмена</button>
                         <button type="submit"
-                                class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Добавить книгу</button>
+                                class="px-4 py-2 bg-primary text-white rounded-DEFAULT hover:opacity-90 transition-opacity">Добавить книгу</button>
                     </div>
                 </form>
             </div>
@@ -944,19 +944,20 @@ async function openEditBookModal(book) {
 
     const modal = document.createElement('div');
     modal.id = 'editBookModal';
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
     modal.innerHTML = `
-        <div class="bg-content-light dark:bg-content-dark rounded-lg p-6 w-full max-w-2xl mx-4 border border-border-light dark:border-border-dark shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeEditBookModal()"></div>
+        <div class="relative bg-content-light dark:bg-content-dark rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto border border-border-light dark:border-border-dark shadow-xl mx-4">
+            <div class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark">
                 <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Редактировать книгу</h3>
                 <button onclick="closeEditBookModal()" class="text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <form id="editBookForm" class="space-y-4">
+            <form id="editBookForm" class="p-4 space-y-3">
                 <input type="hidden" name="id" value="${book.id}">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2">
+                <div class="grid grid-cols-1 gap-3">
+                    <div>
                         <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">URL изображения обложки</label>
                         <input type="url" name="imageUrl" value="${currentCover}"
                                class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
@@ -964,8 +965,8 @@ async function openEditBookModal(book) {
                         <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Необязательно: Укажите URL изображения обложки книги</p>
                         ${currentCover ? `
                             <div class="mt-2">
-                                <p class="text-xs text-subtle-light dark:text-subtle-dark mb-1">Current cover:</p>
-                                <img src="${currentCover}" alt="Current cover" class="w-20 h-28 object-cover rounded border">
+                                <p class="text-xs text-subtle-light dark:text-subtle-dark mb-1">Текущая обложка:</p>
+                                <img src="${currentCover}" alt="Текущая обложка" class="w-20 h-28 object-cover rounded border">
                             </div>
                         ` : ''}
                     </div>
@@ -1003,7 +1004,7 @@ async function openEditBookModal(book) {
                         </select>
                     </div>
 
-                    <div class="md:col-span-2">
+                    <div>
                         <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Описание</label>
                         <textarea name="description" rows="3"
                                   class="w-full rounded-DEFAULT border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark"
@@ -1015,14 +1016,14 @@ async function openEditBookModal(book) {
                     <button type="button" onclick="closeEditBookModal()"
                             class="px-4 py-2 text-subtle-light dark:text-subtle-dark hover:text-text-light dark:hover:text-text-dark transition-colors">Отмена</button>
                     <button type="submit"
-                            class="px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90 transition-opacity">Сохранить</button>
+                            class="px-4 py-2 bg-primary text-white rounded-DEFAULT hover:opacity-90 transition-opacity">Сохранить</button>
                 </div>
             </form>
+        </div>
         </div>
     `;
 
     document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
     document.getElementById('editBookForm').addEventListener('submit', handleEditBook);
 }
 
@@ -1030,7 +1031,6 @@ function closeEditBookModal() {
     const modal = document.getElementById('editBookModal');
     if (modal) {
         modal.remove();
-        document.body.style.overflow = '';
     }
 }
 
@@ -1101,7 +1101,7 @@ function showError(message) {
                 <td colspan="10" class="p-8 text-center text-destructive">
                     <span class="material-symbols-outlined text-4xl mb-2">error</span>
                     <p>${message}</p>
-                    <button onclick="loadBooks()" class="mt-4 px-4 py-2 bg-primary text-primary-content rounded-DEFAULT hover:opacity-90">
+                    <button onclick="loadBooks()" class="mt-4 px-4 py-2 bg-primary text-white rounded-DEFAULT hover:opacity-90">
                         Try Again
                     </button>
                 </td>

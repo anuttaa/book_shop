@@ -37,6 +37,10 @@ public class Order {
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<OrderItem> orderItems;
 
+  @OneToOne
+  @JoinColumn(name = "payment_id")
+  private Payment payment;
+
   @PrePersist
   protected void onCreate() { createdAt = LocalDateTime.now(); }
 

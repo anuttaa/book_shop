@@ -283,22 +283,31 @@ async function checkUserReview(bookId) {
     }
 }
 
-async function loadReviews(bookId) {
+async function loadReviews(bookId, forceUserReview = null) {
     const reviewsContainer = document.getElementById('reviewsContainer');
     reviewsContainer.innerHTML = '';
 
     try {
         const reviews = await apiService.getBookReviews(bookId);
-        const userReview = await checkUserReview(bookId);
+        const userReview = forceUserReview || await checkUserReview(bookId);
 
         const reviewButton = document.createElement("div");
         reviewButton.className = "mb-6 text-center";
-        reviewButton.innerHTML = `
-            <button onclick="openReviewModal()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-alt dark:bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mx-auto">
-                <span class="material-symbols-outlined mr-2">rate_review</span>
-                <span class="truncate">Write a Review</span>
-            </button>
-        `;
+        if (apiService.token) {
+            reviewButton.innerHTML = `
+                <button onclick="openReviewModal()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-alt dark:bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-opacity-90 transition-colors mx-auto">
+                    <span class="material-symbols-outlined mr-2">rate_review</span>
+                    <span class="truncate">Написать отзыв</span>
+                </button>
+            `;
+        } else {
+            reviewButton.innerHTML = `
+                <a href="login.html" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary-alt/10 dark:bg-primary/20 text-primary-alt dark:text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-alt/20 dark:hover:bg-primary/30 transition-colors mx-auto">
+                    <span class="material-symbols-outlined mr-2">login</span>
+                    <span class="truncate">Войдите, чтобы написать отзыв</span>
+                </a>
+            `;
+        }
         reviewsContainer.appendChild(reviewButton);
 
         if (!reviews || reviews.length === 0) {
@@ -477,9 +486,7 @@ function createEditReviewModal(review) {
 
     document.body.appendChild(reviewModal);
     
-    // Позволяем скроллить страницу сзади и закрывать модальное окно при клике на backdrop
     reviewModal.addEventListener('click', function(e) {
-        // Закрываем модальное окно, если клик был на backdrop (внешний div или div с bg-black)
         if (e.target === reviewModal || (e.target.classList.contains('bg-black') && e.target.classList.contains('backdrop-blur-sm'))) {
             closeReviewModal();
         }
@@ -738,7 +745,7 @@ let reviewModal = null;
 
 function openReviewModal() {
     if (!apiService.token) {
-        showNotification('Please login to write a review', 'error');
+        showNotification('Сначала войдите в аккаунт', 'error');
         return;
     }
 
@@ -870,7 +877,7 @@ async function submitReview(event) {
     const submitBtn = document.getElementById('submitReviewBtn');
 
     if (!rating || !comment) {
-        showNotification('Please provide both rating and comment', 'error');
+        showNotification('Укажите оценку и комментарий', 'error');
         return;
     }
 
@@ -891,7 +898,7 @@ async function submitReview(event) {
         showNotification('Review submitted successfully!', 'success');
         closeReviewModal();
 
-        await loadReviews(currentBookId);
+        await loadReviews(currentBookId, response);
 
         await updateBookRating();
 
@@ -899,13 +906,13 @@ async function submitReview(event) {
         console.error('Error submitting review:', error);
 
         if (error.message.includes('401') || error.message.includes('403')) {
-            showNotification('Authentication failed. Please log in again.', 'error');
+            showNotification('Ошибка авторизации. Пожалуйста, войдите снова.', 'error');
         } else if (error.message.includes('400')) {
-            showNotification('Invalid review data. Please check your input.', 'error');
+            showNotification('Некорректные данные отзыва. Проверьте ввод.', 'error');
         } else if (error.message.includes('409')) {
-            showNotification('You have already reviewed this book.', 'error');
+            showNotification('Вы уже оставляли отзыв для этой книги.', 'error');
         } else {
-            showNotification('Failed to submit review. Please try again.', 'error');
+            showNotification('Не удалось отправить отзыв. Попробуйте еще раз.', 'error');
         }
 
         submitBtn.disabled = false;

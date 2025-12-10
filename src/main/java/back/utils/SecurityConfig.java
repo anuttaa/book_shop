@@ -49,7 +49,7 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET, "/profile").permitAll()
         .requestMatchers("/payment", "/payment/**").permitAll()
         .requestMatchers(HttpMethod.HEAD, "/payment").permitAll()
-
+        .requestMatchers("/api/users/admin/all").permitAll()
         // Static resources
         .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/favicon.ico",
           "/login.html", "/register.html", "/book.html", "/catalog.html",

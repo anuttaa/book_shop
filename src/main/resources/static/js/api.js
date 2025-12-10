@@ -413,6 +413,17 @@ class ApiService {
        });
    }
 
+  async createPayment(paymentData) {
+      return this.request('/api/payments', {
+          method: 'POST',
+          body: JSON.stringify(paymentData)
+      });
+  }
+
+  async getPaymentByOrder(orderId) {
+      return this.request(`/api/payments/by-order/${orderId}`);
+  }
+
    async deleteOrder(orderId) {
        return this.request(`/api/orders/${orderId}`, {
            method: 'DELETE'

@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     setupPasswordToggle();
     setupUsernameValidation();
+    setupEmailValidation(); // Добавляем вызов валидации email
 
     if (apiService.token) {
         showNotification('Вы уже вошли. Перенаправление...', 'info');
@@ -20,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const submitButton = this.querySelector('button[type="submit"]');
-
-            
 
             if (!username || !email || !password || !confirmPassword) {
                 showNotification('Заполните все поля', 'error');
@@ -43,18 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            const isUsernameAvailable = await checkUsernameAvailability(username);
-            if (!isUsernameAvailable) {
-                showNotification('Имя пользователя уже занято. Выберите другое.', 'error');
-                return;
-            }
-
-            const isEmailAvailable = await checkEmailAvailability(email);
-            if (!isEmailAvailable) {
-                showNotification('Этот email уже зарегистрирован. Используйте другой или войдите.', 'error');
-                return;
-            }
-
             try {
                 submitButton.textContent = 'Создание аккаунта...';
                 submitButton.disabled = true;
@@ -64,8 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     email: email,
                     password: password
                 };
-
-                
 
                 const result = await apiService.register(userData);
                 
@@ -86,18 +71,18 @@ document.addEventListener('DOMContentLoaded', function() {
                      lowerCaseError.includes('already exists') ||
                      lowerCaseError.includes('occupied') ||
                      lowerCaseError.includes('duplicate'))) {
-                    showNotification('This username is already taken. Please choose a different one.', 'error');
+                    showNotification('Имя пользователя уже занято. Выберите другое.', 'error');
                 } else if (lowerCaseError.includes('email') &&
                           (lowerCaseError.includes('taken') ||
                            lowerCaseError.includes('already exists') ||
                            lowerCaseError.includes('occupied') ||
                            lowerCaseError.includes('duplicate'))) {
-                    showNotification('This email is already registered. Please use a different email or login.', 'error');
+                    showNotification('Этот email уже зарегистрирован. Используйте другой или войдите.', 'error');
                 } else {
-                    showNotification('Registration failed: ' + errorMessage, 'error');
+                    showNotification('Ошибка регистрации: ' + errorMessage, 'error');
                 }
             } finally {
-                submitButton.textContent = 'Create Account';
+                submitButton.textContent = 'Создать аккаунт';
                 submitButton.disabled = false;
             }
         });
@@ -115,7 +100,7 @@ async function checkUsernameAvailability(username) {
         return !userExists;
     } catch (error) {
         console.error('Username availability check error:', error);
-        return true;
+        return true; // Возвращаем true при ошибке, чтобы не блокировать регистрацию
     }
 }
 
@@ -128,7 +113,7 @@ async function checkEmailAvailability(email) {
         return !emailExists;
     } catch (error) {
         console.error('Email availability check error:', error);
-        return true;
+        return true; // Возвращаем true при ошибке, чтобы не блокировать регистрацию
     }
 }
 
@@ -176,60 +161,65 @@ function setupEmailValidation() {
 
 function updateUsernameValidationUI(isAvailable, fieldType) {
     const usernameInput = document.getElementById('username');
-    const existingFeedback = usernameInput.parentNode.querySelector('.username-feedback');
+    const existingFeedback = usernameInput.parentNode.querySelector('.validation-feedback');
 
     if (existingFeedback) {
         existingFeedback.remove();
     }
 
     const feedback = document.createElement('div');
-    feedback.className = `username-feedback text-sm mt-1`;
-    feedback.style.color = isAvailable ? '#522B47' : '#522B47';
-    feedback.textContent = isAvailable ? 'Имя пользователя доступно' : 'Имя пользователя занято';
-
-    usernameInput.parentNode.appendChild(feedback);
-
-    if (isAvailable) {
-        usernameInput.classList.remove('border-red-500','border-green-500');
-        usernameInput.style.borderColor = '#E0DDCF';
+    feedback.className = `validation-feedback text-sm mt-1`;
+    
+    if (usernameInput.value.length >= 3) {
+        feedback.style.color = isAvailable ? '#2E7D32' : '#D32F2F';
+        feedback.textContent = isAvailable ? 'Имя пользователя доступно' : 'Имя пользователя занято';
+        usernameInput.style.borderColor = isAvailable ? '#2E7D32' : '#D32F2F';
     } else {
-        usernameInput.classList.remove('border-red-500','border-green-500');
+        feedback.style.color = '#757575';
+        feedback.textContent = 'Минимум 3 символа';
         usernameInput.style.borderColor = '#E0DDCF';
     }
+
+    usernameInput.parentNode.appendChild(feedback);
 }
 
 function updateEmailValidationUI(isAvailable) {
     const emailInput = document.getElementById('email');
-    const existingFeedback = emailInput.parentNode.querySelector('.email-feedback');
+    const existingFeedback = emailInput.parentNode.querySelector('.validation-feedback');
 
     if (existingFeedback) {
         existingFeedback.remove();
     }
 
     const feedback = document.createElement('div');
-    feedback.className = `email-feedback text-sm mt-1 ${isAvailable ? 'text-green-600' : 'text-red-600'}`;
-    feedback.textContent = isAvailable ? 'Email is available' : 'Email is already registered';
+    feedback.className = `validation-feedback text-sm mt-1`;
+    
+    if (emailInput.value.length >= 5 && isValidEmail(emailInput.value)) {
+        feedback.style.color = isAvailable ? '#2E7D32' : '#D32F2F';
+        feedback.textContent = isAvailable ? 'Email доступен' : 'Email уже зарегистрирован';
+        emailInput.style.borderColor = isAvailable ? '#2E7D32' : '#D32F2F';
+    } else if (emailInput.value.length > 0 && !isValidEmail(emailInput.value)) {
+        feedback.style.color = '#D32F2F';
+        feedback.textContent = 'Введите корректный email';
+        emailInput.style.borderColor = '#D32F2F';
+    } else {
+        feedback.style.color = '#757575';
+        feedback.textContent = 'Введите email';
+        emailInput.style.borderColor = '#E0DDCF';
+    }
 
     emailInput.parentNode.appendChild(feedback);
-
-    if (isAvailable) {
-        emailInput.classList.remove('border-red-500');
-        emailInput.classList.add('border-green-500');
-    } else {
-        emailInput.classList.remove('border-green-500');
-        emailInput.classList.add('border-red-500');
-    }
 }
 
 function clearValidationUI(fieldType) {
     const input = document.getElementById(fieldType);
-    const existingFeedback = input.parentNode.querySelector(`.${fieldType}-feedback`);
+    const existingFeedback = input.parentNode.querySelector('.validation-feedback');
 
     if (existingFeedback) {
         existingFeedback.remove();
     }
 
-    input.classList.remove('border-red-500', 'border-green-500');
+    input.style.borderColor = '#E0DDCF';
 }
 
 function setupPasswordToggle() {
@@ -281,5 +271,3 @@ function updateNavigationLinks() {
         }
     });
 }
-
-setupEmailValidation();

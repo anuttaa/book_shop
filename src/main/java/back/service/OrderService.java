@@ -77,7 +77,7 @@ public class OrderService {
   }
 
   public List<OrderDTO> getOrdersByUser(Long userId) {
-    return orderDao.findByUserId(userId).stream()
+    return orderDao.findByUserIdWithItems(userId).stream()
       .map(orderMapper::toDTO)
       .collect(Collectors.toList());
   }

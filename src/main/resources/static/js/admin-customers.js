@@ -92,7 +92,7 @@ function loadCustomersPage(container) {
             </div>
 
             <!-- Table -->
-            <div class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">
+            <div class="overflow-hidden rounded-lg border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark">
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[1000px]">
                         <thead>
@@ -222,7 +222,7 @@ function loadCustomersPage(container) {
                     <input type="hidden" name="userId" id="editUserId">
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Username *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Имя пользователя *</label>
                         <input type="text" name="username" id="editUsername" required
                                class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
                     </div>
@@ -234,28 +234,28 @@ function loadCustomersPage(container) {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Role *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Роль *</label>
                         <select name="role" id="editRole" required
                                 class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                            <option value="guest">Guest</option>
+                            <option value="user">Пользователь</option>
+                            <option value="admin">Администратор</option>
+                            <option value="guest">Гость</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Status *</label>
+                        <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Статус *</label>
                         <select name="status" id="editStatus" required
                                 class="w-full rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark px-3 py-2 text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary">
-                            <option value="active">Active</option>
-                            <option value="blocked">Blocked</option>
+                            <option value="active">Активен</option>
+                            <option value="blocked">Заблокирован</option>
                         </select>
                     </div>
                 </form>
 
                 <div class="flex justify-between items-center p-6 border-t border-border-light dark:border-border-dark">
-                    <button type="button" onclick="deleteUser()"
-                            class="px-4 py-2 bg-destructive text-destructive-content rounded-lg hover:opacity-90 transition-opacity">
+                        <button type="button" onclick="deleteUser()"
+                            class="px-4 py-2 bg-destructive text-white rounded-lg hover:opacity-90 transition-opacity">
                         Удалить пользователя
                     </button>
                     <div class="flex gap-3">
@@ -264,7 +264,7 @@ function loadCustomersPage(container) {
                             Отмена
                         </button>
                         <button type="button" onclick="submitEditUserForm()"
-                                class="px-4 py-2 bg-primary text-primary-content rounded-lg hover:opacity-90 transition-opacity">
+                                class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
                             Сохранить
                         </button>
                     </div>

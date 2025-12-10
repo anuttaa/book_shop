@@ -5,6 +5,11 @@ let analyticsData = {
     topBooks: []
 };
 
+let previousPeriodData = {
+    stats: {},
+    revenueData: []
+};
+
 let currentDateRange = '30days';
 
 function loadAnalyticsPage(container) {
@@ -13,8 +18,8 @@ function loadAnalyticsPage(container) {
             <!-- PageHeading -->
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div class="flex flex-col gap-1">
-                    <h1 class="text-text-light dark:text-text-dark text-3xl font-bold tracking-tight">Sales & Popularity Analytics</h1>
-                    <p class="text-subtle-light dark:text-subtle-dark text-base font-normal leading-normal">View sales performance and book trends.</p>
+                    <h1 class="text-text-light dark:text-text-dark text-3xl font-bold tracking-tight">Аналитики продаж и популярности</h1>
+                    <p class="text-subtle-light dark:text-subtle-dark text-base font-normal leading-normal">Посмотрите успех продаж и книжные тренды.</p>
                 </div>
             </div>
 
@@ -24,26 +29,27 @@ function loadAnalyticsPage(container) {
                     <button class="date-range-toggle flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark px-3 hover:bg-background-light dark:hover:bg-background-dark transition-colors"
                             data-target="dateRangeFilter">
                         <span class="material-symbols-outlined text-subtle-light dark:text-subtle-dark">calendar_today</span>
-                        <p class="text-text-light dark:text-text-dark text-sm font-medium leading-normal">Date Range: Last 30 Days</p>
+                        <p class="text-text-light dark:text-text-dark text-sm font-medium leading-normal">Период: Последние 30 дней</p>
                         <span class="material-symbols-outlined text-subtle-light dark:text-subtle-dark">expand_more</span>
                     </button>
+                    <p class="text-xs text-subtle-light dark:text-subtle-dark mt-1">Сравнение с предыдущим периодом такой же длины</p>
                     <div id="dateRangeFilter" class="filter-dropdown hidden absolute mt-2 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark rounded-lg p-3 shadow-lg w-48 z-10">
                         <div class="space-y-2">
                             <button class="flex w-full items-center px-2 py-1 text-sm text-text-light dark:text-text-dark hover:bg-background-light dark:hover:bg-background-dark rounded transition-colors" onclick="setDateRange('7days')">
-                                Last 7 Days
+                                Последние 7 дней
                             </button>
                             <button class="flex w-full items-center px-2 py-1 text-sm text-text-light dark:text-text-dark hover:bg-background-light dark:hover:bg-background-dark rounded transition-colors" onclick="setDateRange('30days')">
-                                Last 30 Days
+                                Последние 30 дней
                             </button>
                             <button class="flex w-full items-center px-2 py-1 text-sm text-text-light dark:text-text-dark hover:bg-background-light dark:hover:bg-background-dark rounded transition-colors" onclick="setDateRange('90days')">
-                                Last 90 Days
+                                Последние 90 дней
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <button class="flex h-9 min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-4 text-white text-sm font-bold leading-normal tracking-wide shadow-sm hover:opacity-90 transition-opacity" onclick="loadAnalyticsData()">
-                    <span>Apply Filters</span>
+                    <span>Применить фильтры</span>
                 </button>
             </div>
 
@@ -84,12 +90,12 @@ function loadAnalyticsPage(container) {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <!-- Revenue Chart -->
                 <div class="flex lg:col-span-2 flex-col gap-4 rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark p-6">
-                    <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal">Revenue Over Time</p>
+                    <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal">Выручка по времени</p>
                     <div class="flex items-baseline gap-2">
                         <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight" id="revenueTotal">$0</p>
                         <p class="text-success text-base font-medium leading-normal" id="revenueChange">+0%</p>
                     </div>
-                    <div class="flex min-h-[250px] flex-1 flex-col justify-end" id="revenueChart">
+                    <div class="flex min-h-[300px] flex-1 flex-col justify-end" id="revenueChart">
                         <div class="flex items-center justify-center h-full">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                         </div>
@@ -98,7 +104,7 @@ function loadAnalyticsPage(container) {
 
                 <!-- Genre Chart -->
                 <div class="flex flex-col gap-2 rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark p-6">
-                    <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal">Sales by Genre</p>
+                    <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal">Продажи по жанрам</p>
                     <div class="flex items-center justify-center py-2" id="genreChart">
                         <div class="flex items-center justify-center">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -114,24 +120,24 @@ function loadAnalyticsPage(container) {
             <div class="rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden">
                 <div class="p-6 flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Top Selling Books</h3>
-                        <p class="text-sm text-subtle-light dark:text-subtle-dark">Detailed sales data for the selected period.</p>
+                        <h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Топ продаваемых книг</h3>
+                        <p class="text-sm text-subtle-light dark:text-subtle-dark">Детальные данные о продажах за выбранный период.</p>
                     </div>
                     <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark text-sm font-bold leading-normal tracking-[0.015em] border border-border-light dark:border-border-dark hover:bg-background-light/80 dark:hover:bg-background-dark/80 transition-colors"
                             onclick="exportToCSV()">
                         <span class="material-symbols-outlined text-base">download</span>
-                        <span class="truncate">Export to CSV</span>
+                        <span class="truncate">Экспорт в CSV</span>
                     </button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-subtle-light dark:text-subtle-dark">
                         <thead class="text-xs text-text-light dark:text-text-dark uppercase bg-background-light dark:bg-background-dark">
                             <tr>
-                                <th class="px-6 py-3" scope="col">Book Title</th>
-                                <th class="px-6 py-3" scope="col">Author</th>
-                                <th class="px-6 py-3" scope="col">Genre</th>
-                                <th class="px-6 py-3" scope="col">Units Sold</th>
-                                <th class="px-6 py-3" scope="col">Total Revenue</th>
+                                <th class="px-6 py-3" scope="col">Название книги</th>
+                                <th class="px-6 py-3" scope="col">Автор</th>
+                                <th class="px-6 py-3" scope="col">Жанр</th>
+                                <th class="px-6 py-3" scope="col">Продано единиц</th>
+                                <th class="px-6 py-3" scope="col">Общая выручка</th>
                             </tr>
                         </thead>
                         <tbody id="topBooksTable">
@@ -139,14 +145,14 @@ function loadAnalyticsPage(container) {
                             <tr>
                                 <td colspan="5" class="px-6 py-8 text-center">
                                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                                    <p class="mt-2 text-subtle-light dark:text-subtle-dark">Loading top books...</p>
+                                    <p class="mt-2 text-subtle-light dark:text-subtle-dark">Загрузка топ книг...</p>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="flex items-center justify-between p-4 border-t border-border-light dark:border-border-dark">
-                    <span class="text-sm text-subtle-light dark:text-subtle-dark" id="tableInfo">Showing 0 results</span>
+                    <span class="text-sm text-subtle-light dark:text-subtle-dark" id="tableInfo">Показано 0 результатов</span>
                 </div>
             </div>
         </div>
@@ -191,11 +197,11 @@ function setDateRange(range) {
     const button = document.querySelector('.date-range-toggle p');
     if (button) {
         const text = {
-            '7days': 'Last 7 Days',
-            '30days': 'Last 30 Days',
-            '90days': 'Last 90 Days'
+            '7days': 'Последние 7 дней',
+            '30days': 'Последние 30 дней',
+            '90days': 'Последние 90 дней'
         }[range];
-        button.textContent = `Date Range: ${text}`;
+        button.textContent = `Период: ${text}`;
     }
     closeAllAnalyticsFilters();
 }
@@ -218,9 +224,11 @@ async function loadAnalyticsData() {
             })
         ]);
 
-        
+        // Загружаем данные за предыдущий период для сравнения
+        const previousPeriodOrders = await loadPreviousPeriodOrders(orders);
 
         processAnalyticsData(orders, books, users);
+        processPreviousPeriodData(previousPeriodOrders, books, users);
         displayAnalyticsData();
     } catch (error) {
         console.error('Error loading analytics data:', error);
@@ -260,6 +268,53 @@ function processAnalyticsData(orders, books, users) {
             revenueData: [],
             genreData: [],
             topBooks: []
+        };
+    }
+}
+
+async function loadPreviousPeriodOrders(allOrders) {
+    if (!Array.isArray(allOrders)) return [];
+    
+    const now = new Date();
+    const daysBack = currentDateRange === '7days' ? 7 : currentDateRange === '30days' ? 30 : 90;
+    
+    // Предыдущий период - такой же длины, но раньше
+    // Например, если текущий период - последние 30 дней (дни 0-30 назад),
+    // то предыдущий период - это дни 31-60 назад
+    const periodEnd = new Date(now);
+    periodEnd.setDate(periodEnd.getDate() - daysBack);
+    periodEnd.setHours(23, 59, 59, 999); // Конец дня
+    
+    const periodStart = new Date(periodEnd);
+    periodStart.setDate(periodStart.getDate() - daysBack);
+    periodStart.setHours(0, 0, 0, 0); // Начало дня
+    
+    const previousOrders = allOrders.filter(order => {
+        if (!order || !order.createdAt) return false;
+        try {
+            const orderDate = new Date(order.createdAt);
+            return orderDate >= periodStart && orderDate <= periodEnd && !isNaN(orderDate.getTime());
+        } catch (error) {
+            return false;
+        }
+    });
+    
+    console.log(`Предыдущий период: ${periodStart.toLocaleDateString('ru-RU')} - ${periodEnd.toLocaleDateString('ru-RU')}, найдено заказов: ${previousOrders.length}`);
+    
+    return previousOrders;
+}
+
+function processPreviousPeriodData(orders, books, users) {
+    try {
+        const validOrders = Array.isArray(orders) ? orders : [];
+        
+        previousPeriodData.stats = calculateStats(validOrders, books, users);
+        previousPeriodData.revenueData = calculateRevenueData(validOrders);
+    } catch (error) {
+        console.error('Error processing previous period data:', error);
+        previousPeriodData = {
+            stats: {},
+            revenueData: []
         };
     }
 }
@@ -305,8 +360,8 @@ function calculateStats(orders, books, users) {
     const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
 
     const periodStart = new Date();
-    periodStart.setDate(periodStart.getDate() -
-        (currentDateRange === '7days' ? 7 : currentDateRange === '30days' ? 30 : 90));
+    const daysBack = currentDateRange === '7days' ? 7 : currentDateRange === '30days' ? 30 : 90;
+    periodStart.setDate(periodStart.getDate() - daysBack);
 
     const newCustomers = users.filter(user => {
         if (!user || !user.createdAt) return false;
@@ -323,7 +378,8 @@ function calculateStats(orders, books, users) {
         totalUnits,
         avgOrderValue,
         newCustomers,
-        totalOrders: orders.length
+        totalOrders: orders.length,
+        daysBack: daysBack
     };
 }
 
@@ -459,6 +515,7 @@ function displayAnalyticsData() {
 
 function displayStats() {
     const stats = analyticsData.stats;
+    const prevStats = getPreviousPeriodStats();
     const statsContainer = document.getElementById('statsCards');
 
     if (!statsContainer) return;
@@ -476,49 +533,67 @@ function displayStats() {
         return;
     }
 
+    const revenueGrowth = calculateGrowth(stats.totalRevenue, prevStats.totalRevenue, 'revenue');
+    const unitsGrowth = calculateGrowth(stats.totalUnits, prevStats.totalUnits, 'units');
+    const avgOrderGrowth = calculateGrowth(stats.avgOrderValue, prevStats.avgOrderValue, 'avgOrder');
+    const customersGrowth = calculateGrowth(stats.newCustomers, prevStats.newCustomers, 'customers');
+
+    const formatGrowth = (growth) => {
+        if (growth === null) {
+            return '<span class="text-subtle-light dark:text-subtle-dark text-xs">Нет данных для сравнения</span>';
+        }
+        const colorClass = growth >= 0 ? 'text-success' : 'text-danger';
+        const sign = growth >= 0 ? '+' : '';
+        return `<span class="${colorClass} text-sm font-medium leading-normal">${sign}${growth}% к предыдущему периоду</span>`;
+    };
+
     statsContainer.innerHTML = `
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
             <p class="text-subtle-light text-base font-medium leading-normal">Всего выручка</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">$${formatNumber(stats.totalRevenue || 0)}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.totalRevenue)}% к предыдущему периоду</p>
+            ${formatGrowth(revenueGrowth)}
         </div>
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
             <p class="text-subtle-light text-base font-medium leading-normal">Продано единиц</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">${formatNumber(stats.totalUnits || 0)}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.totalUnits)}% к предыдущему периоду</p>
+            ${formatGrowth(unitsGrowth)}
         </div>
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
             <p class="text-subtle-light text-base font-medium leading-normal">Средний чек</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">$${(stats.avgOrderValue || 0).toFixed(2)}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.avgOrderValue)}% к предыдущему периоду</p>
+            ${formatGrowth(avgOrderGrowth)}
         </div>
         <div class="flex flex-col gap-2 rounded-xl p-6 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark">
             <p class="text-subtle-light text-base font-medium leading-normal">Новые покупатели</p>
             <p class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight">${stats.newCustomers || 0}</p>
-            <p class="text-success text-sm font-medium leading-normal">+${calculateGrowth(stats.newCustomers)}% к предыдущему периоду</p>
+            ${formatGrowth(customersGrowth)}
         </div>
     `;
 }
 
 function displayRevenueChart() {
     const revenueData = analyticsData.revenueData;
+    const prevRevenueData = previousPeriodData.revenueData || [];
     const totalRevenue = revenueData?.reduce((sum, day) => sum + (day.revenue || 0), 0) || 0;
-    const revenueChange = calculateGrowth(totalRevenue);
-
-    
+    const prevTotalRevenue = prevRevenueData?.reduce((sum, day) => sum + (day.revenue || 0), 0) || 0;
+    const revenueChange = calculateGrowth(totalRevenue, prevTotalRevenue, 'revenue');
 
     const revenueTotal = document.getElementById('revenueTotal');
     const revenueChangeElement = document.getElementById('revenueChange');
 
     if (revenueTotal) revenueTotal.textContent = `$${formatNumber(totalRevenue)}`;
     if (revenueChangeElement) {
-        revenueChangeElement.textContent = `${revenueChange >= 0 ? '+' : ''}${revenueChange}%`;
-        revenueChangeElement.className = `text-base font-medium leading-normal ${revenueChange >= 0 ? 'text-success' : 'text-danger'}`;
+        if (revenueChange === null) {
+            revenueChangeElement.textContent = 'Нет данных для сравнения';
+            revenueChangeElement.className = 'text-base font-medium leading-normal text-subtle-light dark:text-subtle-dark';
+        } else {
+            revenueChangeElement.textContent = `${revenueChange >= 0 ? '+' : ''}${revenueChange}%`;
+            revenueChangeElement.className = `text-base font-medium leading-normal ${revenueChange >= 0 ? 'text-success' : 'text-danger'}`;
+        }
     }
 
     const chartContainer = document.getElementById('revenueChart');
     if (chartContainer) {
-        
         chartContainer.innerHTML = createRevenueSVG(revenueData);
     }
 }
@@ -536,41 +611,107 @@ function createRevenueSVG(data) {
     );
 
     if (validData.length === 0) {
-        return createFallbackChart('No valid revenue data available');
+        return createFallbackChart('Нет валидных данных по выручке');
     }
 
     try {
         const maxRevenue = Math.max(...validData.map(d => d.revenue));
         const minRevenue = Math.min(...validData.map(d => d.revenue));
-        const revenueRange = Math.max(maxRevenue - minRevenue, 1);
+        const revenueRange = Math.max(maxRevenue - minRevenue, maxRevenue * 0.1, 1);
 
-        const svgWidth = 400;
-        const svgHeight = 150;
-        const padding = 20;
+        const svgWidth = 600;
+        const svgHeight = 250;
+        const padding = { top: 30, right: 20, bottom: 40, left: 50 };
 
-        const linePath = createLinePath(validData, svgWidth, svgHeight, padding, maxRevenue, revenueRange);
-        const areaPath = createAreaPath(validData, svgWidth, svgHeight, padding, maxRevenue, revenueRange);
+        // Создаем более детальный график с осями и метками
+        const chartWidth = svgWidth - padding.left - padding.right;
+        const chartHeight = svgHeight - padding.top - padding.bottom;
+
+        const linePath = createLinePath(validData, chartWidth, chartHeight, padding, maxRevenue, revenueRange);
+        const areaPath = createAreaPath(validData, chartWidth, chartHeight, padding, maxRevenue, revenueRange);
+        const gridLines = createGridLines(chartWidth, chartHeight, padding, maxRevenue, revenueRange);
+        const axisLabels = createAxisLabels(validData, chartWidth, chartHeight, padding, maxRevenue);
 
         if (!linePath || linePath.includes('NaN')) {
-            return createFallbackChart('Unable to generate revenue chart');
+            return createFallbackChart('Не удалось сгенерировать график выручки');
         }
 
         return `
-            <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="none">
-                <path d="${areaPath}" fill="url(#gradient)" fill-opacity="0.2"/>
-                <path d="${linePath}" stroke="#522B47" stroke-width="2" stroke-linecap="round" fill="none"/>
-                <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#522B47" stop-opacity="0.3"/>
-                        <stop offset="100%" stop-color="#522B47" stop-opacity="0"/>
-                    </linearGradient>
-                </defs>
-            </svg>
+            <div class="relative w-full h-full">
+                <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" class="overflow-visible">
+                    <!-- Сетка -->
+                    ${gridLines}
+                    
+                    <!-- Область под графиком -->
+                    <path d="${areaPath}" fill="url(#gradient)" fill-opacity="0.3"/>
+                    
+                    <!-- Линия графика -->
+                    <path d="${linePath}" stroke="#522B47" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    
+                    <!-- Точки на графике -->
+                    ${validData.map((d, i) => {
+                        const x = padding.left + (i / Math.max(validData.length - 1, 1)) * chartWidth;
+                        const yValue = revenueRange > 0 ? (d.revenue / maxRevenue) : 0.5;
+                        const y = padding.top + chartHeight - yValue * chartHeight;
+                        return `<circle cx="${x}" cy="${y}" r="4" fill="#522B47" stroke="white" stroke-width="2"/>`;
+                    }).join('')}
+                    
+                    <!-- Подписи осей -->
+                    ${axisLabels}
+                    
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#522B47" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="#522B47" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
         `;
     } catch (error) {
         console.error('Error creating revenue chart:', error);
-        return createFallbackChart('Error generating revenue chart');
+        return createFallbackChart('Ошибка при создании графика выручки');
     }
+}
+
+function createGridLines(chartWidth, chartHeight, padding, maxRevenue, revenueRange) {
+    const gridLines = [];
+    const numGridLines = 5;
+    
+    // Горизонтальные линии
+    for (let i = 0; i <= numGridLines; i++) {
+        const y = padding.top + (chartHeight / numGridLines) * i;
+        const value = maxRevenue - (revenueRange / numGridLines) * i;
+        gridLines.push(`
+            <line x1="${padding.left}" y1="${y}" x2="${padding.left + chartWidth}" y2="${y}" 
+                  stroke="#e5e7eb" stroke-width="1" stroke-dasharray="2,2"/>
+            <text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" 
+                  font-size="10" fill="#6b7280">$${formatNumber(Math.round(value))}</text>
+        `);
+    }
+    
+    return gridLines.join('');
+}
+
+function createAxisLabels(data, chartWidth, chartHeight, padding, maxRevenue) {
+    if (!data || data.length === 0) return '';
+    
+    const labels = [];
+    const numLabels = Math.min(data.length, 7); // Максимум 7 меток
+    
+    for (let i = 0; i < numLabels; i++) {
+        const index = Math.floor((i / (numLabels - 1)) * (data.length - 1));
+        const x = padding.left + (index / Math.max(data.length - 1, 1)) * chartWidth;
+        const date = new Date(data[index].date);
+        const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+        
+        labels.push(`
+            <text x="${x}" y="${padding.top + chartHeight + 20}" text-anchor="middle" 
+                  font-size="10" fill="#6b7280">${dateStr}</text>
+        `);
+    }
+    
+    return labels.join('');
 }
 
 function createFallbackChart(message = 'Chart data not available') {
@@ -582,30 +723,31 @@ function createFallbackChart(message = 'Chart data not available') {
     `;
 }
 
-function createLinePath(data, width, height, padding, maxValue, range) {
+function createLinePath(data, chartWidth, chartHeight, padding, maxValue, range) {
     if (!data || data.length === 0) return '';
 
-    const xStep = (width - padding * 2) / Math.max(data.length - 1, 1);
+    const xStep = chartWidth / Math.max(data.length - 1, 1);
     const points = data.map((d, i) => {
-        const x = padding + i * xStep;
+        const x = padding.left + i * xStep;
         const yValue = range > 0 ? (d.revenue / maxValue) : 0.5;
-        const y = height - padding - yValue * (height - padding * 2);
+        const y = padding.top + chartHeight - yValue * chartHeight;
         return `${x},${y}`;
     }).filter(point => !point.includes('NaN'));
 
     return points.length > 0 ? `M ${points.join(' L ')}` : '';
 }
 
-function createAreaPath(data, width, height, padding, maxValue, range) {
+function createAreaPath(data, chartWidth, chartHeight, padding, maxValue, range) {
     if (!data || data.length === 0) return '';
 
-    const linePath = createLinePath(data, width, height, padding, maxValue, range);
+    const linePath = createLinePath(data, chartWidth, chartHeight, padding, maxValue, range);
     if (!linePath) return '';
 
-    const xStep = (width - padding * 2) / Math.max(data.length - 1, 1);
-    const lastX = padding + (data.length - 1) * xStep;
+    const xStep = chartWidth / Math.max(data.length - 1, 1);
+    const lastX = padding.left + (data.length - 1) * xStep;
+    const bottomY = padding.top + chartHeight;
 
-    return `${linePath} L ${lastX},${height - padding} L ${padding},${height - padding} Z`;
+    return `${linePath} L ${lastX},${bottomY} L ${padding.left},${bottomY} Z`;
 }
 
 function displayGenreChart() {
@@ -746,7 +888,7 @@ function displayTopBooks() {
             `).join('');
         }
 
-        tableInfo.textContent = `Показано 1–${Math.min(topBooks.length, 10)} из ${topBooks.length}`;
+        tableInfo.textContent = `Показано 1–${Math.min(topBooks.length, 10)} из ${topBooks.length} результатов`;
     }
 }
 
@@ -755,8 +897,38 @@ function formatNumber(num) {
     return new Intl.NumberFormat().format(Math.round(num));
 }
 
-function calculateGrowth(currentValue) {
-    return Math.floor(Math.random() * 20) + 5;
+function calculateGrowth(currentValue, previousValue, metricName) {
+    // Если нет текущих данных
+    if (!currentValue || currentValue === 0) {
+        // Если и предыдущих нет - показываем 0
+        if (!previousValue || previousValue === 0) {
+            return 0;
+        }
+        // Если были данные, а сейчас нет - это -100%
+        return -100;
+    }
+    
+    // Если нет предыдущих данных, но есть текущие
+    if (!previousValue || previousValue === 0) {
+        // Показываем, что это новый показатель (не показываем бесконечный рост)
+        return null; // Вернем null, чтобы показать "Нет данных для сравнения"
+    }
+    
+    const growth = ((currentValue - previousValue) / previousValue) * 100;
+    return Math.round(growth * 10) / 10; // Округляем до 1 знака после запятой
+}
+
+function getPreviousPeriodStats() {
+    if (!previousPeriodData || !previousPeriodData.stats) {
+        return {
+            totalRevenue: 0,
+            totalUnits: 0,
+            avgOrderValue: 0,
+            newCustomers: 0,
+            totalOrders: 0
+        };
+    }
+    return previousPeriodData.stats;
 }
 
 function showAnalyticsLoadingState() {
@@ -770,8 +942,8 @@ function showAnalyticsError(message) {
             <div class="col-span-4 p-8 text-center text-danger">
                 <span class="material-symbols-outlined text-4xl mb-2">error</span>
                 <p>${message}</p>
-                <button onclick="loadAnalyticsData()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90">
-                    Try Again
+                    <button onclick="loadAnalyticsData()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90">
+                    Попробовать снова
                 </button>
             </div>
         `;
@@ -809,7 +981,7 @@ function exportToCSV() {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    showNotification('Data exported successfully!', 'success');
+    showNotification('Данные успешно экспортированы!', 'success');
 }
 
 function closeAllOrdersFilters() {

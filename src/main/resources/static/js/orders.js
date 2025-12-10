@@ -145,13 +145,13 @@ function createOrderElement(order) {
                 </div>
                 <div class="flex flex-wrap justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     ${order.status === "created" ? `
-                        <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors pay-btn" data-id="${order.id}">
+                        <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors pay-btn" data-id="${order.id}">
                             <span class="material-symbols-outlined text-base">payments</span>
                             Оплатить
                         </button>
                     ` : ""}
                     ${order.status === "created" || order.status === "cancelled" ? `
-                        <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors delete-btn" data-id="${order.id}">
+                        <button class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors delete-btn" data-id="${order.id}">
                             <span class="material-symbols-outlined text-base">delete</span>
                             Удалить
                         </button>

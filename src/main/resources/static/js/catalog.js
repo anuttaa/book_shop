@@ -300,6 +300,10 @@ function renderPagination() {
     `);
 }
 
+window.goToCatalogPage = goToCatalogPage;
+window.prevCatalogPage = prevCatalogPage;
+window.nextCatalogPage = nextCatalogPage;
+
 function goToCatalogPage(page) {
     const pageSize = 8;
     if (page>=1 && page<=totalPages) {
